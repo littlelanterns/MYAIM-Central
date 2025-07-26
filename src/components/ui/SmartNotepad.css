@@ -1,0 +1,183 @@
+/* src/components/ui/SmartNotepad.css - FINAL with theme-compatible scrollbars */
+
+.clipboard-container {
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  /* THEME-AWARE: Uses the theme's secondary and text colors for the "clipboard back" */
+  background: linear-gradient(145deg, var(--secondary-color, #d6a461), var(--text-color, #5a4033));
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.clipboard-paper {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  /* THEME-AWARE: Uses the theme's background and accent for the "paper" */
+  background: linear-gradient(135deg, var(--background-color, #fff4ec), var(--accent-color, #d4e3d9));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.document-sections {
+  display: flex;
+  /* THEME-AWARE: Border color uses the accent color */
+  border-bottom: 1px solid var(--accent-color, #d4e3d9);
+  padding: 8px 8px 0 8px;
+  gap: 4px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.add-section-btn {
+  background: none;
+  border: none;
+  opacity: 0.5;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  order: 999; /* Move to the right side */
+  margin-left: auto; /* Push to the right */
+}
+
+/* Theme-compatible scrollbar for document sections */
+.document-sections::-webkit-scrollbar {
+  height: 6px;
+}
+
+.document-sections::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 3px;
+}
+
+.document-sections::-webkit-scrollbar-thumb {
+  background: var(--accent-color, #d4e3d9);
+  border-radius: 3px;
+}
+
+.document-sections::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color, #68a395);
+}
+
+.section-tab-container { display: flex; align-items: center; }
+
+.section-tab {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 12px;
+  /* THEME-AWARE: Text color from theme */
+  color: var(--text-color, #5a4033);
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  border-bottom: none;
+}
+
+.section-tab.active {
+  background: #fff; /* White background for active tab is perfect */
+  /* THEME-AWARE: Border color from theme */
+  border-color: var(--accent-color, #d4e3d9);
+  border-bottom: 1px solid #fff;
+  margin-bottom: -1px;
+}
+
+.delete-tab {
+  background: none;
+  border: none;
+  opacity: 0.5;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.delete-tab:hover, .add-section-btn:hover { opacity: 1; }
+
+.formatting-toolbar {
+  display: flex;
+  padding: 8px;
+  gap: 4px;
+  /* THEME-AWARE: Border color from theme */
+  border-bottom: 1px solid var(--accent-color, #d4e3d9);
+  flex-shrink: 0;
+}
+.formatting-toolbar button { background: none; border: none; padding: 4px; cursor: pointer; }
+.format-divider { width: 1px; background: var(--accent-color, #d4e3d9); margin: 0 4px; }
+
+.rich-editor {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  outline: none;
+  text-align: left;
+}
+
+/* Theme-compatible scrollbar for rich editor */
+.rich-editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rich-editor::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+}
+
+.rich-editor::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  border-radius: 4px;
+  opacity: 0.8;
+}
+
+.rich-editor::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color, #68a395);
+  opacity: 1;
+}
+
+.label-stickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  justify-content: center;
+  /* THEME-AWARE: Border color from theme */
+  border-top: 1px solid var(--accent-color, #d4e3d9);
+  flex-shrink: 0;
+}
+
+.label-sticker {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+.label-sticker:hover { transform: translateY(-1px); }
+
+/*
+ * Theme-aware sticker colors that work with your design
+ */
+.sticker-sage {
+  background: var(--primary-color, #68a395);
+  color: white;
+}
+
+.sticker-honey {
+  background: var(--secondary-color, #d6a461);
+  color: white;
+}
+
+.sticker-gold {
+  background: var(--accent-color, #f4dcb7);
+  color: var(--text-color, #5a4033);
+}
+
+/* Firefox scrollbar support */
+.rich-editor, .document-sections {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color, #68a395) rgba(0,0,0,0.05);
+}

@@ -1,0 +1,287 @@
+/* src/components/global/LilaComponents.css - Updated with LilaOptimizer modal */
+
+/* Common overlay styles */
+.lila-assist-overlay,
+.lila-help-overlay,
+.lila-optimizer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal containers */
+.lila-assist-modal,
+.lila-help-modal,
+.lila-optimizer-modal {
+  background: linear-gradient(135deg, #fff4ec, #d4e3d9);
+  border: 1px solid rgba(214, 164, 97, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.lila-assist-modal.minimized,
+.lila-help-modal.minimized,
+.lila-optimizer-modal.minimized {
+  max-height: 60px;
+  overflow: hidden;
+}
+
+/* Headers */
+.lila-assist-header,
+.lila-help-header,
+.lila-optimizer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid rgba(90, 64, 51, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(244, 220, 183, 0.5));
+  border-radius: 16px 16px 0 0;
+}
+
+.lila-assist-title,
+.lila-help-title,
+.lila-optimizer-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lila-assist-avatar,
+.lila-help-avatar,
+.lila-optimizer-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(104, 163, 149, 0.3);
+}
+
+.lila-assist-title h3,
+.lila-help-title h3,
+.lila-optimizer-title h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #5a4033;
+}
+
+.lila-assist-title p,
+.lila-help-title p,
+.lila-optimizer-title p {
+  margin: 0;
+  font-size: 12px;
+  color: #5a4033;
+  opacity: 0.7;
+}
+
+.lila-assist-controls,
+.lila-help-controls,
+.lila-optimizer-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.minimize-btn,
+.close-btn {
+  background: none;
+  border: none;
+  color: #5a4033;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.minimize-btn:hover,
+.close-btn:hover {
+  opacity: 1;
+  background: rgba(90, 64, 51, 0.1);
+}
+
+/* Messages area */
+.lila-assist-messages,
+.lila-help-messages,
+.lila-optimizer-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 300px;
+  max-height: 400px;
+}
+
+.lila-assist-messages::-webkit-scrollbar,
+.lila-help-messages::-webkit-scrollbar,
+.lila-optimizer-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lila-assist-messages::-webkit-scrollbar-track,
+.lila-help-messages::-webkit-scrollbar-track,
+.lila-optimizer-messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.lila-assist-messages::-webkit-scrollbar-thumb,
+.lila-help-messages::-webkit-scrollbar-thumb,
+.lila-optimizer-messages::-webkit-scrollbar-thumb {
+  background: rgba(90, 64, 51, 0.3);
+  border-radius: 3px;
+}
+
+/* Message styling */
+.assist-message,
+.help-message,
+.optimizer-message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.assist-message.user,
+.help-message.user,
+.optimizer-message.user {
+  align-items: flex-end;
+}
+
+.assist-message.assistant,
+.help-message.assistant,
+.optimizer-message.assistant {
+  align-items: flex-start;
+}
+
+.assist-message-content,
+.help-message-content,
+.optimizer-message-content {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.assist-message.user .assist-message-content,
+.help-message.user .help-message-content,
+.optimizer-message.user .optimizer-message-content {
+  background: linear-gradient(135deg, #68a395, #5a8c7d);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.assist-message.assistant .assist-message-content,
+.help-message.assistant .help-message-content,
+.optimizer-message.assistant .optimizer-message-content {
+  background: white;
+  color: #5a4033;
+  border: 1px solid rgba(214, 164, 97, 0.2);
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.assist-message-time,
+.help-message-time,
+.optimizer-message-time {
+  font-size: 11px;
+  opacity: 0.7;
+  color: #5a4033;
+}
+
+/* Input area */
+.lila-assist-input,
+.lila-help-input,
+.lila-optimizer-input {
+  display: flex;
+  padding: 16px;
+  border-top: 1px solid rgba(90, 64, 51, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0 0 16px 16px;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.lila-assist-input textarea,
+.lila-help-input textarea,
+.lila-optimizer-input textarea {
+  flex: 1;
+  border: 1px solid rgba(104, 163, 149, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lila-assist-input textarea:focus,
+.lila-help-input textarea:focus,
+.lila-optimizer-input textarea:focus {
+  border-color: #68a395;
+  box-shadow: 0 0 0 2px rgba(104, 163, 149, 0.2);
+}
+
+.lila-assist-input button,
+.lila-help-input button,
+.lila-optimizer-input button {
+  background: #68a395;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.lila-assist-input button:hover:not(:disabled),
+.lila-help-input button:hover:not(:disabled),
+.lila-optimizer-input button:hover:not(:disabled) {
+  background: #5a8c7d;
+}
+
+.lila-assist-input button:disabled,
+.lila-help-input button:disabled,
+.lila-optimizer-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .lila-assist-modal,
+  .lila-help-modal,
+  .lila-optimizer-modal {
+    width: 95%;
+    max-width: none;
+    margin: 10px;
+  }
+  
+  .lila-assist-messages,
+  .lila-help-messages,
+  .lila-optimizer-messages {
+    max-height: 300px;
+    min-height: 200px;
+  }
+}

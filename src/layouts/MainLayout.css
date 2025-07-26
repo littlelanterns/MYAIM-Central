@@ -1,0 +1,152 @@
+/* src/layouts/MainLayout.css - Updated with LiLa Panel area */
+
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'HK Grotesk', 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%);
+  color: var(--text-color, #5a4033);
+  overflow: hidden;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.main-layout-container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+.layout-grid {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  grid-template-rows: 70px 1fr;
+  gap: 16px;
+  padding: 16px;
+  grid-template-areas:
+    "logo quick-actions global-controls"
+    "lila-panel main-content smart-notepad";
+}
+
+/* Beautiful header bar behind top row */
+.header-background {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  height: 70px;
+  background: var(--theme-header-gradient, linear-gradient(135deg, #68a395 0%, #2c5d60 100%));
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  z-index: 0;
+}
+
+.grid-cell {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Grid Area Assignments */
+.lila-panel-area {
+  grid-area: lila-panel;
+  padding: 0;
+}
+
+.main-content-area {
+  grid-area: main-content;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.smart-notepad-area { 
+  grid-area: smart-notepad;
+  padding: 0; 
+}
+
+/* Custom scrollbar for better aesthetics */
+.main-content-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content-area::-webkit-scrollbar-track {
+  background: rgba(212, 227, 217, 0.3);
+  border-radius: 4px;
+}
+
+.main-content-area::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, linear-gradient(135deg, #68a395, #2c5d60));
+  border-radius: 4px;
+  opacity: 0.8;
+}
+
+.main-content-area::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, linear-gradient(135deg, #2c5d60, #68a395));
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .layout-grid {
+    grid-template-columns: 200px 1fr 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-areas:
+      "logo"
+      "quick-actions"
+      "global-controls"
+      "main-content"
+      "lila-panel"
+      "smart-notepad";
+    gap: 12px;
+    padding: 12px;
+    height: 100vh;
+  }
+  
+  .header-background {
+    display: none; /* Hide header bar on mobile */
+  }
+  
+  .main-content-area {
+    min-height: 0;
+    flex: 1;
+  }
+  
+  .smart-notepad-area {
+    max-height: 200px;
+  }
+  
+  .lila-panel-area {
+    max-height: 120px;
+  }
+}
+
+/* Theme integration */
+.title-font, h1, h2, h3 {
+  font-family: 'The Seasons', 'Playfair Display', serif;
+}
+
+/* Animation for smooth transitions */
+.grid-cell {
+  transition: all 0.3s ease;
+}
+
+/* Focus and accessibility */
+button:focus,
+select:focus {
+  outline: 2px solid var(--primary-color, #68a395);
+  outline-offset: 2px;
+}

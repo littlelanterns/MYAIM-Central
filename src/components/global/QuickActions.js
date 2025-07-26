@@ -1,0 +1,296 @@
+// src/components/global/QuickActions.js - Fixed unused imports
+import React, { useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import TaskCreationModal from '../tasks/TaskCreationModal.tsx';
+import './QuickActions.css';
+
+const QuickActions = ({ contextType = 'dashboard' }) => {
+  const scrollRef = useRef(null);
+  const navigate = useNavigate();
+  
+  // Modal states
+  const [showTaskCreator, setShowTaskCreator] = useState(false);
+  const [showMealPlanner, setShowMealPlanner] = useState(false);
+  const [showTaskBreaker, setShowTaskBreaker] = useState(false);
+  const [showMediator, setShowMediator] = useState(false);
+  const [showComplimentGenerator, setShowComplimentGenerator] = useState(false);
+  const [showSillyQuestions, setShowSillyQuestions] = useState(false);
+  const [showManners, setShowManners] = useState(false);
+  
+  // Actions with usage count for auto-rearrangement
+  const [actions, setActions] = useState([
+    { name: "Family Setup", usageCount: 0, id: 'family-setup', type: 'navigation' },
+    { name: "Create Task", usageCount: 0, id: 'create-task', type: 'modal' },
+    { name: "Me with Manners", usageCount: 0, id: 'manners', type: 'modal' },
+    { name: "Task Breaker", usageCount: 0, id: 'task-breaker', type: 'modal' },
+    { name: "Mediator", usageCount: 0, id: 'mediator', type: 'modal' },
+    { name: "Meal Planner", usageCount: 0, id: 'meal-planner', type: 'modal' },
+    { name: "Compliment Generator", usageCount: 0, id: 'compliment-generator', type: 'modal' },
+    { name: "Silly Question Generator", usageCount: 0, id: 'silly-questions', type: 'modal' },
+  ]);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: direction * 300,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleActionClick = (actionId) => {
+    // Update usage count and sort
+    setActions(prevActions => {
+      const updatedActions = prevActions.map(action => 
+        action.id === actionId 
+          ? { ...action, usageCount: action.usageCount + 1 }
+          : action
+      );
+      
+      // Sort by usage count (descending), then by name
+      return updatedActions.sort((a, b) => {
+        if (b.usageCount !== a.usageCount) {
+          return b.usageCount - a.usageCount;
+        }
+        return a.name.localeCompare(b.name);
+      });
+    });
+    
+    // Handle the action based on type
+    const clickedAction = actions.find(a => a.id === actionId);
+    
+    if (clickedAction.type === 'navigation') {
+      handleNavigation(actionId);
+    } else if (clickedAction.type === 'modal') {
+      handleModalOpen(actionId);
+    }
+    
+    console.log(`Triggered: ${clickedAction.name}`);
+  };
+
+  const handleNavigation = (actionId) => {
+    switch (actionId) {
+      case 'family-setup':
+        navigate('/family-setup');
+        break;
+      default:
+        console.log(`Navigation not implemented for: ${actionId}`);
+    }
+  };
+
+  const handleModalOpen = (actionId) => {
+    switch (actionId) {
+      case 'create-task':
+        setShowTaskCreator(true);
+        break;
+      case 'meal-planner':
+        setShowMealPlanner(true);
+        break;
+      case 'task-breaker':
+        setShowTaskBreaker(true);
+        break;
+      case 'mediator':
+        setShowMediator(true);
+        break;
+      case 'compliment-generator':
+        setShowComplimentGenerator(true);
+        break;
+      case 'silly-questions':
+        setShowSillyQuestions(true);
+        break;
+      case 'manners':
+        setShowManners(true);
+        break;
+      default:
+        console.log(`Modal not implemented for: ${actionId}`);
+    }
+  };
+
+  const addNewAction = () => {
+    const newActionName = prompt("Enter new action name:");
+    if (newActionName && newActionName.trim()) {
+      const newAction = {
+        name: newActionName.trim(),
+        usageCount: 0,
+        id: `custom-${Date.now()}`,
+        type: 'modal'
+      };
+      setActions(prev => [...prev, newAction]);
+    }
+  };
+
+  const handleTaskSave = (taskData) => {
+    console.log('Task data to save:', taskData);
+    // TODO: Connect to actual Supabase save function
+    // Example: await saveTask(taskData);
+    alert('Task saved successfully! (Will connect to Supabase soon)');
+  };
+
+  return (
+    <>
+      <div className="quick-actions-container">
+        <button 
+          className="scroll-button scroll-left" 
+          onClick={() => scroll(-1)}
+          title="Scroll left"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        
+        <div className="quick-actions-scroll" ref={scrollRef}>
+          <div className="quick-actions-list">
+            {actions.map((action) => (
+              <button 
+                key={action.id} 
+                className="quick-action-card"
+                onClick={() => handleActionClick(action.id)}
+                title={`Used ${action.usageCount} times`}
+              >
+                {action.name}
+                {action.usageCount > 0 && (
+                  <span className="usage-badge">{action.usageCount}</span>
+                )}
+              </button>
+            ))}
+            
+            <button 
+              className="quick-action-card add-action"
+              onClick={addNewAction}
+              title="Add new action"
+            >
+              <Plus size={16} /> Add Action
+            </button>
+          </div>
+        </div>
+        
+        <button 
+          className="scroll-button scroll-right" 
+          onClick={() => scroll(1)}
+          title="Scroll right"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      {/* Task Creation Modal */}
+      <TaskCreationModal
+        isOpen={showTaskCreator}
+        onClose={() => setShowTaskCreator(false)}
+        onSave={handleTaskSave}
+        familyMembers={[]} // TODO: Pass real family members from context/props
+      />
+
+      {/* Placeholder Modals for Other Actions */}
+      {showMealPlanner && (
+        <PlaceholderModal
+          title="Meal Planner"
+          onClose={() => setShowMealPlanner(false)}
+          content="AI-powered meal planning coming soon! This will help you create weekly meal plans based on family preferences and dietary needs."
+        />
+      )}
+
+      {showTaskBreaker && (
+        <PlaceholderModal
+          title="TaskBreaker AI"
+          onClose={() => setShowTaskBreaker(false)}
+          content="TaskBreaker AI will help break down complex tasks into manageable subtasks. Perfect for overwhelming chores or homework assignments."
+        />
+      )}
+
+      {showMediator && (
+        <PlaceholderModal
+          title="Family Mediator"
+          onClose={() => setShowMediator(false)}
+          content="The AI Mediator helps resolve family conflicts with fair, age-appropriate solutions and communication strategies."
+        />
+      )}
+
+      {showComplimentGenerator && (
+        <PlaceholderModal
+          title="Compliment Generator"
+          onClose={() => setShowComplimentGenerator(false)}
+          content="Generate personalized, meaningful compliments for family members based on their recent achievements and personality."
+        />
+      )}
+
+      {showSillyQuestions && (
+        <PlaceholderModal
+          title="Silly Question Generator"
+          onClose={() => setShowSillyQuestions(false)}
+          content="Fun conversation starters and silly questions to get the family laughing and talking together."
+        />
+      )}
+
+      {showManners && (
+        <PlaceholderModal
+          title="Me with Manners"
+          onClose={() => setShowManners(false)}
+          content="AI assistant for teaching and reinforcing good manners and social skills in age-appropriate ways."
+        />
+      )}
+    </>
+  );
+};
+
+// Placeholder Modal Component for future tools
+const PlaceholderModal = ({ title, content, onClose }) => {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '1rem'
+    }}>
+      <div style={{
+        background: 'var(--background-color, #fff4ec)',
+        borderRadius: '16px',
+        maxWidth: '500px',
+        width: '100%',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        border: '1px solid var(--accent-color, #d4e3d9)',
+        textAlign: 'center'
+      }}>
+        <h2 style={{
+          color: 'var(--primary-color, #68a395)',
+          marginBottom: '1rem',
+          fontFamily: 'var(--font-heading, "The Seasons"), "Playfair Display", serif'
+        }}>
+          {title}
+        </h2>
+        <p style={{
+          color: 'var(--text-color, #5a4033)',
+          marginBottom: '1.5rem',
+          lineHeight: '1.6'
+        }}>
+          {content}
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))',
+            color: 'white',
+            border: 'none',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: '600'
+          }}
+        >
+          Got it!
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default QuickActions;

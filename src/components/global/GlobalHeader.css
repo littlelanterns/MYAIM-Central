@@ -1,0 +1,194 @@
+/* src/components/global/GlobalHeader.css - Clean header with focus on theme selector */
+
+/* Logo Area Styling */
+.logo-area {
+  grid-area: logo;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.app-logo {
+  max-width: 100%;
+  max-height: 50px;
+  object-fit: contain;
+  border-radius: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.app-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Quick Actions Area */
+.quick-actions-area { 
+  grid-area: quick-actions;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+}
+
+/* Global Controls Area - Simplified */
+.global-controls-area { 
+  grid-area: global-controls;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  flex-direction: row;
+  padding: 0 1rem;
+  height: 100%;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+/* Theme Selector - Now the main focus */
+.theme-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  flex-shrink: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+.theme-selector {
+  padding: 12px 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 160px;
+  max-width: 200px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  height: 44px;
+  text-align: center;
+}
+
+.theme-selector:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.theme-selector:focus {
+  outline: none;
+  background: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.8);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+}
+
+.theme-selector option {
+  background: var(--primary-color, #68a395);
+  color: white;
+  padding: 8px;
+  font-weight: 500;
+}
+
+.theme-selector optgroup {
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  background: var(--secondary-color, #2c5d60);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .logo-area,
+  .quick-actions-area,
+  .global-controls-area {
+    padding: 0 0.5rem;
+  }
+  
+  .app-subtitle {
+    display: none;
+  }
+  
+  .theme-selector {
+    min-width: 140px;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-area {
+    grid-area: logo;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+  
+  .quick-actions-area {
+    grid-area: quick-actions;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .global-controls-area {
+    grid-area: global-controls;
+    justify-content: center;
+    flex-direction: row;
+  }
+  
+  .app-logo {
+    max-height: 32px;
+  }
+  
+  .theme-selector {
+    min-width: 120px;
+    padding: 8px 12px;
+    font-size: 12px;
+    height: 36px;
+  }
+}
+
+/* Theme Integration */
+.logo-area,
+.quick-actions-area,
+.global-controls-area {
+  /* All header areas sit on top of the gradient background */
+  position: relative;
+  z-index: 1;
+}
+
+/* Focus states for accessibility */
+.theme-selector:focus {
+  outline-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Animation for smooth theme transitions */
+.theme-selector {
+  transition: all 0.3s ease;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-selector {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .theme-selector {
+    transition: none;
+  }
+}

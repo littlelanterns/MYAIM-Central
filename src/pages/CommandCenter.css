@@ -1,0 +1,74 @@
+/* src/pages/CommandCenter.css */
+
+.command-center {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.command-center h1 {
+  text-align: center;
+  color: #68a395;
+  margin-bottom: 2rem;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+  color: #68a395;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+}
+
+.card h3 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.card p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.lila-placeholders {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+@media (max-width: 768px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .command-center {
+    padding: 15px;
+  }
+}
