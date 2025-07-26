@@ -1,14 +1,17 @@
-// src/layouts/MainLayout.tsx - Updated with LiLa Panel in bottom-left
+// src/layouts/MainLayout.tsx - Updated with LiLa Panel and Modal System
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalHeader from '../components/global/GlobalHeader';
 import SmartNotepad from '../components/ui/SmartNotepad.jsx';
 import LiLaPanel from '../components/global/LiLaPanel';
+import { useModalContext } from '../contexts/ModalContext.tsx';
+import DraggableModal from '../components/ui/DraggableModal.tsx';
 import { personalThemes, createThemeVariables } from '../styles/colors';
 import './MainLayout.css';
 
 const MainLayout = () => {
   const [currentTheme, setCurrentTheme] = useState('rosegold');
+  const { modals } = useModalContext();
 
   useEffect(() => {
     const theme = personalThemes[currentTheme] || personalThemes.classic;
@@ -76,6 +79,11 @@ const MainLayout = () => {
         </div>
 
       </div>
+
+      {/* Render all draggable modals on top of everything */}
+      {modals.map(modal => (
+        <DraggableModal key={modal.id} modal={modal} />
+      ))}
     </div>
   );
 };

@@ -1,7 +1,7 @@
-// src/pages/CommandCenter.tsx - Updated with theme compatibility and new cards
-import React, { useState, FC, CSSProperties } from 'react';
+// src/pages/CommandCenter.tsx - Updated with new draggable modal system
+import React, { FC, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import Modal from '../components/ui/Modal.tsx';
+import { useModal } from '../hooks/useModal.tsx';
 
 // TypeScript interfaces
 interface PageAction {
@@ -29,37 +29,46 @@ const commandCenterActions: CommandCenterAction[] = [
     path: '/family-dashboard',
     title: 'DASHBOARD',
     subtitle: 'Family Dashboard',
-    description: 'Complete family overview with task creation, progress tracking, victory celebrations, and AI-powered insights.',
+    description: 'Complete family overview with task creation, progress tracking, victory celebrations, and AI-powered insights.'
   },
   {
     type: 'page',
     path: '/family-archive',
     title: 'ARCHIVE',
     subtitle: 'Family Archive',
-    description: 'Your digital filing system for family members, context, and memories. Beautiful organization that replaces notebooks.',
+    description: 'Your digital filing system for family members, context, and memories. Beautiful organization that replaces notebooks.'
   },
   {
     type: 'modal',
     actionId: 'inner_oracle',
     title: 'INNER ORACLE',
     subtitle: 'Inner Oracle',
-    description: 'Connect with your intuition and inner wisdom through guided reflection and mindful decision-making tools.',
+    description: 'Connect with your intuition and inner wisdom through guided reflection and mindful decision-making tools.'
   },
   {
     type: 'page',
     path: '/library',
     title: 'LIBRARY',
     subtitle: 'AI Learning Library',
-    description: 'Netflix-style browsing for AI prompts, tutorials, and learning resources. Discover and optimize content with LiLa™.',
-  },
+    description: 'Netflix-style browsing for AI prompts, tutorials, and learning resources. Discover and optimize content with LiLa™.'
+  }
 ];
 
 const CommandCenter: FC = () => {
-  const [isInnerOracleModalOpen, setIsInnerOracleModalOpen] = useState<boolean>(false);
+  const { open } = useModal();
 
   const handleCardClick = (action: CommandCenterAction): void => {
     if (action.type === 'modal' && action.actionId === 'inner_oracle') {
-      setIsInnerOracleModalOpen(true);
+      open('Inner Oracle', (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <p style={{ marginBottom: '20px', color: 'var(--text-color, #5a4033)' }}>
+            Inner Oracle coming soon! Connect with your intuition and inner wisdom.
+          </p>
+          <p style={{ fontSize: '14px', color: 'var(--text-color, #5a4033)', opacity: 0.7 }}>
+            This draggable modal will contain guided reflection tools, meditation prompts, and intuitive decision-making aids.
+          </p>
+        </div>
+      ), 'medium');
     }
   };
 
@@ -184,33 +193,6 @@ const CommandCenter: FC = () => {
           )
         ))}
       </div>
-
-      <Modal 
-        isOpen={isInnerOracleModalOpen} 
-        onClose={() => setIsInnerOracleModalOpen(false)}
-        title="Inner Oracle"
-      >
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <p style={{ marginBottom: '20px', color: 'var(--text-color, #5a4033)' }}>
-            Inner Oracle coming soon! Connect with your intuition and inner wisdom.
-          </p>
-          <button 
-            onClick={() => setIsInnerOracleModalOpen(false)}
-            style={{
-              padding: '12px 24px',
-              background: 'var(--primary-color, #68a395)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}
-          >
-            Close
-          </button>
-        </div>
-      </Modal>
     </div>
   );
 };
