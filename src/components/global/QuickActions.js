@@ -1,6 +1,7 @@
-// src/components/global/QuickActions.js - Fixed unused imports
+// src/components/global/QuickActions.js - FIXED with Portal placeholders
 import React, { useState, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TaskCreationModal from '../tasks/TaskCreationModal.tsx';
 import './QuickActions.css';
@@ -181,7 +182,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
         familyMembers={[]} // TODO: Pass real family members from context/props
       />
 
-      {/* Placeholder Modals for Other Actions */}
+      {/* Placeholder Modals with Portal and Close buttons */}
       {showMealPlanner && (
         <PlaceholderModal
           title="Meal Planner"
@@ -233,9 +234,9 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   );
 };
 
-// Placeholder Modal Component for future tools
+// FIXED Placeholder Modal Component with Portal and Close button
 const PlaceholderModal = ({ title, content, onClose }) => {
-  return (
+  return ReactDOM.createPortal(
     <div style={{
       position: 'fixed',
       top: 0,
@@ -246,7 +247,7 @@ const PlaceholderModal = ({ title, content, onClose }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000,
+      zIndex: 9999, // FIXED: Higher z-index
       padding: '1rem'
     }}>
       <div style={{
@@ -257,8 +258,35 @@ const PlaceholderModal = ({ title, content, onClose }) => {
         padding: '2rem',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
         border: '1px solid var(--accent-color, #d4e3d9)',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative'
       }}>
+        {/* ADDED: Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-color, #5a4033)',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.7,
+            transition: 'opacity 0.2s'
+          }}
+          onMouseEnter={(e) => e.target.style.opacity = '1'}
+          onMouseLeave={(e) => e.target.style.opacity = '0.7'}
+          title="Close"
+        >
+          <X size={20} />
+        </button>
+
         <h2 style={{
           color: 'var(--primary-color, #68a395)',
           marginBottom: '1rem',
@@ -289,7 +317,8 @@ const PlaceholderModal = ({ title, content, onClose }) => {
           Got it!
         </button>
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 

@@ -1,7 +1,8 @@
-// src/components/global/LilaHelp.js - Fixed image filename
+// src/components/global/LilaHelp.js - WITH PORTAL FIX
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Minimize2, Search } from 'lucide-react';
-import './LilaComponents.css';  // Use your existing CSS file
+import ReactDOM from 'react-dom';
+import { X, Send, Minimize2 } from 'lucide-react';
+import './LilaComponents.css';
 
 const LilaHelp = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([]);
@@ -11,30 +12,37 @@ const LilaHelp = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Initial greeting when opened
       setMessages([
         {
           role: 'assistant',
-          content: `Hello! I'm LiLa Help! 🛟
+          content: `Hello! I'm LiLa™ Help! 🛟
 
-I'm here to help you solve problems and answer questions about AIMfM. I can help with:
+I'm here to troubleshoot any issues you're experiencing with AIMfM. I can help with:
 
 🔧 **Technical Issues**
-- Connection problems with AI platforms
-- Browser compatibility issues
-- Performance troubleshooting
-
-📚 **FAQ & Common Questions**
-- Account and subscription questions
-- Feature explanations
-- Best practices
-
-🆘 **Troubleshooting**
-- Error messages
+- Login and account problems
 - Features not working as expected
-- Data and privacy questions
+- Connection or loading issues
+- Mobile app troubles
 
-What can I help you troubleshoot today?`,
+💳 **Subscription & Billing**
+- Payment questions
+- Plan changes and upgrades
+- Feature access issues
+- Account management
+
+🔄 **Data & Sync Issues**
+- Family data not updating
+- Tasks not saving properly
+- Theme changes not applying
+- Cross-device sync problems
+
+📱 **Platform Compatibility**
+- Browser compatibility issues
+- Mobile vs desktop differences
+- AI platform connection problems
+
+What issue can I help you troubleshoot today?`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -57,7 +65,6 @@ What can I help you troubleshoot today?`,
     setMessages(prev => [...prev, userMessage]);
     setInput('');
 
-    // Simulate AI response (in real implementation, this would call OpenRouter)
     setTimeout(() => {
       const response = generateHelpResponse(input);
       setMessages(prev => [...prev, {
@@ -71,73 +78,54 @@ What can I help you troubleshoot today?`,
   const generateHelpResponse = (userInput) => {
     const lowerInput = userInput.toLowerCase();
     
-    if (lowerInput.includes('connect') || lowerInput.includes('login') || lowerInput.includes('auth')) {
-      return `Connection issues can be frustrating! Let's troubleshoot: 🔧
+    if (lowerInput.includes('login') || lowerInput.includes('password') || lowerInput.includes('account')) {
+      return `Let me help with your account issues! 🔐
 
-**For AI Platform Connections:**
-1. **Check your browser** - Make sure you're logged into ChatGPT, Claude, etc. in other tabs
-2. **Clear cache** - Try refreshing the page or clearing browser cache
-3. **Check status** - Look for the colored dots next to platform names (green = connected)
-4. **Try incognito** - Test in a private browsing window
+**Login Problems:**
+- Try clearing your browser cache and cookies
+- Make sure you're using the correct email address
+- Check if Caps Lock is on for password entry
+- Try resetting your password if needed
 
-**Still having issues?**
-- Make sure you have active subscriptions to the AI platforms you're trying to use
-- Some platforms may require additional authentication steps
-- Check if your browser is blocking popups or scripts
-
-Which specific platform are you having trouble connecting to?`;
-    }
-    
-    if (lowerInput.includes('slow') || lowerInput.includes('lag') || lowerInput.includes('performance')) {
-      return `Performance issues can impact your experience! Here's how to fix them: ⚡
+**Account Access:**
+- Verify your subscription is active in account settings
+- Some features require specific subscription tiers
+- Family member accounts may have different access levels
 
 **Quick Fixes:**
-1. **Close other tabs** - AI platforms can be resource-intensive
-2. **Restart browser** - This often resolves memory issues
-3. **Check internet** - Ensure you have a stable connection
-4. **Reduce active panels** - Try using 1-2 AI panels instead of 4
+- Refresh the page and try again
+- Try a different browser or incognito mode
+- Check your internet connection
+- Log out completely and log back in
 
-**Browser Optimization:**
-- **Chrome**: Enable hardware acceleration in settings
-- **Firefox**: Clear recent history and cookies
-- **Safari**: Empty caches and disable extensions temporarily
-
-**If problems persist:**
-- Try using AIMfM during off-peak hours
-- Close resource-heavy applications
-- Consider upgrading your browser
-
-What specific performance issues are you experiencing?`;
+Still having trouble? Let me know the specific error message you're seeing!`;
     }
     
-    if (lowerInput.includes('save') || lowerInput.includes('lost') || lowerInput.includes('data')) {
-      return `Don't worry about losing your work! Here's how AIMfM handles data: 💾
+    if (lowerInput.includes('task') || lowerInput.includes('saving') || lowerInput.includes('not working')) {
+      return `I'll help you fix those task issues! 📝
 
-**What's Automatically Saved:**
-- Context filter settings
-- Quick action preferences
-- Panel layout choices
+**Common Task Problems:**
+- **Not Saving**: Check your internet connection and try again
+- **Missing Tasks**: Look in different family member views
+- **Assignment Issues**: Make sure someone is selected as assignee
+- **Frequency Problems**: Verify start date and recurrence settings
 
-**What You Need to Save Manually:**
-- Notepad content (use "Save As" button)
-- AI conversations (use copy buttons)
-- Optimized prompts (copy or save to notepad)
+**Quick Troubleshooting:**
+1. Refresh the page and check if tasks appear
+2. Try creating a simple test task
+3. Check if other family members can see the tasks
+4. Verify you're in the right family account
 
-**Recovery Options:**
-- Check your browser's download folder for saved files
-- Look in your notepad's other tabs
-- Recent conversations might still be in individual panels
+**Data Sync Issues:**
+- Changes may take a few seconds to sync
+- Try logging out and back in to refresh data
+- Check if you have multiple family accounts
 
-**Best Practices:**
-- Save important conversations to your notepad regularly
-- Use "Save As" for any content you want to keep long-term
-- Consider keeping a backup notepad tab for important work
-
-What specific content are you trying to recover?`;
+What specific task problem are you experiencing?`;
     }
     
-    if (lowerInput.includes('subscription') || lowerInput.includes('payment') || lowerInput.includes('billing')) {
-      return `I can help with subscription questions! 💳
+    if (lowerInput.includes('subscription') || lowerInput.includes('billing') || lowerInput.includes('payment')) {
+      return `💳
 
 **Common Subscription Issues:**
 - **Can't access features**: Check if your subscription is active
@@ -186,33 +174,51 @@ Can you describe the specific issue you're experiencing? The more details you pr
 
   if (!isOpen) return null;
 
-  return (
-    <div className="lila-help-overlay">
-      <div className={`lila-help-modal ${isMinimized ? 'minimized' : ''}`}>
+  return ReactDOM.createPortal(
+    <div className="lila-help-overlay" onClick={onClose}>
+      <div 
+        className={`lila-help-modal ${isMinimized ? 'minimized' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="lila-help-header">
           <div className="lila-help-title">
-            <img src="/Lila-HtH.png" alt="LiLa Help" className="lila-help-avatar" />
+            <img 
+              src="/lila-hth.png" 
+              alt="LiLa Help" 
+              className="lila-help-avatar"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
             <div>
-              <h3>LiLa Help</h3>
-              <p>Support & FAQ</p>
+              <h3>LiLa™ Help</h3>
+              <p>Happy to Help</p>
             </div>
           </div>
           <div className="lila-help-controls">
-            <button onClick={() => setIsMinimized(!isMinimized)} className="minimize-btn">
+            <button 
+              className="minimize-btn"
+              onClick={() => setIsMinimized(!isMinimized)}
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
               <Minimize2 size={16} />
             </button>
-            <button onClick={onClose} className="close-btn">
+            <button 
+              className="close-btn"
+              onClick={onClose}
+              title="Close"
+            >
               <X size={16} />
             </button>
           </div>
         </div>
-        
+
         {!isMinimized && (
           <>
             <div className="lila-help-messages">
               {messages.map((message, index) => (
-                <div key={index} className={`help-message ${message.role}`}>
-                  <div className="help-message-content">
+                <div key={index} className={`message ${message.role}`}>
+                  <div className="message-content">
                     {message.content}
                   </div>
                   <div className="help-message-time">
@@ -222,14 +228,14 @@ Can you describe the specific issue you're experiencing? The more details you pr
               ))}
               <div ref={messagesEndRef} />
             </div>
-            
+
             <div className="lila-help-input">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Describe your issue or ask a question..."
-                rows="2"
+                placeholder="Describe the issue you're experiencing..."
+                rows={2}
               />
               <button onClick={handleSend} disabled={!input.trim()}>
                 <Send size={16} />
@@ -238,7 +244,8 @@ Can you describe the specific issue you're experiencing? The more details you pr
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 

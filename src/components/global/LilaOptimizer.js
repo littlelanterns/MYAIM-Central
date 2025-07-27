@@ -1,5 +1,6 @@
-// src/components/global/LilaOptimizer.js - Modal version for global header
+// src/components/global/LilaOptimizer.js - WITH PORTAL FIX
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { X, Send, Minimize2, Edit3 } from 'lucide-react';
 import './LilaComponents.css';
 
@@ -72,7 +73,7 @@ What prompt would you like me to help you optimize today?`,
     const lowerInput = userInput.toLowerCase();
     
     if (lowerInput.includes('help') || lowerInput.includes('improve') || lowerInput.includes('better')) {
-      return `Great! I'd love to help improve that prompt! ✨
+      return `I'd love to help improve that prompt! ✨
 
 **Here's my optimization approach:**
 
@@ -136,34 +137,32 @@ Would you like me to rewrite your specific prompt with these improvements?`;
 **What's the prompt that's not working well for you?** I'll help you diagnose and fix it!`;
     }
     
-    return `I'm here to make your prompts absolutely amazing! ✨
+    return `I'm here to make your prompts absolutely amazing! 🚀
 
 **I can help you with:**
 
-**🎯 Prompt Optimization**
-- Add clear roles and context
-- Structure for better results
-- Make vague requests specific
+🔧 **Fix Broken Prompts**
+- Diagnose why prompts aren't working
+- Add missing context and clarity
 - Improve response quality
 
-**🛠️ Prompt Troubleshooting**
-- Fix prompts that aren't working
-- Improve consistency
-- Make prompts more effective
+✨ **Create New Prompts**
+- Build prompts from scratch for any task
+- Add role-playing for better AI responses
+- Structure complex multi-step requests
 
-**✨ Advanced Techniques**
-- Chain complex prompts together
-- Use examples and templates
-- Optimize for specific AI platforms
-- Create reusable prompt templates
+🎯 **Optimize Existing Prompts**
+- Make good prompts even better
+- Add specificity and context
+- Improve consistency across AI platforms
 
-**Quick Tips:**
-- Be specific about what you want
-- Give the AI a clear role to play
-- Provide context and examples
-- Specify the format you need
+**Just share any prompt with me and I'll:**
+- Analyze what's working and what isn't
+- Suggest specific improvements
+- Rewrite it to be more effective
+- Explain why the changes will help
 
-**What would you like to work on?** Share your prompt or describe what you're trying to accomplish, and I'll help make it amazing!`;
+**What prompt would you like to work on?** You can paste an existing one or describe what you're trying to accomplish!`;
   };
 
   const handleKeyPress = (e) => {
@@ -175,33 +174,51 @@ Would you like me to rewrite your specific prompt with these improvements?`;
 
   if (!isOpen) return null;
 
-  return (
-    <div className="lila-optimizer-overlay">
-      <div className={`lila-optimizer-modal ${isMinimized ? 'minimized' : ''}`}>
+  return ReactDOM.createPortal(
+    <div className="lila-optimizer-overlay" onClick={onClose}>
+      <div 
+        className={`lila-optimizer-modal ${isMinimized ? 'minimized' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="lila-optimizer-header">
           <div className="lila-optimizer-title">
-            <img src="/lila-opt.png" alt="LiLa™ Optimizer" className="lila-optimizer-avatar" />
+            <img 
+              src="/lila-opt.png" 
+              alt="LiLa Optimizer" 
+              className="lila-optimizer-avatar"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
             <div>
               <h3>LiLa™ Optimizer</h3>
-              <p>Enhance your prompts</p>
+              <p>Smart AI</p>
             </div>
           </div>
           <div className="lila-optimizer-controls">
-            <button onClick={() => setIsMinimized(!isMinimized)} className="minimize-btn">
+            <button 
+              className="minimize-btn"
+              onClick={() => setIsMinimized(!isMinimized)}
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
               <Minimize2 size={16} />
             </button>
-            <button onClick={onClose} className="close-btn">
+            <button 
+              className="close-btn"
+              onClick={onClose}
+              title="Close"
+            >
               <X size={16} />
             </button>
           </div>
         </div>
-        
+
         {!isMinimized && (
           <>
             <div className="lila-optimizer-messages">
               {messages.map((message, index) => (
-                <div key={index} className={`optimizer-message ${message.role}`}>
-                  <div className="optimizer-message-content">
+                <div key={index} className={`message ${message.role}`}>
+                  <div className="message-content">
                     {message.content}
                   </div>
                   <div className="optimizer-message-time">
@@ -211,14 +228,14 @@ Would you like me to rewrite your specific prompt with these improvements?`;
               ))}
               <div ref={messagesEndRef} />
             </div>
-            
+
             <div className="lila-optimizer-input">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Share your prompt or describe what you're trying to accomplish..."
-                rows="2"
+                placeholder="Paste a prompt to optimize, or describe what you want to create..."
+                rows={2}
               />
               <button onClick={handleSend} disabled={!input.trim()}>
                 <Send size={16} />
@@ -227,7 +244,8 @@ Would you like me to rewrite your specific prompt with these improvements?`;
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 

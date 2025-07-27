@@ -1,6 +1,7 @@
-// src/components/global/LilaAssist.js - AI Assistant for feature guidance
+// src/components/global/LilaAssist.js - WITH PORTAL FIX
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Minimize2 } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { X, Send, Minimize2, Edit3 } from 'lucide-react';
 import './LilaComponents.css';
 
 const LilaAssist = ({ isOpen, onClose }) => {
@@ -15,26 +16,26 @@ const LilaAssist = ({ isOpen, onClose }) => {
       setMessages([
         {
           role: 'assistant',
-          content: `Hi there! I'm LiLa Assist! 🌟 
+          content: `Hi! I'm LiLa™ Assist! 🌟
 
-I'm here to help you get the most out of your AIMfM experience! I can help you with:
+I'm here to help you navigate AIMfM and get the most out of your AI tools. I can help you:
 
-✨ **Learning AIMfM Features**
-- Understanding the Command Center
-- Using Quick Actions effectively
-- Making the most of your Smart Notepad
+🎯 **Getting Started**
+- Set up your family profile and preferences
+- Understand how different tools work together
+- Find the right tools for your specific needs
 
-🎯 **Workflow Optimization**
-- Setting up your ideal workspace
-- Tips for better productivity
-- Family coordination strategies
+💡 **Feature Guidance**
+- Learn how to use any AIMfM feature effectively
+- Get tips for better family AI workflows
+- Discover hidden features and shortcuts
 
-💡 **Best Practices**
-- Getting better results from AI
-- Organizing your family's information
-- Tips and tricks for power users
+🔧 **Optimization Tips**
+- Make your AI interactions more effective
+- Customize settings for your family's style
+- Get the most value from your subscription
 
-What would you like to learn about first?`,
+What would you like help with today?`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -71,115 +72,83 @@ What would you like to learn about first?`,
   const generateAssistResponse = (userInput) => {
     const lowerInput = userInput.toLowerCase();
     
-    if (lowerInput.includes('command center') || lowerInput.includes('dashboard')) {
-      return `The Command Center is your home base! 🏠
+    if (lowerInput.includes('task') || lowerInput.includes('create')) {
+      return `Great question about tasks! 📝
 
-**What you can do from here:**
-- **Navigate to different sections** - Family Dashboard, Library, Archive
-- **Access LiLa Assistants** - Get help with any feature
-- **Quick overview** - See what's available in AIMfM
+**Creating Tasks:**
+- Use the "Create Task" button in Quick Actions
+- Fill out all the details - assignment, frequency, rewards
+- Try the AI subtask generator for complex tasks
 
-**Pro Tips:**
-- Each card shows what that section does
-- Click on any card to explore that area
-- The LiLa Assistants card will grow as we add more features
-
-**Getting Started:**
-1. Try clicking on "Family Dashboard" to see task management
-2. Check out the "Library" for AI learning resources
-3. Use the theme selector (top right) to personalize your experience
-
-What specific area interests you most?`;
-    }
-    
-    if (lowerInput.includes('quick actions') || lowerInput.includes('actions')) {
-      return `Quick Actions are your productivity boosters! ⚡
-
-**How they work:**
-- **Scroll through available actions** - Use the arrows to see more
-- **Click to activate** - Each action applies a specific "persona" or context
-- **Usage tracking** - Frequently used actions automatically move to the front
-- **Add custom actions** - Use the + button to create your own
-
-**Popular Actions:**
-- **Me with Manners** - Get help with polite communication
-- **Task Breaker** - Break down complex tasks into steps
-- **Meal Planner** - Plan family meals and shopping
-- **Mediator** - Help resolve family conflicts
-
-**Tips:**
-- Try different actions to see how they change AI responses
-- Create actions for your family's specific needs
-- The most-used actions will appear first automatically
-
-Which type of action would be most helpful for your family?`;
-    }
-    
-    if (lowerInput.includes('notepad') || lowerInput.includes('notes')) {
-      return `The Smart Notepad is your family's digital brain! 🧠
-
-**Key Features:**
-- **Multiple tabs** - Organize different topics or projects
-- **Rich formatting** - Bold, italic, lists, and more formatting options
-- **Save functionality** - Download your notes as files
-- **Theme integration** - Matches your chosen color theme
-
-**Smart Uses:**
-- **Family meeting notes** - Keep track of decisions and plans
-- **Project planning** - Break down big family goals
-- **AI conversation summaries** - Save important insights
-- **Quick capture** - Jot down ideas as they come
+**Task Types:**
+- **Tasks**: Required responsibilities (chores, homework)
+- **Opportunities**: Optional goals with rewards
 
 **Pro Tips:**
-- Double-click tab names to rename them
-- Use the + button to create new tabs for different topics
-- The notepad content persists while you navigate the app
-- Copy important AI responses here for future reference
+- Use TaskBreaker AI for overwhelming tasks
+- Set up templates for recurring tasks
+- Track completion to see family patterns
 
-What type of notes do you want to organize first?`;
+Need help with any specific part of task creation?`;
+    }
+    
+    if (lowerInput.includes('family') || lowerInput.includes('setup')) {
+      return `Let me help you set up your family! 👨‍👩‍👧‍👦
+
+**Family Setup Steps:**
+1. **Add Family Members** - Names, ages, interests
+2. **Set Preferences** - Learning styles, motivators
+3. **Choose Themes** - Pick colors that match your family vibe
+4. **Configure Tools** - Decide which AI features to use
+
+**Best Practices:**
+- Include everyone's personality traits
+- Note each person's challenges and strengths  
+- Set up age-appropriate tool access
+- Start with basic features, then expand
+
+Would you like me to walk you through any of these steps?`;
     }
     
     if (lowerInput.includes('theme') || lowerInput.includes('color')) {
       return `Themes make AIMfM feel like home! 🎨
 
 **Available Themes:**
-- **Standard themes** - Classic AIMfM, Rose Gold, Forest Calm, Ocean Breeze
-- **Seasonal themes** - Fresh Spring, Sunny Summer, Cozy Autumn, Winter Wonderland  
-- **Holiday themes** - Christmas Joy, Fall Fun
+- **Classic**: Warm, cozy family feeling
+- **Nature**: Earthy, calming tones
+- **Modern**: Clean, contemporary look
+- **Playful**: Bright, fun colors for active families
 
-**How themes work:**
-- **Change the entire app** - Colors, gradients, and mood
-- **Instant switching** - See changes immediately
-- **Saved preferences** - Your choice persists across sessions
+**How to Change:**
+- Click the theme dropdown in the header
+- Changes apply instantly across all tools
+- Themes sync across all family member accounts
 
-**Finding your theme:**
-- **Rose Gold** - Luxurious and warm
-- **Ocean Breeze** - Cool and calming
-- **Forest Calm** - Natural and grounding
-- **Classic AIMfM** - The original brand colors
+**Customization Tips:**
+- Pick themes that match your family's energy
+- Darker themes are easier on eyes for evening use
+- Kids often prefer brighter, more colorful themes
 
-**Pro Tip:** Try switching themes based on your mood or the season! Each one creates a different feeling while using the app.
-
-What kind of mood or feeling do you want your workspace to have?`;
+Want help choosing the right theme for your family?`;
     }
     
-    return `I'd love to help you with that! 🌟
+    return `I'm here to help you master AIMfM! 🌟
 
-**I can guide you through:**
-- **Command Center** - Understanding the main navigation
-- **Quick Actions** - Using persona shortcuts effectively  
-- **Smart Notepad** - Organizing your family's information
-- **Themes** - Personalizing your workspace
-- **Family Features** - Setting up for your family's needs
-- **Best Practices** - Getting the most out of AIMfM
+**Common things I can help with:**
+- **Getting Started**: Family setup, first steps
+- **Tool Usage**: How any specific feature works
+- **Troubleshooting**: When something isn't working right
+- **Optimization**: Making AI work better for your family
+- **Best Practices**: Tips from other successful families
 
-**Popular Questions:**
-- "How do I use Quick Actions?"
-- "What can I do with the Smart Notepad?"
-- "How do themes work?"
-- "What's the best way to organize my family's information?"
+**Just ask me about:**
+- Setting up family profiles
+- Creating and managing tasks
+- Using AI features effectively
+- Customizing your experience
+- Finding the right tools for your needs
 
-What specific feature would you like to explore? Just ask me about anything you see in the interface!`;
+What specific area would you like help with?`;
   };
 
   const handleKeyPress = (e) => {
@@ -191,33 +160,51 @@ What specific feature would you like to explore? Just ask me about anything you 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="lila-assist-overlay">
-      <div className={`lila-assist-modal ${isMinimized ? 'minimized' : ''}`}>
+  return ReactDOM.createPortal(
+    <div className="lila-assist-overlay" onClick={onClose}>
+      <div 
+        className={`lila-assist-modal ${isMinimized ? 'minimized' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="lila-assist-header">
           <div className="lila-assist-title">
-            <img src="/lila-asst.png" alt="LiLa Assist" className="lila-assist-avatar" />
+            <img 
+              src="/lila-asst.png" 
+              alt="LiLa Assist" 
+              className="lila-assist-avatar"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
             <div>
-              <h3>LiLa Assist</h3>
-              <p>Your AIMfM Guide</p>
+              <h3>LiLa™ Assist</h3>
+              <p>Your Guide</p>
             </div>
           </div>
           <div className="lila-assist-controls">
-            <button onClick={() => setIsMinimized(!isMinimized)} className="minimize-btn">
+            <button 
+              className="minimize-btn"
+              onClick={() => setIsMinimized(!isMinimized)}
+              title={isMinimized ? "Expand" : "Minimize"}
+            >
               <Minimize2 size={16} />
             </button>
-            <button onClick={onClose} className="close-btn">
+            <button 
+              className="close-btn"
+              onClick={onClose}
+              title="Close"
+            >
               <X size={16} />
             </button>
           </div>
         </div>
-        
+
         {!isMinimized && (
           <>
             <div className="lila-assist-messages">
               {messages.map((message, index) => (
-                <div key={index} className={`assist-message ${message.role}`}>
-                  <div className="assist-message-content">
+                <div key={index} className={`message ${message.role}`}>
+                  <div className="message-content">
                     {message.content}
                   </div>
                   <div className="assist-message-time">
@@ -227,14 +214,14 @@ What specific feature would you like to explore? Just ask me about anything you 
               ))}
               <div ref={messagesEndRef} />
             </div>
-            
+
             <div className="lila-assist-input">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me about any AIMfM feature..."
-                rows="2"
+                placeholder="Ask me anything about AIMfM..."
+                rows={2}
               />
               <button onClick={handleSend} disabled={!input.trim()}>
                 <Send size={16} />
@@ -243,7 +230,8 @@ What specific feature would you like to explore? Just ask me about anything you 
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root') || document.body
   );
 };
 

@@ -1,5 +1,6 @@
-// src/components/tasks/TaskCreationModal.tsx - Fixed Z-index, Themed Scrollbars & Draggable
+// src/components/tasks/TaskCreationModal.tsx - Your FULL working version + Portal wrapper
 import React, { useState, useEffect, FormEvent, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 
 interface TaskCreationModalProps {
@@ -319,7 +320,8 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  // ONLY CHANGE: Wrap everything in ReactDOM.createPortal
+  return ReactDOM.createPortal(
     <>
       <style>{`
         /* Themed scrollbars for task creation modal */
@@ -358,7 +360,7 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 2100,
+        zIndex: 9999, // CHANGED: Higher z-index
         padding: '1rem'
       }}>
         <div 
@@ -1133,7 +1135,8 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
         </form>
       </div>
     </div>
-    </>
+    </>,
+    document.getElementById('modal-root') || document.body
   );
 };
 
