@@ -1,6 +1,6 @@
-// src/pages/FamilySettings.tsx - FIXED with Close Button & Draggable
+// src/pages/FamilySettings.tsx - COMPLETELY FIXED VERSION
 import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
   saveFamilySetup, 
   saveFamilyMember, 
@@ -8,6 +8,7 @@ import {
   getFamilyByUserId,
   deleteFamilyMember 
 } from '../lib/api.js';
+import { processFamilyDescription } from '../lib/aiServices.js';
 
 // TypeScript Interfaces
 interface RelationshipType {
@@ -52,6 +53,19 @@ interface DragState {
   offsetY: number;
 }
 
+interface AIProcessedMember {
+  id: string | number;
+  name: string;
+  relationship: string;
+  accessLevel: string;
+  age?: number;
+  birthday?: string;
+  nicknames: string[];
+  notes: string;
+  selected: boolean;
+  permissionTemplate?: string;
+}
+
 const FamilySetupInterface: React.FC = () => {
   const [familyName, setFamilyName] = useState<string>('');
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
@@ -64,6 +78,12 @@ const FamilySetupInterface: React.FC = () => {
   const [saving, setSaving] = useState<boolean>(false);
   const [currentFamilyId, setCurrentFamilyId] = useState<string | null>(null);
   
+  // AI Verification states
+  const [showVerification, setShowVerification] = useState<boolean>(false);
+  const [aiProcessedMembers, setAiProcessedMembers] = useState<AIProcessedMember[]>([]);
+  const [aiOriginalText, setAiOriginalText] = useState<string>('');
+  const [expandedMembers, setExpandedMembers] = useState<{[key: string]: boolean}>({});
+  
   // Draggable functionality
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -74,17 +94,22 @@ const FamilySetupInterface: React.FC = () => {
   });
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Replace with actual user ID from your auth system
-  const currentUserId: number = 1; // This should come from your authentication
+  const currentUserId: number = 1;
 
+  // FIXED: Updated relationship types - "Adult Child" → "Out of Nest"
   const relationshipTypes: Record<string, RelationshipType> = {
+    self: { label: 'Self (Me)', color: 'var(--accent-tertiary, #805a82)' },
     child: { label: 'Child', color: 'var(--primary-color, #68a395)' },
-    'adult-child': { label: 'Adult Child', color: 'var(--secondary-color, #d6a461)' },
+    'out-of-nest': { 
+      label: 'Out of Nest', 
+      color: 'var(--secondary-color, #d6a461)',
+      examples: ['Grown children who moved out', 'Adult children with families', 'College-age kids', 'Grandchildren', 'Married children', 'Children-in-law', 'Great-grandchildren', 'Extended family descendants']
+    },
     partner: { label: 'Partner/Spouse', color: 'var(--accent-secondary, #b25a58)' },
     special: { 
       label: 'Special Role', 
       color: 'var(--accent-tertiary, #805a82)',
-      examples: ['Grandparent', 'Caregiver', 'Tutor', 'Babysitter', 'Family Friend', 'Other']
+      examples: ['Grandparent', 'Caregiver', 'Tutor', 'Babysitter', 'Family Friend', 'Aunt/Uncle', 'Cousin', 'Other relatives']
     }
   };
 
@@ -103,19 +128,70 @@ const FamilySetupInterface: React.FC = () => {
       label: 'Full Access', 
       description: 'Complete dashboard with all features',
       tooltip: 'Reserved for parents and primary caregivers who need complete family management control'
+    },
+    none: {
+      label: 'No Access',
+      description: 'Context-only member, no dashboard access',
+      tooltip: 'For family members who provide context but do not use the app'
     }
   };
 
   const permissions: Record<string, string> = {
     'view-family-calendar': 'View family calendar and schedules',
+    'edit-family-calendar': 'Add/edit family calendar events',
     'create-tasks': 'Create and assign tasks to others',
-    'edit-family-info': 'Edit family member information',
+    'edit-all-tasks': 'Edit anyone\'s tasks (not just their own)',
+    'delete-tasks': 'Delete tasks created by others',
+    'edit-family-info': 'Edit family member information and settings',
+    'manage-family-members': 'Add/remove family members',
     'view-finances': 'See point values and financial rewards',
-    'family-settings': 'Change household rules and settings',
-    'view-private-notes': 'See private family notes and context'
+    'manage-finances': 'Change point values and reward amounts',
+    'family-settings': 'Change household rules and app settings',
+    'view-private-notes': 'See private family notes and context',
+    'edit-private-notes': 'Add/edit private family notes',
+    'manage-integrations': 'Connect/disconnect external services',
+    'view-usage-analytics': 'See family app usage and statistics'
   };
 
-  // Draggable handlers
+  const permissionTemplates = {
+    'full-admin': {
+      name: 'Full Administrator',
+      description: 'Complete control over everything (you!)',
+      permissions: Object.keys(permissions)
+    },
+    'partner-collaborative': {
+      name: 'Collaborative Partner',
+      description: 'Can manage day-to-day but not core settings',
+      permissions: [
+        'view-family-calendar', 'edit-family-calendar', 'create-tasks', 'edit-all-tasks',
+        'view-finances', 'view-private-notes', 'edit-private-notes', 'view-usage-analytics'
+      ]
+    },
+    'partner-limited': {
+      name: 'Limited Partner',
+      description: 'Can view and manage their own stuff only',
+      permissions: [
+        'view-family-calendar', 'edit-family-calendar', 'create-tasks',
+        'view-finances', 'view-private-notes'
+      ]
+    },
+    'teen-manager': {
+      name: 'Teen with Responsibilities',
+      description: 'Can help manage younger siblings',
+      permissions: [
+        'view-family-calendar', 'create-tasks', 'view-finances'
+      ]
+    },
+    'view-only': {
+      name: 'View Only',
+      description: 'Can see everything but not change anything',
+      permissions: [
+        'view-family-calendar', 'view-finances', 'view-private-notes', 'view-usage-analytics'
+      ]
+    }
+  };
+
+  // All the handler functions
   const handleMouseDown = (e: React.MouseEvent) => {
     if (modalRef.current) {
       const rect = modalRef.current.getBoundingClientRect();
@@ -155,7 +231,6 @@ const FamilySetupInterface: React.FC = () => {
     }
   }, [dragState.isDragging]);
 
-  // Load existing family data on component mount
   useEffect(() => {
     loadFamilyData();
   }, []);
@@ -164,13 +239,11 @@ const FamilySetupInterface: React.FC = () => {
     try {
       setLoading(true);
       
-      // Get family info
       const familyResult = await getFamilyByUserId(currentUserId);
       if (familyResult.success && familyResult.family) {
         setFamilyName(familyResult.family.family_name || '');
         setCurrentFamilyId(familyResult.family.id);
         
-        // Get family members
         const membersResult = await getFamilyMembers(familyResult.family.id);
         if (membersResult.success && membersResult.members) {
           const formattedMembers: FamilyMember[] = membersResult.members.map((member: any) => ({
@@ -178,7 +251,7 @@ const FamilySetupInterface: React.FC = () => {
             name: member.name,
             nicknames: member.nicknames || [''],
             birthday: member.birthday || '',
-            relationship: member.role,
+            relationship: member.role === 'adult-child' ? 'out-of-nest' : member.role, // Convert old data
             customRole: member.role === 'special' ? member.role : '',
             accessLevel: member.access_level || 'guided',
             inHousehold: member.in_household !== false,
@@ -187,7 +260,6 @@ const FamilySetupInterface: React.FC = () => {
           }));
           setFamilyMembers(formattedMembers);
           
-          // Set all existing members as collapsed
           const collapsedState: CollapsedState = {};
           formattedMembers.forEach(member => {
             collapsedState[member.id] = true;
@@ -202,20 +274,23 @@ const FamilySetupInterface: React.FC = () => {
     }
   };
 
+  // FIXED: Auto-detect "Self" for first member
   const addFamilyMember = (): void => {
+    const isFirstMember = familyMembers.length === 0;
     const newMember: FamilyMember = {
-      id: Date.now(), // Temporary ID for UI - will be replaced by Supabase UUID
+      id: Date.now(),
       name: '',
       nicknames: [''],
       birthday: '',
-      relationship: 'child',
+      relationship: isFirstMember ? 'self' : 'child',
       customRole: '',
-      accessLevel: 'guided',
+      accessLevel: isFirstMember ? 'full' : 'guided',
       inHousehold: true,
-      permissions: {},
+      permissions: isFirstMember ? Object.keys(permissions).reduce((acc, perm) => ({...acc, [perm]: true}), {}) : {},
       notes: ''
     };
     setFamilyMembers([...familyMembers, newMember]);
+    setCollapsed({...collapsed, [newMember.id]: false}); // Auto-expand for editing
   };
 
   const updateMember = (id: string | number, field: keyof FamilyMember, value: any): void => {
@@ -237,7 +312,6 @@ const FamilySetupInterface: React.FC = () => {
       }
 
       if (!currentFamilyId) {
-        // Need to save family first
         const familyResult = await saveFamilySetup({
           wordpress_user_id: currentUserId,
           family_name: familyName || 'My Family'
@@ -256,7 +330,6 @@ const FamilySetupInterface: React.FC = () => {
       const result = await saveFamilyMember(memberData);
       
       if (result.success) {
-        // Update the member in state with the real database ID
         setFamilyMembers(members => 
           members.map(member => 
             member.id === memberId ? { ...member, id: result.member.id } : member
@@ -279,39 +352,179 @@ const FamilySetupInterface: React.FC = () => {
     setCollapsed({ ...collapsed, [memberId]: false });
   };
 
-  const processBulkFamily = async (): Promise<void> => {
-    setAiProcessing(true);
-    setTimeout(() => {
+  const handleBulkAdd = async (): Promise<void> => {
+    if (!bulkText.trim()) {
+      alert('Please enter a description of your family members');
+      return;
+    }
+
+    try {
+      setAiProcessing(true);
+      
+      const result = await processFamilyDescription(bulkText, familyMembers);
+      
+      if (!result.success) {
+        alert('AI Processing Error: ' + result.error);
+        return;
+      }
+
+      if (result.newMembers.length === 0) {
+        alert('No new family members found to add. They might already exist in your family.');
+        return;
+      }
+
+const processedMembers: AIProcessedMember[] = result.newMembers.map(member => {
+  // FIXED: Auto-apply smart permission defaults without showing "Auto-detect" option
+  let defaultTemplate: string | undefined = undefined;
+  if (member.relationship === 'partner') {
+    defaultTemplate = 'partner-limited';
+  } else if (member.relationship === 'self') {
+    defaultTemplate = 'full-admin';
+  }
+
+        return {
+          id: member.id,
+          name: member.name,
+          relationship: member.relationship === 'adult-child' ? 'out-of-nest' : member.relationship, // Convert
+          accessLevel: member.accessLevel,
+          age: member.notes.includes('Age') ? parseInt(member.notes.match(/Age (\d+)/)?.[1] || '0') || undefined : undefined,
+          nicknames: member.nicknames || [], // FIXED: Ensure nicknames array
+          birthday: '', // FIXED: Initialize birthday field
+          notes: member.notes,
+          selected: true,
+          permissionTemplate: defaultTemplate // FIXED: Auto-apply smart defaults
+        };
+      });
+
+      setAiProcessedMembers(processedMembers);
+      setAiOriginalText(bulkText);
+      setShowVerification(true);
       setShowBulkAdd(false);
-      setBulkText('');
+
+    } catch (error) {
+      console.error('Bulk add error:', error);
+      alert('Something went wrong with AI processing: ' + error.message);
+    } finally {
       setAiProcessing(false);
-      alert('AI bulk processing will be implemented in the next phase!');
-    }, 2000);
-  };
-
-  const addNickname = (memberId: string | number): void => {
-    const member = familyMembers.find(m => m.id === memberId);
-    if (member) {
-      const newNicknames = [...member.nicknames, ''];
-      updateMember(memberId, 'nicknames', newNicknames);
     }
   };
 
-  const updateNickname = (memberId: string | number, index: number, value: string): void => {
-    const member = familyMembers.find(m => m.id === memberId);
-    if (member) {
-      const newNicknames = [...member.nicknames];
-      newNicknames[index] = value;
-      updateMember(memberId, 'nicknames', newNicknames);
-    }
+  const toggleMemberSelection = (memberId: string | number): void => {
+    setAiProcessedMembers(members =>
+      members.map(member =>
+        member.id === memberId ? { ...member, selected: !member.selected } : member
+      )
+    );
   };
 
-  const removeNickname = (memberId: string | number, index: number): void => {
-    const member = familyMembers.find(m => m.id === memberId);
-    if (member) {
-      const newNicknames = member.nicknames.filter((_, i) => i !== index);
-      updateMember(memberId, 'nicknames', newNicknames);
+  const toggleMemberExpansion = (memberId: string | number): void => {
+    setExpandedMembers(prev => ({
+      ...prev,
+      [memberId]: !prev[memberId]
+    }));
+  };
+
+  const updateProcessedMember = (memberId: string | number, field: keyof AIProcessedMember, value: any): void => {
+    setAiProcessedMembers(members =>
+      members.map(member =>
+        member.id === memberId ? { ...member, [field]: value } : member
+      )
+    );
+  };
+
+  const confirmAIMembers = (): void => {
+    const selectedMembers = aiProcessedMembers.filter(member => member.selected);
+    
+    if (selectedMembers.length === 0) {
+      alert('Please select at least one family member to add.');
+      return;
     }
+
+    const newFamilyMembers: FamilyMember[] = selectedMembers.map(member => {
+      // FIXED: Out of Nest and Special Role are always context-only
+      let inHousehold = true;
+      let accessLevel = member.accessLevel;
+      
+      if (member.relationship === 'out-of-nest' || member.relationship === 'special') {
+        inHousehold = false;
+        accessLevel = 'none';
+      }
+      
+      // Apply permission template if specified
+      let permissions: Record<string, boolean> = {};
+      
+      // First check if we have granular permissions stored in notes
+      const notesPermsMatch = member.notes?.match(/Permissions: ({.*?})/);
+      if (notesPermsMatch) {
+        try {
+          permissions = JSON.parse(notesPermsMatch[1]);
+          // Clean permissions from notes
+          const cleanNotes = member.notes.replace(/Permissions:.*?(?=\n|$)/s, '').trim();
+          member.notes = cleanNotes;
+        } catch (e) {
+          // If parsing fails, fall back to template logic
+          console.warn('Failed to parse permissions from notes:', e);
+        }
+      }
+      
+      // If no granular permissions were set, apply template logic
+      if (Object.keys(permissions).length === 0 && inHousehold) {
+        if (member.permissionTemplate && member.permissionTemplate !== 'auto') {
+          // Apply selected template
+          const template = permissionTemplates[member.permissionTemplate];
+          if (template) {
+            template.permissions.forEach(perm => {
+              permissions[perm] = true;
+            });
+          }
+        } else {
+          // Smart defaults based on relationship
+          if (member.relationship === 'partner') {
+            // Default partners to "Limited Partner" instead of full access
+            const template = permissionTemplates['partner-limited'];
+            template.permissions.forEach(perm => {
+              permissions[perm] = true;
+            });
+          } else if (member.relationship === 'child') {
+            // Kids get basic permissions
+            permissions['view-family-calendar'] = true;
+            permissions['view-finances'] = true;
+          }
+        }
+      }
+      
+      return {
+        id: member.id,
+        name: member.name,
+        nicknames: member.nicknames || [], // FIXED: Use actual nicknames field
+        birthday: member.birthday || '', // FIXED: Use actual birthday field
+        relationship: member.relationship,
+        customRole: member.relationship === 'special' ? member.name : '',
+        accessLevel: accessLevel,
+        inHousehold: inHousehold,
+        permissions: permissions,
+        notes: member.notes || '' // FIXED: Clean notes without birthday/nickname data
+      };
+    });
+
+    setFamilyMembers([...familyMembers, ...newFamilyMembers]);
+    
+    setShowVerification(false);
+    setAiProcessedMembers([]);
+    setBulkText('');
+    
+    const names = selectedMembers.map(m => m.name).join(', ');
+    const permissionInfo = selectedMembers.some(m => m.permissionTemplate && m.permissionTemplate !== 'auto') 
+      ? '\n\nCustom permissions have been applied! You can further customize them by editing each member.'
+      : '\n\nSmart permission defaults have been applied based on relationships.';
+    
+    alert(`Added ${selectedMembers.length} family members: ${names}${permissionInfo}`);
+  };
+
+  const retryAIProcessing = (): void => {
+    setShowVerification(false);
+    setShowBulkAdd(true);
+    setBulkText(aiOriginalText);
   };
 
   const togglePermission = (memberId: string | number, permission: string): void => {
@@ -327,7 +540,6 @@ const FamilySetupInterface: React.FC = () => {
 
   const removeMember = async (id: string | number): Promise<void> => {
     if (window.confirm('Are you sure you want to remove this family member?')) {
-      // If it's a real database ID (UUID), delete from database
       if (typeof id === 'string' && id.includes('-')) {
         try {
           const result = await deleteFamilyMember(id);
@@ -342,7 +554,6 @@ const FamilySetupInterface: React.FC = () => {
         }
       }
       
-      // Remove from UI state
       setFamilyMembers(members => members.filter(member => member.id !== id));
     }
   };
@@ -351,7 +562,6 @@ const FamilySetupInterface: React.FC = () => {
     try {
       setSaving(true);
       
-      // Save family info first
       const familyResult = await saveFamilySetup({
         wordpress_user_id: currentUserId,
         family_name: familyName || 'My Family'
@@ -364,7 +574,6 @@ const FamilySetupInterface: React.FC = () => {
       
       setCurrentFamilyId(familyResult.familyId);
 
-      // Save any unsaved members
       const unsavedMembers = familyMembers.filter(member => 
         typeof member.id === 'number' || !String(member.id).includes('-')
       );
@@ -379,7 +588,6 @@ const FamilySetupInterface: React.FC = () => {
       }
 
       alert('Family setup saved successfully!');
-      // Reload the data to get fresh IDs
       await loadFamilyData();
       
     } catch (error) {
@@ -399,7 +607,6 @@ const FamilySetupInterface: React.FC = () => {
   };
 
   const handleClose = () => {
-    // Navigate back or close modal
     window.history.back();
   };
 
@@ -420,46 +627,18 @@ const FamilySetupInterface: React.FC = () => {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2000,
-      padding: '1rem'
-    }}>
+    <div className="modal-overlay">
       <div 
         ref={modalRef}
+        className="modal-content"
         style={{
-          background: 'var(--background-color, #fff4ec)',
-          borderRadius: '20px',
-          maxWidth: '800px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-          border: '1px solid var(--accent-color, #d4e3d9)',
-          position: 'relative',
           cursor: dragState.isDragging ? 'grabbing' : 'grab'
         }}
       >
-        {/* Draggable Header */}
         <div 
           onMouseDown={handleMouseDown}
+          className="modal-header"
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '1.5rem',
-            borderBottom: '1px solid var(--accent-color, #d4e3d9)',
-            background: 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))',
-            borderRadius: '20px 20px 0 0',
-            color: 'white',
             cursor: 'grab',
             userSelect: 'none'
           }}
@@ -482,33 +661,17 @@ const FamilySetupInterface: React.FC = () => {
           </div>
           <button
             onClick={handleClose}
-            style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'white',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+            className="modal-close-btn"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Content */}
         <div style={{ 
           padding: '2rem',
           maxHeight: 'calc(90vh - 120px)',
           overflow: 'auto'
         }}>
-          {/* Family Name */}
           <div style={{ marginBottom: '2rem' }}>
             <label style={{
               display: 'block',
@@ -527,17 +690,11 @@ const FamilySetupInterface: React.FC = () => {
               style={{
                 width: '100%',
                 padding: '1rem',
-                border: '2px solid var(--accent-color, #d4e3d9)',
-                borderRadius: '12px',
-                fontSize: '1rem',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-                background: 'white'
+                fontSize: '1rem'
               }}
             />
           </div>
 
-          {/* Family Members */}
           <div style={{ marginBottom: '2rem' }}>
             <div style={{
               display: 'flex',
@@ -562,16 +719,11 @@ const FamilySetupInterface: React.FC = () => {
             }}>
               <button
                 onClick={addFamilyMember}
+                className="btn-primary"
                 style={{
-                  background: 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))',
-                  color: 'white',
-                  border: 'none',
                   padding: '0.75rem 1.5rem',
                   borderRadius: '12px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  fontSize: '1rem'
                 }}
               >
                 Add Family Member
@@ -579,54 +731,46 @@ const FamilySetupInterface: React.FC = () => {
               
               <button
                 onClick={() => setShowBulkAdd(true)}
+                className="btn-secondary"
                 style={{
-                  background: 'transparent',
-                  color: 'var(--primary-color, #68a395)',
-                  border: '2px solid var(--primary-color, #68a395)',
                   padding: '0.75rem 1.5rem',
                   borderRadius: '12px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
+                  fontSize: '1rem'
                 }}
               >
                 Bulk Add with AI
               </button>
             </div>
 
-            {/* Family Members List */}
             {familyMembers.map((member) => (
-              <div key={member.id} style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                border: '2px solid var(--accent-color, #d4e3d9)',
-                borderRadius: '16px',
-                padding: '1.5rem',
-                marginBottom: '1rem',
-                position: 'relative'
-              }}>
+              <div key={member.id} className="family-member-card">
                 {collapsed[member.id] ? (
-                  // Collapsed view
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <strong>{member.name || 'Unnamed Family Member'}</strong>
-                      {member.customRole && <span style={{ opacity: 0.7, marginLeft: '0.5rem' }}>({member.customRole})</span>}
-                      {!member.customRole && <span style={{ opacity: 0.7, marginLeft: '0.5rem' }}>({relationshipTypes[member.relationship]?.label})</span>}
+                      {member.customRole && <span style={{ opacity: 0.7 }}>({member.customRole})</span>}
+                      {!member.customRole && <span style={{ opacity: 0.7 }}>({relationshipTypes[member.relationship]?.label})</span>}
+                      
+                      <span className={`status-badge ${member.inHousehold ? 'household' : 'context-only'}`}>
+                        {member.inHousehold ? 'Household' : 'Context Only'}
+                      </span>
+                      
+                      {member.inHousehold && (
+                        <span className="status-badge access-level">
+                          {accessLevels[member.accessLevel]?.label || member.accessLevel}
+                        </span>
+                      )}
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button
                         onClick={() => editMember(member.id)}
+                        className="btn-primary"
                         style={{
-                          background: 'var(--primary-color, #68a395)',
-                          color: 'white',
-                          border: 'none',
                           padding: '0.5rem 1rem',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
                           fontSize: '0.9rem'
                         }}
                       >
@@ -637,10 +781,7 @@ const FamilySetupInterface: React.FC = () => {
                         style={{
                           background: 'var(--accent-secondary, #b25a58)',
                           color: 'white',
-                          border: 'none',
                           padding: '0.5rem 1rem',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
                           fontSize: '0.9rem'
                         }}
                       >
@@ -649,7 +790,6 @@ const FamilySetupInterface: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  // Expanded edit view - truncated for space, but same content as before
                   <div>
                     <button
                       onClick={() => saveMember(member.id)}
@@ -660,10 +800,7 @@ const FamilySetupInterface: React.FC = () => {
                         right: '1rem',
                         background: 'var(--primary-color, #68a395)',
                         color: 'white',
-                        border: 'none',
                         padding: '0.5rem 1rem',
-                        borderRadius: '8px',
-                        cursor: saving ? 'not-allowed' : 'pointer',
                         fontSize: '0.9rem',
                         fontWeight: '600',
                         opacity: saving ? 0.7 : 1
@@ -671,8 +808,295 @@ const FamilySetupInterface: React.FC = () => {
                     >
                       {saving ? 'Saving...' : 'Save'}
                     </button>
-                    {/* Rest of expanded member form content here - same as your working version */}
-                    {/* ... (keeping the same content to avoid making this too long) ... */}
+                    
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Name</label>
+                      <input
+                        type="text"
+                        value={member.name}
+                        onChange={(e) => updateMember(member.id, 'name', e.target.value)}
+                        placeholder="Full name"
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Relationship</label>
+                      <select
+                        value={member.relationship}
+                        onChange={(e) => updateMember(member.id, 'relationship', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem'
+                        }}
+                      >
+                        {Object.entries(relationshipTypes).map(([key, type]) => (
+                          <option key={key} value={key}>{type.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {member.relationship === 'special' && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                          Specify Role
+                        </label>
+                        <input
+                          type="text"
+                          value={member.customRole}
+                          onChange={(e) => updateMember(member.id, 'customRole', e.target.value)}
+                          placeholder="e.g., Grandparent, Babysitter, Tutor, Family Friend"
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem'
+                          }}
+                        />
+                        <div className="info-box" style={{ marginTop: '0.5rem' }}>
+                          Common roles: {relationshipTypes.special.examples?.join(', ')}
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                        Household Status
+                      </label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                          <input
+                            type="radio"
+                            name={`household-${member.id}`}
+                            checked={member.inHousehold === true}
+                            onChange={() => {
+                              updateMember(member.id, 'inHousehold', true);
+                              if (member.relationship === 'child' && !member.accessLevel) {
+                                updateMember(member.id, 'accessLevel', 'guided');
+                              } else if (member.relationship === 'partner' && !member.accessLevel) {
+                                updateMember(member.id, 'accessLevel', 'full');
+                              }
+                            }}
+                            style={{ marginRight: '0.5rem' }}
+                          />
+                          <span>
+                            <strong>Lives in household</strong> - Gets dashboard access, can receive tasks
+                          </span>
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                          <input
+                            type="radio"
+                            name={`household-${member.id}`}
+                            checked={member.inHousehold === false}
+                            onChange={() => {
+                              updateMember(member.id, 'inHousehold', false);
+                              updateMember(member.id, 'accessLevel', 'none');
+                            }}
+                            style={{ marginRight: '0.5rem' }}
+                          />
+                          <span>
+                            <strong>Context only</strong> - No dashboard, just for AI context & birthdays
+                          </span>
+                        </label>
+                      </div>
+                      <div className="info-box tip" style={{ marginTop: '0.5rem' }}>
+                        <strong>Context-only members</strong> help AI understand your family dynamics but don't get app access. Perfect for adult children, distant relatives, or anyone you want to track for birthdays/context.
+                      </div>
+                    </div>
+
+                    {member.inHousehold && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>Access Level</label>
+                        <select
+                          value={member.accessLevel}
+                          onChange={(e) => updateMember(member.id, 'accessLevel', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem'
+                          }}
+                        >
+                          {Object.entries(accessLevels).filter(([key]) => key !== 'none').map(([key, level]) => (
+                            <option key={key} value={key}>{level.label} - {level.description}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                        Birthday {!member.inHousehold && <span style={{ opacity: 0.7 }}>(for AI context & reminders)</span>}
+                      </label>
+                      <input
+                        type="date"
+                        value={member.birthday}
+                        onChange={(e) => updateMember(member.id, 'birthday', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem'
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                        Notes {!member.inHousehold && <span style={{ opacity: 0.7 }}>(helps AI understand context)</span>}
+                      </label>
+                      <textarea
+                        value={member.notes}
+                        onChange={(e) => updateMember(member.id, 'notes', e.target.value)}
+                        placeholder={member.inHousehold 
+                          ? "Any special notes about this family member..." 
+                          : "e.g., Lives in Chicago, visits monthly, loves soccer, studying medicine..."
+                        }
+                        rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          resize: 'vertical'
+                        }}
+                      />
+                    </div>
+
+                    {member.inHousehold && (member.accessLevel === 'independent' || member.accessLevel === 'full') && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                          <label style={{ fontWeight: '600' }}>
+                            Specific Permissions
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowPermissions({ ...showPermissions, [member.id]: !showPermissions[member.id] })}
+                            style={{
+                              background: 'var(--secondary-color, #d6a461)',
+                              color: 'white',
+                              padding: '0.25rem 0.5rem',
+                              fontSize: '0.75rem'
+                            }}
+                          >
+                            {showPermissions[member.id] ? 'Hide Details' : 'Customize Permissions'}
+                          </button>
+                        </div>
+                        
+                        <div style={{ marginBottom: '1rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+                            Quick Setup Templates:
+                          </label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {Object.entries(permissionTemplates).map(([key, template]) => (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => {
+                                  const newPermissions: Record<string, boolean> = {};
+                                  template.permissions.forEach(perm => {
+                                    newPermissions[perm] = true;
+                                  });
+                                  updateMember(member.id, 'permissions', newPermissions);
+                                }}
+                                className="template-btn"
+                                title={template.description}
+                              >
+                                {template.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {showPermissions[member.id] && (
+                          <div className="permission-section thin-scrollbar" style={{
+                            maxHeight: '300px',
+                            overflowY: 'auto'
+                          }}>
+                            <div className="info-box" style={{ marginBottom: '0.5rem' }}>
+                              Uncheck permissions you don't want this person to have. Perfect for "I love you but don't touch my system" scenarios!
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                              <div className="permission-group">
+                                <h5>Calendar</h5>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  {['view-family-calendar', 'edit-family-calendar'].map(permission => (
+                                    <label key={permission} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={member.permissions[permission] || false}
+                                        onChange={() => togglePermission(member.id, permission)}
+                                      />
+                                      {permissions[permission]}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="permission-group">
+                                <h5>Tasks</h5>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  {['create-tasks', 'edit-all-tasks', 'delete-tasks'].map(permission => (
+                                    <label key={permission} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={member.permissions[permission] || false}
+                                        onChange={() => togglePermission(member.id, permission)}
+                                      />
+                                      {permissions[permission]}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="permission-group">
+                                <h5>Family Management</h5>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  {['edit-family-info', 'manage-family-members', 'family-settings'].map(permission => (
+                                    <label key={permission} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={member.permissions[permission] || false}
+                                        onChange={() => togglePermission(member.id, permission)}
+                                      />
+                                      {permissions[permission]}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="permission-group">
+                                <h5>Financial & Rewards</h5>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  {['view-finances', 'manage-finances'].map(permission => (
+                                    <label key={permission} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={member.permissions[permission] || false}
+                                        onChange={() => togglePermission(member.id, permission)}
+                                      />
+                                      {permissions[permission]}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="permission-group">
+                                <h5>Privacy & Data</h5>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  {['view-private-notes', 'edit-private-notes', 'manage-integrations', 'view-usage-analytics'].map(permission => (
+                                    <label key={permission} style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={member.permissions[permission] || false}
+                                        onChange={() => togglePermission(member.id, permission)}
+                                      />
+                                      {permissions[permission]}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -690,21 +1114,14 @@ const FamilySetupInterface: React.FC = () => {
             )}
           </div>
 
-          {/* Save Button */}
           <div style={{ textAlign: 'center' }}>
             <button
               onClick={handleSaveFamilySetup}
               disabled={saving}
+              className="btn-primary"
               style={{
-                background: 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))',
-                color: 'white',
-                border: 'none',
                 padding: '1rem 2rem',
-                borderRadius: '12px',
                 fontSize: '1.1rem',
-                fontWeight: '600',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
                 opacity: saving ? 0.7 : 1
               }}
             >
@@ -713,89 +1130,431 @@ const FamilySetupInterface: React.FC = () => {
           </div>
         </div>
 
-        {/* Bulk Add Modal */}
+        {/* FIXED: Bulk Add Modal - NO EMOJIS */}
         {showBulkAdd && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 3000
-          }}>
-            <div style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '2rem',
-              maxWidth: '600px',
-              width: '90%',
-              maxHeight: '80vh',
-              overflow: 'auto'
-            }}>
-              <h3 style={{
-                color: 'var(--primary-color, #68a395)',
-                marginBottom: '1rem'
-              }}>
-                Bulk Add Family Members with AI
-              </h3>
-              <p style={{
-                color: 'var(--text-color, #5a4033)',
-                marginBottom: '1rem'
-              }}>
-                Just tell us about your family in natural language. Our AI will organize it and ask for clarification if needed.
-              </p>
-              <textarea
-                value={bulkText}
-                onChange={handleBulkTextChange}
-                placeholder="Example: My family includes my husband John (birthday Feb 15), my teenage daughter Sarah who goes by Sar (16 years old, birthday Oct 3), my son Mike (12, birthday July 22), and we also want to include my mother-in-law Betty who babysits sometimes..."
-                style={{
-                  width: '100%',
-                  height: '200px',
-                  padding: '1rem',
-                  border: '2px solid var(--accent-color, #d4e3d9)',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  marginBottom: '1rem',
-                  resize: 'vertical'
-                }}
-              />
-              <div style={{
-                display: 'flex',
-                gap: '1rem',
-                justifyContent: 'flex-end'
-              }}>
+          <div className="modal-overlay" style={{ zIndex: 3000 }}>
+            <div 
+              className="modal-content thin-scrollbar"
+              style={{
+                maxWidth: '600px',
+                width: '90%',
+                maxHeight: '80vh'
+              }}
+            >
+              <div className="modal-header">
+                <h3 style={{ margin: 0 }}>
+                  Bulk Add Family Members with AI
+                </h3>
                 <button
                   onClick={() => setShowBulkAdd(false)}
-                  style={{
-                    background: 'transparent',
-                    color: 'var(--text-color, #5a4033)',
-                    border: '2px solid var(--accent-color, #d4e3d9)',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '8px',
-                    cursor: 'pointer'
-                  }}
+                  className="modal-close-btn"
                 >
-                  Cancel
+                  <X size={20} />
                 </button>
+              </div>
+              
+              <div style={{ padding: '2rem' }}>
+                <p style={{ color: 'var(--text-color, #5a4033)', marginBottom: '1rem' }}>
+                  Just describe your family in natural language! Our AI will organize it automatically.
+                </p>
+                
+                <div className="info-box" style={{ marginBottom: '1rem' }}>
+                  <strong>Examples that work great:</strong><br/>
+                  • "We have Sarah the mom, Mike the dad, Emma who's 16, Jake who's 12, and Lily who's 8"<br/>
+                  • "There's me (Mom), my husband John, our teenager Alex (15), and our twins Ben and Sam who are both 10"<br/>
+                  • "Our family includes Grandma Rose, Mom, Dad, big sister Katie (17), and little brother Max (6)"
+                </div>
+                
+                <textarea
+                  className="thin-scrollbar"
+                  value={bulkText}
+                  onChange={handleBulkTextChange}
+                  placeholder="Describe your family members here... (e.g., 'We have Sarah the mom, Mike the dad, Emma who's 16...')"
+                  style={{
+                    width: '100%',
+                    height: '120px',
+                    padding: '1rem',
+                    fontSize: '1rem',
+                    marginBottom: '1rem',
+                    resize: 'vertical'
+                  }}
+                  disabled={aiProcessing}
+                />
+                
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => setShowBulkAdd(false)}
+                    disabled={aiProcessing}
+                    className="btn-secondary"
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      fontSize: '1rem',
+                      opacity: aiProcessing ? 0.6 : 1
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleBulkAdd}
+                    disabled={aiProcessing || !bulkText.trim()}
+                    className="btn-primary"
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      opacity: (aiProcessing || !bulkText.trim()) ? 0.6 : 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {aiProcessing ? 'AI Processing...' : 'Process with AI'}
+                  </button>
+                </div>
+                
+                {aiProcessing && (
+                  <div className="info-box" style={{
+                    marginTop: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    The AI is reading your family description and organizing the data...<br/>
+                    This usually takes 3-5 seconds.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FIXED: AI Verification Modal - NO EMOJIS */}
+        {showVerification && (
+          <div className="modal-overlay" style={{ zIndex: 4000 }}>
+            <div 
+              className="modal-content thin-scrollbar"
+              style={{
+                maxWidth: '700px',
+                width: '90%',
+                maxHeight: '80vh'
+              }}
+            >
+              <div className="modal-header">
+                <h3 style={{ margin: 0 }}>
+                  Review AI Results
+                </h3>
                 <button
-                  onClick={processBulkFamily}
-                  disabled={!bulkText.trim() || aiProcessing}
-                  style={{
-                    background: 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '8px',
-                    cursor: aiProcessing ? 'not-allowed' : 'pointer',
-                    opacity: aiProcessing ? 0.7 : 1
-                  }}
+                  onClick={() => setShowVerification(false)}
+                  className="modal-close-btn"
                 >
-                  {aiProcessing ? 'Processing...' : 'Process with AI'}
+                  <X size={20} />
                 </button>
+              </div>
+              
+              <div style={{ padding: '2rem' }}>
+                <p style={{ marginBottom: '1.5rem', color: 'var(--text-color, #5a4033)' }}>
+                  Here's what our AI found in your description. Please review and select which family members to add:
+                </p>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  {aiProcessedMembers.map((member) => (
+                    <div key={member.id} style={{
+                      border: '2px solid var(--accent-color, #d4e3d9)',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      marginBottom: '1rem',
+                      background: member.selected ? 'rgba(104, 163, 149, 0.1)' : 'rgba(0, 0, 0, 0.05)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <input
+                            type="checkbox"
+                            checked={member.selected}
+                            onChange={() => toggleMemberSelection(member.id)}
+                            style={{ marginRight: '0.5rem', transform: 'scale(1.2)' }}
+                          />
+                          <strong>{member.name}</strong>
+                          <span style={{ 
+                            marginLeft: '0.5rem', 
+                            padding: '0.25rem 0.5rem', 
+                            background: relationshipTypes[member.relationship]?.color || 'gray',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                          }}>
+                            {relationshipTypes[member.relationship]?.label || member.relationship}
+                          </span>
+                          <span style={{ 
+                            marginLeft: '0.5rem', 
+                            padding: '0.25rem 0.5rem', 
+                            background: 'var(--secondary-color, #d6a461)',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                          }}>
+                            {accessLevels[member.accessLevel]?.label || member.accessLevel}
+                          </span>
+                        </div>
+                        
+                        {/* FIXED: Added Customize Button */}
+                        {member.selected && (
+                          <button
+                            onClick={() => toggleMemberExpansion(member.id)}
+                            className="btn-secondary"
+                            style={{
+                              padding: '0.5rem 1rem',
+                              fontSize: '0.875rem'
+                            }}
+                          >
+                            {expandedMembers[member.id] ? 'Hide Details' : 'Customize'}
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Quick Status Display */}
+                      <div className="info-box" style={{ 
+                        marginBottom: expandedMembers[member.id] ? '0.75rem' : '0',
+                        fontSize: '0.875rem'
+                      }}>
+                        <strong>Will be added as:</strong> {
+                          member.relationship === 'out-of-nest' || member.relationship === 'special'
+                            ? 'Context Only (no dashboard access)'
+                            : 'Household Member (gets dashboard)'
+                        }
+                      </div>
+
+                      {/* FIXED: Full Inline Customization Form */}
+                      {member.selected && expandedMembers[member.id] && (
+                        <div style={{ 
+                          marginTop: '1rem',
+                          padding: '1rem',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          borderRadius: '8px',
+                          border: '1px solid var(--accent-color, #d4e3d9)'
+                        }}>
+                          {/* Name */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                              Full Name
+                            </label>
+                            <input
+                              type="text"
+                              value={member.name}
+                              onChange={(e) => updateProcessedMember(member.id, 'name', e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '0.75rem'
+                              }}
+                            />
+                          </div>
+
+                          {/* Relationship */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                              Relationship
+                            </label>
+                            <select
+                              value={member.relationship}
+                              onChange={(e) => updateProcessedMember(member.id, 'relationship', e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '0.75rem'
+                              }}
+                            >
+                              {Object.entries(relationshipTypes).map(([key, type]) => (
+                                <option key={key} value={key} title={type.examples?.join(', ')}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                            {relationshipTypes[member.relationship]?.examples && (
+                              <div className="info-box" style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
+                                Examples: {relationshipTypes[member.relationship].examples?.join(', ')}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Custom Role for Special */}
+                          {member.relationship === 'special' && (
+                            <div style={{ marginBottom: '1rem' }}>
+                              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                                Specify Role
+                              </label>
+                              <input
+                                type="text"
+                                value={member.notes?.includes('Role:') ? member.notes.split('Role: ')[1]?.split(',')[0] || '' : ''}
+                                onChange={(e) => {
+                                  const baseNotes = member.notes?.split('Role:')[0] || member.notes || '';
+                                  const newNotes = e.target.value ? `${baseNotes}Role: ${e.target.value}` : baseNotes;
+                                  updateProcessedMember(member.id, 'notes', newNotes);
+                                }}
+                                placeholder="e.g., Grandparent, Babysitter, Tutor"
+                                style={{
+                                  width: '100%',
+                                  padding: '0.75rem'
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          {/* Household Status */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                              Household Status
+                            </label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                <input
+                                  type="radio"
+                                  name={`household-ai-${member.id}`}
+                                  checked={!(member.relationship === 'out-of-nest' || member.relationship === 'special')}
+                                  onChange={() => {
+                                    // Can't change if out-of-nest or special
+                                    if (member.relationship !== 'out-of-nest' && member.relationship !== 'special') {
+                                      updateProcessedMember(member.id, 'accessLevel', 'guided');
+                                    }
+                                  }}
+                                  disabled={member.relationship === 'out-of-nest' || member.relationship === 'special'}
+                                  style={{ marginRight: '0.5rem' }}
+                                />
+                                <span>
+                                  <strong>Lives in household</strong> - Gets dashboard access
+                                  {(member.relationship === 'out-of-nest' || member.relationship === 'special') && 
+                                    <span style={{ opacity: 0.6 }}> (disabled for this relationship type)</span>
+                                  }
+                                </span>
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                <input
+                                  type="radio"
+                                  name={`household-ai-${member.id}`}
+                                  checked={member.relationship === 'out-of-nest' || member.relationship === 'special'}
+                                  onChange={() => updateProcessedMember(member.id, 'accessLevel', 'none')}
+                                  style={{ marginRight: '0.5rem' }}
+                                />
+                                <span>
+                                  <strong>Context only</strong> - No dashboard, just for AI context & birthdays
+                                </span>
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Access Level - Only for household members */}
+                          {!(member.relationship === 'out-of-nest' || member.relationship === 'special') && (
+                            <div style={{ marginBottom: '1rem' }}>
+                              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                                Access Level
+                              </label>
+                              <select
+                                value={member.accessLevel}
+                                onChange={(e) => updateProcessedMember(member.id, 'accessLevel', e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.75rem'
+                                }}
+                              >
+                                {Object.entries(accessLevels).filter(([key]) => key !== 'none').map(([key, level]) => (
+                                  <option key={key} value={key}>{level.label} - {level.description}</option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+
+                          {/* Permission Template - Only for household members with Independent/Full access */}
+                          {!(member.relationship === 'out-of-nest' || member.relationship === 'special') && 
+                           (member.accessLevel === 'independent' || member.accessLevel === 'full') && (
+                            <div style={{ marginBottom: '1rem' }}>
+                              <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                                Permission Template
+                              </label>
+                              <select
+                                value={member.permissionTemplate || 'auto'}
+                                onChange={(e) => updateProcessedMember(member.id, 'permissionTemplate', e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  padding: '0.75rem'
+                                }}
+                              >
+                                <option value="auto">Auto-detect from relationship</option>
+                                {Object.entries(permissionTemplates).map(([key, template]) => (
+                                  <option key={key} value={key} title={template.description}>
+                                    {template.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-color, #5a4033)', opacity: 0.7, marginTop: '0.25rem' }}>
+                                {member.permissionTemplate && member.permissionTemplate !== 'auto' 
+                                  ? permissionTemplates[member.permissionTemplate]?.description
+                                  : member.relationship === 'partner' 
+                                    ? 'Partners get "Limited Partner" by default (can help but not break your system!)'
+                                    : 'Will auto-assign appropriate permissions based on relationship'
+                                }
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Notes */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+                              Notes
+                            </label>
+                            <textarea
+                              value={member.notes}
+                              onChange={(e) => updateProcessedMember(member.id, 'notes', e.target.value)}
+                              placeholder={member.relationship === 'out-of-nest' || member.relationship === 'special'
+                                ? "e.g., Lives in Chicago, visits monthly, loves soccer..."
+                                : "Any special notes about this family member..."
+                              }
+                              rows={3}
+                              style={{
+                                width: '100%',
+                                padding: '0.75rem',
+                                resize: 'vertical'
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between' }}>
+                  <button
+                    onClick={retryAIProcessing}
+                    className="btn-secondary"
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Try Again
+                  </button>
+                  
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => setShowVerification(false)}
+                      style={{
+                        background: 'transparent',
+                        color: 'var(--text-color, #5a4033)',
+                        border: '1px solid var(--accent-color, #d4e3d9)',
+                        padding: '0.75rem 1.5rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmAIMembers}
+                      className="btn-primary"
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '1rem',
+                        fontWeight: '600'
+                      }}
+                    >
+                      Add Selected Members ({aiProcessedMembers.filter(m => m.selected).length})
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

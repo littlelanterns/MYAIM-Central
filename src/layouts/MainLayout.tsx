@@ -1,4 +1,4 @@
-// src/layouts/MainLayout.tsx - Updated with LiLa Panel and Modal System
+// src/layouts/MainLayout.tsx - FIXED Default Theme
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalHeader from '../components/global/GlobalHeader';
@@ -10,8 +10,24 @@ import { personalThemes, createThemeVariables } from '../styles/colors';
 import './MainLayout.css';
 
 const MainLayout = () => {
-  const [currentTheme, setCurrentTheme] = useState('rosegold');
+  // FIXED: Default to 'classic' instead of 'rosegold'
+  const [currentTheme, setCurrentTheme] = useState('classic');
   const { modals } = useModalContext();
+
+  useEffect(() => {
+    // TODO: Load user's saved theme preference from Supabase
+    // const loadUserTheme = async () => {
+    //   const { data } = await supabase
+    //     .from('family_members')
+    //     .select('theme_preference')
+    //     .eq('wordpress_user_id', currentUserId)
+    //     .single();
+    //   if (data?.theme_preference) {
+    //     setCurrentTheme(data.theme_preference);
+    //   }
+    // };
+    // loadUserTheme();
+  }, []);
 
   useEffect(() => {
     const theme = personalThemes[currentTheme] || personalThemes.classic;

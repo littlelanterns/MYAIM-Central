@@ -1,17 +1,394 @@
-/* src/styles/global.css */
-.App {
-  text-align: center;
+/* src/styles/global.css - Updated with comprehensive theme fixes */
+
+/* ========================================
+   GLOBAL THEME FIXES - Never backtrack again!
+   ======================================== */
+
+/* Universal Form Input Theming - No more black outlines! */
+input[type="text"],
+input[type="email"], 
+input[type="password"],
+input[type="date"],
+input[type="number"],
+textarea,
+select {
+  border: 2px solid var(--accent-color, #d4e3d9) !important;
+  background: white !important;
+  color: var(--text-color, #5a4033) !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
 }
 
-* {
-  box-sizing: border-box;
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary-color, #68a395) !important;
+  box-shadow: 0 0 0 3px rgba(104, 163, 149, 0.1) !important;
+  outline: none !important;
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+input::placeholder,
+textarea::placeholder {
+  color: rgba(90, 64, 51, 0.5) !important;
+}
+
+/* Universal Button Theming */
+button {
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* Primary Button Style */
+.btn-primary,
+button[style*="gradient"] {
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461))) !important;
+  color: white !important;
+}
+
+.btn-primary:hover,
+button[style*="gradient"]:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Secondary Button Style */
+.btn-secondary {
+  background: transparent !important;
+  color: var(--primary-color, #68a395) !important;
+  border: 2px solid var(--primary-color, #68a395) !important;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--primary-color, #68a395) !important;
+  color: white !important;
+}
+
+/* ========================================
+   UNIVERSAL SCROLLBAR THEMING
+   ======================================== */
+
+/* Main scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--accent-color, #d4e3d9);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  border-radius: 4px;
+  border: 1px solid var(--accent-color, #d4e3d9);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, linear-gradient(135deg, var(--secondary-color, #d6a461), var(--primary-color, #68a395)));
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--accent-color, #d4e3d9);
+}
+
+/* Thin scrollbars for modals and small areas */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: var(--accent-color, #d4e3d9);
+  border-radius: 3px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  border-radius: 3px;
+  border: 1px solid var(--accent-color, #d4e3d9);
+}
+
+/* ========================================
+   UNIVERSAL TOOLTIP THEMING
+   ======================================== */
+
+/* Tooltip base styles */
+[title]:hover::after,
+.tooltip::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+[title]:hover::after,
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Tooltip arrow */
+[title]:hover::before,
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border: 4px solid transparent;
+  border-top-color: var(--primary-color, #68a395);
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+[title]:hover::before,
+.tooltip:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   MODAL & OVERLAY THEMING
+   ======================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--background-color, #fff4ec);
+  border-radius: 20px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--accent-color, #d4e3d9);
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--accent-color, #d4e3d9);
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  border-radius: 20px 20px 0 0;
+  color: white;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  color: white !important;
+  transition: background 0.2s ease !important;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ========================================
+   FAMILY SETTINGS SPECIFIC FIXES
+   ======================================== */
+
+/* Member cards */
+.family-member-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--accent-color, #d4e3d9);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+}
+
+.status-badge.household {
+  background: var(--primary-color, #68a395);
+}
+
+.status-badge.context-only {
+  background: var(--accent-secondary, #b25a58);
+}
+
+.status-badge.access-level {
+  background: var(--secondary-color, #d6a461);
+}
+
+/* Permission sections */
+.permission-section {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--accent-color, #d4e3d9);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.permission-group {
+  margin-bottom: 1rem;
+}
+
+.permission-group h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color, #68a395);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  accent-color: var(--primary-color, #68a395);
+  margin-right: 0.5rem;
+}
+
+/* Radio button styling */
+input[type="radio"] {
+  accent-color: var(--primary-color, #68a395);
+  margin-right: 0.5rem;
+}
+
+/* Template buttons */
+.template-btn {
+  background: transparent !important;
+  border: 1px solid var(--primary-color, #68a395) !important;
+  color: var(--primary-color, #68a395) !important;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 4px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.template-btn:hover {
+  background: var(--primary-color, #68a395) !important;
+  color: white !important;
+}
+
+/* Info boxes */
+.info-box {
+  padding: 0.5rem;
+  background: var(--accent-color, #d4e3d9);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: var(--text-color, #5a4033);
+  margin-top: 0.5rem;
+}
+
+.info-box.warning {
+  background: rgba(178, 90, 88, 0.1);
+  border: 1px solid var(--accent-secondary, #b25a58);
+}
+
+.info-box.tip {
+  background: rgba(104, 163, 149, 0.1);
+  border: 1px solid var(--primary-color, #68a395);
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-header h1 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Focus states */
+*:focus {
+  outline: 2px solid var(--primary-color, #68a395);
+  outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(104, 163, 149, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .modal-content {
+    border: 3px solid var(--primary-color, #68a395);
+  }
+  
+  input,
+  textarea,
+  select {
+    border-width: 3px !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
