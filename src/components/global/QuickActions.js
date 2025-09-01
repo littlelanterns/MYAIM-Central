@@ -21,6 +21,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   
   // Actions with usage count for auto-rearrangement
   const [actions, setActions] = useState([
+    { name: "Command Center", usageCount: 0, id: 'command-center', type: 'navigation' },
     { name: "Family Setup", usageCount: 0, id: 'family-setup', type: 'navigation' },
     { name: "Create Task", usageCount: 0, id: 'create-task', type: 'modal' },
     { name: "Me with Manners", usageCount: 0, id: 'manners', type: 'modal' },
@@ -41,6 +42,8 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   };
 
   const handleActionClick = (actionId) => {
+    console.log('QuickAction clicked:', actionId);
+    
     // Update usage count and sort
     setActions(prevActions => {
       const updatedActions = prevActions.map(action => 
@@ -62,8 +65,10 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
     const clickedAction = actions.find(a => a.id === actionId);
     
     if (clickedAction.type === 'navigation') {
+      console.log('Navigating to:', actionId);
       handleNavigation(actionId);
     } else if (clickedAction.type === 'modal') {
+      console.log('Opening modal:', actionId);
       handleModalOpen(actionId);
     }
     
@@ -72,6 +77,9 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
 
   const handleNavigation = (actionId) => {
     switch (actionId) {
+      case 'command-center':
+        navigate('/command-center');
+        break;
       case 'family-setup':
         navigate('/family-setup');
         break;
@@ -145,7 +153,12 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
               <button 
                 key={action.id} 
                 className="quick-action-card"
-                onClick={() => handleActionClick(action.id)}
+                onClick={(e) => {
+                  console.log('Button clicked:', action.id, action.name);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleActionClick(action.id);
+                }}
                 title={`Used ${action.usageCount} times`}
               >
                 {action.name}

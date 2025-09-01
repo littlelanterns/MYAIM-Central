@@ -1,8 +1,56 @@
 /* src/styles/global.css - Updated with comprehensive theme fixes */
 
 /* ========================================
+   THEME VARIABLES - Core theme system
+   ======================================== */
+
+:root {
+  /* Default theme variables (Classic AIMfM) */
+  --primary-color: #68a395;
+  --secondary-color: #d6a461;
+  --accent-color: #d4e3d9;
+  --background-color: #fff4ec;
+  --text-color: #5a4033;
+  --gradient-primary: linear-gradient(135deg, #68a395, #d6a461);
+  --gradient-background: linear-gradient(135deg, #fff4ec, rgba(212, 227, 217, 0.2));
+  
+  /* Personal theme variables (for individual member theming) */
+  --personal-primary-color: var(--primary-color);
+  --personal-secondary-color: var(--secondary-color);
+  --personal-accent-color: var(--accent-color);
+  --personal-background-color: var(--background-color);
+  --personal-text-color: var(--text-color);
+  --personal-gradient-primary: var(--gradient-primary);
+  
+  /* Scrollbar theming */
+  --scrollbar-thumb: var(--gradient-primary);
+  --scrollbar-thumb-hover: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+/* Theme transitions */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Personal theme scoping */
+.personal-theme {
+  --primary-color: var(--personal-primary-color);
+  --secondary-color: var(--personal-secondary-color);  
+  --accent-color: var(--personal-accent-color);
+  --background-color: var(--personal-background-color);
+  --text-color: var(--personal-text-color);
+  --gradient-primary: var(--personal-gradient-primary);
+}
+
+/* ========================================
    GLOBAL THEME FIXES - Never backtrack again!
    ======================================== */
+
+/* Global Task Section Styling - Square corners everywhere */
+.task-section {
+  border-radius: 0 !important;
+}
 
 /* Universal Form Input Theming - No more black outlines! */
 input[type="text"],
