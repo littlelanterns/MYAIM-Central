@@ -1,6 +1,6 @@
 // src/hooks/useModal.tsx
 import { ReactNode } from 'react';
-import { useModalContext, ModalData } from '../contexts/ModalContext.tsx';
+import { useModalContext, ModalData } from '../contexts/ModalContext';
 
 // Custom hook for easy modal management
 export const useModal = () => {

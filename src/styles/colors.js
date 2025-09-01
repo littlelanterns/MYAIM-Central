@@ -324,6 +324,157 @@ export const personalThemes = {
     background: '#faf9f7',   // Linen
     text: '#3c3c3c',         // Deep Bark
     preview: ['#2f4f2f', '#8b8680', '#9caf88']
+  },
+
+  // CHILD-FRIENDLY THEMES (using your existing color palette)
+  brightSunshine: {
+    name: "Bright Sunshine",
+    description: "Happy and bright like sunshine!",
+    primary: colorPalette.yellow.medium,    // Sunbeam Gold
+    secondary: colorPalette.orange.light,   // Soft Apricot
+    accent: colorPalette.yellow.light,      // Honey Butter
+    background: colorPalette.yellow.lightest, // Champagne Linen
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.yellow.medium, colorPalette.orange.light, colorPalette.yellow.light],
+    childFriendly: true
+  },
+
+  oceanWaves: {
+    name: "Ocean Waves",
+    description: "Cool and calm like ocean waves",
+    primary: colorPalette.teal.medium,      // Cool Sage
+    secondary: colorPalette.blue.medium,    // Coastal Blue
+    accent: colorPalette.teal.light,        // Seafoam
+    background: '#f0f8ff',                  // Alice Blue
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.teal.medium, colorPalette.blue.medium, colorPalette.teal.light],
+    childFriendly: true
+  },
+
+  forestAdventure: {
+    name: "Forest Adventure",
+    description: "Green like nature adventures!",
+    primary: colorPalette.green.medium,     // Herb Garden
+    secondary: colorPalette.green.light,    // Misty Eucalyptus
+    accent: colorPalette.yellow.light,      // Honey Butter
+    background: colorPalette.green.lighter, // Misty Mint
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.green.medium, colorPalette.green.light, colorPalette.yellow.light],
+    childFriendly: true
+  },
+
+  prettyFlowers: {
+    name: "Pretty Flowers",
+    description: "Soft and pretty like spring flowers",
+    primary: colorPalette.pink.medium,      // Rose Dust
+    secondary: colorPalette.purple.light,   // Lilac Whisper
+    accent: colorPalette.pink.light,        // Petal Blush
+    background: '#fef7ff',                  // Very Light Pink
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.pink.medium, colorPalette.purple.light, colorPalette.pink.light],
+    childFriendly: true
+  },
+
+  // SEASONAL THEMES (without holiday names)
+  winterWonderland: {
+    name: "Winter Wonder",
+    description: "Cool and sparkly like winter",
+    primary: colorPalette.blue.medium,      // Coastal Blue
+    secondary: colorPalette.purple.light,   // Lilac Whisper
+    accent: '#ffffff',                      // Pure White
+    background: '#f8faff',                  // Very Light Blue
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.blue.medium, colorPalette.purple.light, '#ffffff'],
+    childFriendly: true,
+    seasonal: true
+  },
+
+  autumnLeaves: {
+    name: "Autumn Leaves",
+    description: "Warm colors like falling leaves",
+    primary: colorPalette.orange.medium,    // Peach Nectar
+    secondary: colorPalette.red.medium,     // Coral Pink
+    accent: colorPalette.yellow.medium,     // Sunbeam Gold
+    background: colorPalette.orange.light,  // Soft Apricot
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.orange.medium, colorPalette.red.medium, colorPalette.yellow.medium],
+    childFriendly: true,
+    seasonal: true
+  },
+
+  springBloom: {
+    name: "Spring Bloom",
+    description: "Fresh colors like new flowers",
+    primary: colorPalette.green.light,      // Misty Eucalyptus
+    secondary: colorPalette.pink.light,     // Petal Blush
+    accent: colorPalette.yellow.lighter,    // Buttercream
+    background: colorPalette.green.lighter, // Misty Mint
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.green.light, colorPalette.pink.light, colorPalette.yellow.lighter],
+    childFriendly: true,
+    seasonal: true
+  },
+
+  summerFun: {
+    name: "Summer Fun",
+    description: "Bright and fun like summer days",
+    primary: colorPalette.yellow.dark,      // Mustard Grove
+    secondary: colorPalette.teal.medium,    // Cool Sage
+    accent: colorPalette.orange.light,      // Soft Apricot
+    background: colorPalette.yellow.light,  // Honey Butter
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.yellow.dark, colorPalette.teal.medium, colorPalette.orange.light],
+    childFriendly: true,
+    seasonal: true
+  },
+
+  // MORE CHILD THEMES
+  sweetCandy: {
+    name: "Sweet Treats",
+    description: "Colorful like favorite treats!",
+    primary: colorPalette.purple.medium,    // Mauve Fog
+    secondary: colorPalette.pink.medium,    // Rose Dust
+    accent: colorPalette.yellow.lighter,    // Buttercream
+    background: colorPalette.purple.light,  // Lilac Whisper
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.purple.medium, colorPalette.pink.medium, colorPalette.yellow.lighter],
+    childFriendly: true
+  },
+
+  earthyBrown: {
+    name: "Chocolate Fun",
+    description: "Warm and cozy like chocolate",
+    primary: colorPalette.brown.medium,     // Cinnamon Milk
+    secondary: colorPalette.orange.medium,  // Peach Nectar
+    accent: colorPalette.yellow.light,      // Honey Butter
+    background: colorPalette.brown.light,   // Pale Mocha
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.brown.medium, colorPalette.orange.medium, colorPalette.yellow.light],
+    childFriendly: true
+  },
+
+  skyHigh: {
+    name: "Sky High",
+    description: "Blue like the big sky above",
+    primary: colorPalette.blue.light,       // Storm Cloud
+    secondary: colorPalette.teal.light,     // Seafoam
+    accent: '#ffffff',                      // Cloud White
+    background: '#f0f8ff',                  // Sky Background
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.blue.light, colorPalette.teal.light, '#ffffff'],
+    childFriendly: true
+  },
+
+  gentleRain: {
+    name: "Gentle Rain",
+    description: "Soft colors like a gentle rain",
+    primary: colorPalette.green.mediumDark, // Dusty Sage
+    secondary: colorPalette.blue.light,     // Storm Cloud
+    accent: colorPalette.green.lighter,     // Misty Mint
+    background: '#f5f8f5',                  // Very Light Green
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.green.mediumDark, colorPalette.blue.light, colorPalette.green.lighter],
+    childFriendly: true
   }
 };
 
@@ -339,7 +490,21 @@ export const gradients = {
   
   // New theme gradients
   storm: createGradient('#1a365d', '#4a5568'),
-  woodland: createGradient('#2f4f2f', '#8b8680')
+  woodland: createGradient('#2f4f2f', '#8b8680'),
+  
+  // Child-friendly gradients
+  brightSunshine: createGradient(colorPalette.yellow.medium, colorPalette.orange.light),
+  oceanWaves: createGradient(colorPalette.teal.medium, colorPalette.blue.medium),
+  forestAdventure: createGradient(colorPalette.green.medium, colorPalette.green.light),
+  prettyFlowers: createGradient(colorPalette.pink.medium, colorPalette.purple.light),
+  winterWonderland: createGradient(colorPalette.blue.medium, colorPalette.purple.light),
+  autumnLeaves: createGradient(colorPalette.orange.medium, colorPalette.red.medium),
+  springBloom: createGradient(colorPalette.green.light, colorPalette.pink.light),
+  summerFun: createGradient(colorPalette.yellow.dark, colorPalette.teal.medium),
+  sweetCandy: createGradient(colorPalette.purple.medium, colorPalette.pink.medium),
+  earthyBrown: createGradient(colorPalette.brown.medium, colorPalette.orange.medium),
+  skyHigh: createGradient(colorPalette.blue.light, colorPalette.teal.light),
+  gentleRain: createGradient(colorPalette.green.mediumDark, colorPalette.blue.light)
 };
 
 // Status Colors (universal across themes)
@@ -397,9 +562,12 @@ export const getThemesGroupedByType = () => {
   const standard = {};
   const seasonal = {};
   const holiday = {};
+  const childFriendly = {};
   
   Object.entries(personalThemes).forEach(([key, theme]) => {
-    if (theme.holiday) {
+    if (theme.childFriendly) {
+      childFriendly[key] = theme;
+    } else if (theme.holiday) {
       holiday[key] = theme;
     } else if (theme.seasonal) {
       seasonal[key] = theme;
@@ -408,7 +576,18 @@ export const getThemesGroupedByType = () => {
     }
   });
   
-  return { standard, seasonal, holiday };
+  return { standard, seasonal, holiday, childFriendly };
+};
+
+// Get only child-friendly themes
+export const getChildFriendlyThemes = () => {
+  const childThemes = {};
+  Object.entries(personalThemes).forEach(([key, theme]) => {
+    if (theme.childFriendly) {
+      childThemes[key] = theme;
+    }
+  });
+  return childThemes;
 };
 
 // Export default theme

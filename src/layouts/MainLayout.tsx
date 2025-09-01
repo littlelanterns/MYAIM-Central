@@ -4,8 +4,8 @@ import { Outlet } from 'react-router-dom';
 import GlobalHeader from '../components/global/GlobalHeader';
 import SmartNotepad from '../components/ui/SmartNotepad.jsx';
 import LiLaPanel from '../components/global/LiLaPanel';
-import { useModalContext } from '../contexts/ModalContext.tsx';
-import DraggableModal from '../components/ui/DraggableModal.tsx';
+import { useModalContext } from '../contexts/ModalContext';
+import DraggableModal from '../components/ui/DraggableModal';
 import { personalThemes, createThemeVariables } from '../styles/colors';
 import './MainLayout.css';
 
@@ -30,7 +30,7 @@ const MainLayout = () => {
   }, []);
 
   useEffect(() => {
-    const theme = personalThemes[currentTheme] || personalThemes.classic;
+    const theme = (personalThemes as any)[currentTheme] || personalThemes.classic;
     const variables = createThemeVariables(theme);
     const root = document.documentElement;
     
@@ -58,7 +58,7 @@ const MainLayout = () => {
       woodland: 'linear-gradient(135deg, #2f4f2f 0%, #8b8680 100%)'
     };
     
-    const headerGradient = headerGradients[currentTheme] || headerGradients.classic;
+    const headerGradient = (headerGradients as any)[currentTheme] || headerGradients.classic;
     root.style.setProperty('--theme-header-gradient', headerGradient);
     
     // Add scrollbar styling variables

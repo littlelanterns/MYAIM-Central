@@ -1,11 +1,11 @@
-// src/pages/FamilyArchive.tsx
+// src/pages/FamilyArchive.tsx - Now redirects to YourArchives
 import React from 'react';
+import YourArchives from '../components/archives/YourArchives';
 
 const FamilyArchive = () => {
   return (
     <div>
-      <h1>Family Archive</h1>
-      <p>This is where completed tasks, memories, and achievements will be displayed.</p>
+      <YourArchives />
     </div>
   );
 };

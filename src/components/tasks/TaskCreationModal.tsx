@@ -2,12 +2,21 @@
 import React, { useState, useEffect, FormEvent, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
+import { getFamilyMembers, getFamilyByUserId, getFamilyRewardTypes, saveTaskWithRewards } from '../../lib/api';
 
 interface TaskCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave?: (taskData: any) => void;
   familyMembers?: any[];
+}
+
+interface FamilyMember {
+  id: string;
+  name: string;
+  role: string;
+  age?: number;
+  access_level: string;
 }
 
 interface SubtaskType {
@@ -32,6 +41,12 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   onSave,
   familyMembers = []
 }) => {
+  // Family data state
+  const [realFamilyMembers, setRealFamilyMembers] = useState<FamilyMember[]>([]);
+  const [familyId, setFamilyId] = useState<string | null>(null);
+  const [loadingFamily, setLoadingFamily] = useState(false);
+  const [familyRewardTypes, setFamilyRewardTypes] = useState<any[]>([]);
+  
   // Basic task info state
   const [taskName, setTaskName] = useState<string>('');
   const [duration, setDuration] = useState<string>('No time limit');
@@ -74,16 +89,52 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
   });
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Default family members if none provided
+  // Mock current user - in real app this would come from auth
+  const currentUserId = 1;
+
+  // Load real family data
+  const loadFamilyData = async () => {
+    if (!isOpen) return; // Only load when modal is open
+    
+    setLoadingFamily(true);
+    try {
+      // Get family info for current user
+      const familyResult = await getFamilyByUserId(currentUserId);
+      if (familyResult.success && familyResult.family) {
+        setFamilyId(familyResult.family.id);
+        
+        // Get family members
+        const membersResult = await getFamilyMembers(familyResult.family.id);
+        if (membersResult.success && membersResult.members) {
+          setRealFamilyMembers(membersResult.members);
+        }
+        
+        // Get family reward types
+        const rewardTypesResult = await getFamilyRewardTypes(familyResult.family.id);
+        if (rewardTypesResult.success && rewardTypesResult.rewardTypes) {
+          setFamilyRewardTypes(rewardTypesResult.rewardTypes);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading family data:', error);
+      // Fallback to default members if loading fails
+      setRealFamilyMembers([]);
+      setFamilyRewardTypes([]);
+    } finally {
+      setLoadingFamily(false);
+    }
+  };
+
+  // Default family members if none loaded
   const defaultMembers = [
-    { id: 1, name: "Tommy", age: 8, value: "Tommy (Age 8)" },
-    { id: 2, name: "Sarah", age: 15, value: "Sarah (Age 15)" },
-    { id: 3, name: "Mom", value: "Mom" },
-    { id: 4, name: "Dad", value: "Dad" },
-    { id: 5, name: "Whole Family", value: "Whole Family" }
+    { id: "1", name: "Tommy", role: "child", age: 8, access_level: "guided" },
+    { id: "2", name: "Sarah", role: "teen", age: 15, access_level: "independent" },
+    { id: "3", name: "Mom", role: "self", access_level: "full" },
+    { id: "4", name: "Dad", role: "partner", access_level: "full" },
   ];
 
-  const membersToUse = familyMembers.length > 0 ? familyMembers : defaultMembers;
+  // Use real family members if available, otherwise fallback
+  const membersToUse = realFamilyMembers.length > 0 ? realFamilyMembers : (familyMembers.length > 0 ? familyMembers : defaultMembers);
 
   // Draggable handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -125,9 +176,11 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
     }
   }, [dragState.isDragging]);
 
-  // Reset form when modal opens/closes
+  // Load family data when modal opens
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      loadFamilyData();
+    } else {
       resetForm();
     }
   }, [isOpen]);
@@ -153,11 +206,11 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
     setDescriptionChecklist([]);
   };
 
-  const handleAssigneeChange = (memberValue: string, checked: boolean) => {
+  const handleAssigneeChange = (memberId: string, checked: boolean) => {
     if (checked) {
-      setAssignees([...assignees, memberValue]);
+      setAssignees([...assignees, memberId]);
     } else {
-      setAssignees(assignees.filter(a => a !== memberValue));
+      setAssignees(assignees.filter(a => a !== memberId));
     }
   };
 
@@ -276,7 +329,7 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
     setDescriptionChecklist(items);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     if (!taskName.trim()) {
@@ -289,33 +342,73 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
       return;
     }
 
+    if (!familyId) {
+      alert('Family not found. Please try again.');
+      return;
+    }
+
+    // Get the current user as assigner (in real app, this would come from auth)
+    const currentMember = realFamilyMembers.find(m => 
+      m.role === 'self' || m.name.toLowerCase().includes('mom') || m.name.toLowerCase().includes('parent')
+    );
+
+    // Prepare task data
     const taskData = {
-      task_name: taskName,
-      duration,
-      description,
-      task_type: taskType,
-      assignee: assignees,
-      frequency,
-      frequency_details: frequencyDetails,
-      incomplete_action: incompleteAction,
-      reward_type: rewardType,
-      reward_amount: rewardAmount,
-      require_approval: requireApproval,
-      track_task: trackTask,
-      tracking_options: trackingOptions,
-      estimated_time: estimatedTime,
-      subtasks: subtasks.map(s => s.text),
-      save_template: saveTemplate
+      family_id: familyId,
+      title: taskName,
+      description: description,
+      assigned_to: assignees[0], // For now, take first assignee (we can enhance for multiple later)
+      assigned_by: currentMember?.id || realFamilyMembers[0]?.id,
+      status: 'pending',
+      priority: 'medium',
+      category: 'general',
+      // We can add more fields later for frequency, task_type, etc.
     };
 
-    console.log('Task data:', taskData);
-    
-    if (onSave) {
-      onSave(taskData);
+    // Prepare reward data if rewards are set
+    const rewardData = rewardType !== 'none' && rewardAmount ? {
+      [rewardType]: {
+        amount: parseInt(rewardAmount) || 0,
+        bonusThreshold: 0.85, // Default 85% for bonus
+        bonusAmount: Math.floor((parseInt(rewardAmount) || 0) * 0.2) // 20% bonus
+      }
+    } : {};
+
+    try {
+      console.log('Saving task with rewards:', { taskData, rewardData });
+      
+      const result = await saveTaskWithRewards(taskData, rewardData);
+      
+      if (result.success) {
+        alert('Task created successfully!');
+        
+        // Call the parent onSave if provided
+        if (onSave) {
+          onSave({
+            ...taskData,
+            task_name: taskName, // Keep original format for compatibility
+            assignee: assignees,
+            reward_type: rewardType,
+            reward_amount: rewardAmount,
+            frequency,
+            task_type: taskType,
+            incomplete_action: incompleteAction,
+            require_approval: requireApproval,
+            track_task: trackTask,
+            estimated_time: estimatedTime,
+            subtasks: subtasks.map(s => s.text),
+            save_template: saveTemplate
+          });
+        }
+        
+        onClose();
+      } else {
+        alert('Failed to create task: ' + (result as any).error);
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      alert('Failed to create task. Please try again.');
     }
-    
-    alert('Task created successfully!');
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -809,25 +902,53 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
               Who's Responsible?
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {membersToUse.map((member) => (
-                <label key={member.id || member.value} style={{
+            {loadingFamily ? (
+              <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Loading family members...</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {membersToUse.map((member) => (
+                  <label key={member.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={assignees.includes(member.id)}
+                      onChange={(e) => handleAssigneeChange(member.id, e.target.checked)}
+                      style={{ accentColor: 'var(--primary-color, #68a395)' }}
+                    />
+                    <span>
+                      {member.name}
+                      {member.age ? ` (Age ${member.age})` : ''}
+                      {member.role && ` - ${member.role.charAt(0).toUpperCase() + member.role.slice(1)}`}
+                    </span>
+                  </label>
+                ))}
+                
+                {/* Add "Whole Family" option */}
+                <label style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   fontSize: '0.9rem',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  borderTop: '1px solid var(--accent-color, #d4e3d9)',
+                  paddingTop: '0.5rem',
+                  marginTop: '0.5rem'
                 }}>
                   <input
                     type="checkbox"
-                    checked={assignees.includes(member.value)}
-                    onChange={(e) => handleAssigneeChange(member.value, e.target.checked)}
+                    checked={assignees.includes('whole-family')}
+                    onChange={(e) => handleAssigneeChange('whole-family', e.target.checked)}
                     style={{ accentColor: 'var(--primary-color, #68a395)' }}
                   />
-                  {member.name ? `${member.name}${member.age ? ` (Age ${member.age})` : ''}` : member.value}
+                  <span><strong>Whole Family</strong></span>
                 </label>
-              ))}
-            </div>
+              </div>
+            )}
           </section>
 
           {/* Frequency Section */}
@@ -960,11 +1081,21 @@ const TaskCreationModal: React.FC<TaskCreationModalProps> = ({
                 }}
               >
                 <option value="none">None</option>
-                <option value="stars">Stars</option>
-                <option value="points">Points</option>
-                <option value="money">Money</option>
-                <option value="privilege">Special Privilege</option>
-                <option value="family">Family Reward</option>
+                {familyRewardTypes.length > 0 ? (
+                  familyRewardTypes.map(type => (
+                    <option key={type.reward_type} value={type.reward_type}>
+                      {type.display_name}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="stars">Stars</option>
+                    <option value="points">Points</option>
+                    <option value="money">Money</option>
+                    <option value="privileges">Special Privilege</option>
+                    <option value="family_rewards">Family Reward</option>
+                  </>
+                )}
               </select>
             </div>
 

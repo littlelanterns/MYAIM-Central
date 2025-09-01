@@ -2,8 +2,8 @@
 import React, { CSSProperties } from 'react';
 import Draggable from 'react-draggable';
 import { X, Minus, Square } from 'lucide-react';
-import { ModalData } from '../../contexts/ModalContext.tsx';
-import { useModal } from '../../hooks/useModal.tsx';
+import { ModalData } from '../../contexts/ModalContext';
+import { useModal } from '../../hooks/useModal';
 
 interface DraggableModalProps {
   modal: ModalData;
