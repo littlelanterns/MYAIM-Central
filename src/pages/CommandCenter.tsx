@@ -50,7 +50,7 @@ const commandCenterActions: CommandCenterAction[] = [
     path: '/library',
     title: 'LIBRARY',
     subtitle: 'AI Learning Library',
-    description: 'Netflix-style browsing for AI prompts, tutorials, and learning resources. Discover and optimize content with LiLa™.'
+    description: 'Vault-style browsing for AI prompts, tutorials, and learning resources. Discover and optimize content with LiLa™.'
   }
 ];
 

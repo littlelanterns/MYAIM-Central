@@ -9,7 +9,8 @@ import TeenDashboard from './pages/TeenDashboard.tsx';
 import ChildDashboard from './pages/ChildDashboard.tsx';
 import FamilyArchive from './pages/FamilyArchive.tsx';
 import YourArchivesPage from './pages/YourArchives.tsx';
-import Library from './pages/Library.tsx';
+import Library from './pages/Library.jsx';
+import LibraryAdmin from './components/Admin/LibraryAdmin.jsx';
 import Login from './pages/Login.tsx';
 import FamilySetupInterface from './pages/FamilySettings.tsx'; // Import the new component
 import './styles/global.css';
@@ -34,6 +35,7 @@ function App() {
               <Route path="family-archive" element={<FamilyArchive />} />
               <Route path="your-archives" element={<YourArchivesPage />} />
               <Route path="library" element={<Library />} />
+              <Route path="library/admin" element={<LibraryAdmin />} />
               <Route path="family-setup" element={<FamilySetupInterface />} />
             </Route>
           </Routes>
