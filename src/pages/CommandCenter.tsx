@@ -1,7 +1,7 @@
 // src/pages/CommandCenter.tsx - Updated with new draggable modal system
 import React, { FC, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { useModal } from '../hooks/useModal.tsx';
+import { useModal } from '../hooks/useModal';
 
 // TypeScript interfaces
 interface PageAction {
@@ -35,7 +35,7 @@ const commandCenterActions: CommandCenterAction[] = [
     type: 'page',
     path: '/family-archive',
     title: 'ARCHIVE',
-    subtitle: 'Family Archive',
+    subtitle: 'Your Archives',
     description: 'Your digital filing system for family members, context, and memories. Beautiful organization that replaces notebooks.'
   },
   {
