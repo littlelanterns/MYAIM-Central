@@ -1,0 +1,135 @@
+.your-archives {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: var(--background-color, #fff4ec);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.your-archives h1 {
+  color: var(--primary-color, #68a395);
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 2.2rem;
+}
+
+.archives-description {
+  text-align: center;
+  color: var(--text-color, #5a4033);
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.archive-structure {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--accent-color, #d4e3d9);
+}
+
+.archive-folders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.archive-folder {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  border: 2px solid var(--accent-color, #d4e3d9);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.archive-folder:hover {
+  border-color: var(--primary-color, #68a395);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(104, 163, 149, 0.15);
+}
+
+.folder-icon {
+  font-size: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(104, 163, 149, 0.1);
+  border-radius: 50%;
+  border: 2px solid var(--primary-color, #68a395);
+}
+
+.folder-details h3 {
+  color: var(--primary-color, #68a395);
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+
+.folder-details p {
+  color: var(--text-color, #5a4033);
+  margin: 0;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.archive-content {
+  width: 100%;
+}
+
+.back-navigation {
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: var(--secondary-color, #d6a461);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn:hover {
+  background: var(--accent-color, #d69a84);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .your-archives {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .archive-folders {
+    grid-template-columns: 1fr;
+  }
+  
+  .archive-folder {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+  
+  .folder-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2.5rem;
+  }
+}
