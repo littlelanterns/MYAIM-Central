@@ -115,7 +115,8 @@ const TutorialCard = ({
 
         <div className="card-stats">
           <span className="view-count">👁️ {tutorial.view_count || 0}</span>
-          <span className="bookmark-count">❤️ {tutorial.bookmark_count || 0}</span>
+          <span className="engagement-count">❤️ {tutorial.engagement_likes || 0}</span>
+          <span className="comment-count">💬 {tutorial.engagement_comments || 0}</span>
         </div>
       </div>
     </div>

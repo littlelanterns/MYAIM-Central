@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import VCEngagement from './VCEngagement';
+import VCDiscussion from './VCDiscussion';
 import './Library.css';
 
 const TutorialPreviewModal = ({ 
@@ -260,6 +262,26 @@ const TutorialPreviewModal = ({
             </button>
           </div>
         )}
+
+        {/* Engagement Section */}
+        <VCEngagement
+          tutorialId={tutorial.id}
+          userId={currentUser?.id}
+          onEngagementChange={(stats) => {
+            // Optional: Update parent component with engagement stats
+            console.log('Engagement updated:', stats);
+          }}
+        />
+
+        {/* Discussion Section */}
+        <VCDiscussion
+          tutorialId={tutorial.id}
+          user={currentUser}
+          onCommentCountChange={(count) => {
+            // Optional: Update parent component with comment count
+            console.log('Comment count updated:', count);
+          }}
+        />
       </div>
     </div>
   );

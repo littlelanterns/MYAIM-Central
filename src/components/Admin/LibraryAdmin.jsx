@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import VCModerationPanel from '../Library/VCModerationPanel';
 import './LibraryAdmin.css';
 
 const LibraryAdmin = () => {
@@ -29,6 +30,7 @@ const LibraryAdmin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [recentTutorials, setRecentTutorials] = useState([]);
+  const [activeView, setActiveView] = useState('tutorials'); // 'tutorials' or 'moderation'
 
   useEffect(() => {
     loadCategories();
@@ -314,7 +316,22 @@ const LibraryAdmin = () => {
     <div className="admin-panel">
       <div className="admin-header">
         <h1>Library Administration</h1>
-        <p>Add new tutorials to the AIMfM Vault</p>
+        <p>Manage tutorials and community discussions</p>
+        
+        <div className="admin-nav">
+          <button
+            className={`nav-btn ${activeView === 'tutorials' ? 'active' : ''}`}
+            onClick={() => setActiveView('tutorials')}
+          >
+            Tutorials
+          </button>
+          <button
+            className={`nav-btn ${activeView === 'moderation' ? 'active' : ''}`}
+            onClick={() => setActiveView('moderation')}
+          >
+            Comment Moderation
+          </button>
+        </div>
       </div>
 
       {message.text && (
@@ -325,7 +342,10 @@ const LibraryAdmin = () => {
         </div>
       )}
 
-      <div className="admin-layout">
+      {activeView === 'moderation' ? (
+        <VCModerationPanel />
+      ) : (
+        <div className="admin-layout">
         <div className="form-section">
           <h2>Add New Tutorial</h2>
           <form onSubmit={handleSubmit} className="tutorial-form">
@@ -626,7 +646,8 @@ const LibraryAdmin = () => {
             ))}
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
