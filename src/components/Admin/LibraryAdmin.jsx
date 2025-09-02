@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import VCModerationPanel from '../Library/VCModerationPanel';
+import BetaAdmin from './BetaAdmin';
 import './LibraryAdmin.css';
 
 const LibraryAdmin = () => {
@@ -315,7 +316,7 @@ const LibraryAdmin = () => {
   return (
     <div className="admin-panel">
       <div className="admin-header">
-        <h1>Library Administration</h1>
+        <h1>AIM-Administration Console</h1>
         <p>Manage tutorials and community discussions</p>
         
         <div className="admin-nav">
@@ -331,6 +332,12 @@ const LibraryAdmin = () => {
           >
             Comment Moderation
           </button>
+          <button
+            className={`nav-btn ${activeView === 'beta' ? 'active' : ''}`}
+            onClick={() => setActiveView('beta')}
+          >
+            Beta Testing
+          </button>
         </div>
       </div>
 
@@ -344,6 +351,8 @@ const LibraryAdmin = () => {
 
       {activeView === 'moderation' ? (
         <VCModerationPanel />
+      ) : activeView === 'beta' ? (
+        <BetaAdmin />
       ) : (
         <div className="admin-layout">
         <div className="form-section">

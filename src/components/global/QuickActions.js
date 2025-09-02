@@ -105,7 +105,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
         navigate('/family-setup');
         break;
       case 'aim-admin':
-        navigate('/library/admin');
+        navigate('/aim-admin');
         break;
       default:
         console.log(`Navigation not implemented for: ${actionId}`);

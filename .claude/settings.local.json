@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)"
+      "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

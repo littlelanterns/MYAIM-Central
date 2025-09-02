@@ -30,6 +30,63 @@
   opacity: 0.9;
 }
 
+.admin-nav {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.nav-btn.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary-color, #68a395);
+  border-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.submit-btn {
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(104, 163, 149, 0.3);
+  border: 2px solid transparent;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(104, 163, 149, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
 .message {
   padding: 15px;
   border-radius: var(--border-radius);
