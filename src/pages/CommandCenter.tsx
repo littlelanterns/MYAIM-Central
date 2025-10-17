@@ -1,7 +1,8 @@
 // src/pages/CommandCenter.tsx - Updated with new draggable modal system
-import React, { FC, CSSProperties } from 'react';
+import React, { FC, CSSProperties, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useModal } from '../hooks/useModal';
+import BestIntentionsModal from '../components/BestIntentions/BestIntentionsModal';
 
 // TypeScript interfaces
 interface PageAction {
@@ -32,6 +33,13 @@ const commandCenterActions: CommandCenterAction[] = [
     description: 'Complete family overview with task creation, progress tracking, victory celebrations, and AI-powered insights.'
   },
   {
+    type: 'modal',
+    actionId: 'best_intentions',
+    title: 'BEST INTENTIONS',
+    subtitle: 'Best Intentions',
+    description: 'Your compass for what matters most. Keep priorities and goals front of mind so LiLa™ supports your journey.'
+  },
+  {
     type: 'page',
     path: '/family-archive',
     title: 'ARCHIVE',
@@ -42,8 +50,8 @@ const commandCenterActions: CommandCenterAction[] = [
     type: 'modal',
     actionId: 'inner_oracle',
     title: 'INNER ORACLE',
-    subtitle: 'Inner Oracle',
-    description: 'Connect with your intuition and inner wisdom through guided reflection and mindful decision-making tools.'
+    subtitle: 'Inner Oracle (Coming Soon)',
+    description: 'Connect with your intuition and inner wisdom through guided reflection and mindful decision-making tools. Currently in development.'
   },
   {
     type: 'page',
@@ -56,19 +64,66 @@ const commandCenterActions: CommandCenterAction[] = [
 
 const CommandCenter: FC = () => {
   const { open } = useModal();
+  const [bestIntentionsOpen, setBestIntentionsOpen] = useState(false);
 
   const handleCardClick = (action: CommandCenterAction): void => {
-    if (action.type === 'modal' && action.actionId === 'inner_oracle') {
-      open('Inner Oracle', (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <p style={{ marginBottom: '20px', color: 'var(--text-color, #5a4033)' }}>
-            Inner Oracle coming soon! Connect with your intuition and inner wisdom.
-          </p>
-          <p style={{ fontSize: '14px', color: 'var(--text-color, #5a4033)', opacity: 0.7 }}>
-            This draggable modal will contain guided reflection tools, meditation prompts, and intuitive decision-making aids.
-          </p>
-        </div>
-      ), 'medium');
+    if (action.type === 'modal') {
+      if (action.actionId === 'best_intentions') {
+        setBestIntentionsOpen(true);
+      } else if (action.actionId === 'inner_oracle') {
+        open('Inner Oracle', (
+          <div style={{ 
+            padding: '40px', 
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, rgba(104, 163, 149, 0.1), rgba(255, 244, 236, 0.8))',
+            borderRadius: '12px',
+            margin: '20px'
+          }}>
+            <h2 style={{ 
+              fontSize: '2rem', 
+              color: 'var(--primary-color, #68a395)', 
+              marginBottom: '24px',
+              fontFamily: "'The Seasons', 'Playfair Display', serif"
+            }}>
+              ✨ Coming Soon ✨
+            </h2>
+            <p style={{ 
+              fontSize: '1.2rem', 
+              marginBottom: '20px', 
+              color: 'var(--text-color, #5a4033)',
+              fontWeight: '500'
+            }}>
+              Inner Oracle
+            </p>
+            <p style={{ 
+              fontSize: '1rem', 
+              color: 'var(--text-color, #5a4033)', 
+              opacity: 0.8,
+              lineHeight: '1.6',
+              maxWidth: '400px',
+              margin: '0 auto'
+            }}>
+              Connect with your intuition and inner wisdom through guided reflection tools, meditation prompts, and mindful decision-making aids.
+            </p>
+            <div style={{
+              marginTop: '30px',
+              padding: '16px',
+              background: 'rgba(104, 163, 149, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(104, 163, 149, 0.2)'
+            }}>
+              <p style={{ 
+                fontSize: '0.9rem', 
+                color: 'var(--text-color, #5a4033)', 
+                opacity: 0.7,
+                margin: 0
+              }}>
+                This feature is currently in development and will be available in a future update.
+              </p>
+            </div>
+          </div>
+        ), 'medium');
+      }
     }
   };
 
@@ -193,6 +248,11 @@ const CommandCenter: FC = () => {
           )
         ))}
       </div>
+
+      <BestIntentionsModal 
+        isOpen={bestIntentionsOpen}
+        onClose={() => setBestIntentionsOpen(false)}
+      />
     </div>
   );
 };

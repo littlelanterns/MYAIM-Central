@@ -8,6 +8,9 @@
   background: linear-gradient(145deg, var(--secondary-color, #d6a461), var(--text-color, #5a4033));
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  /* FIXED: Lower z-index to stay behind modals (which start at 2000+) */
+  z-index: 1;
+  position: relative;
 }
 
 .clipboard-paper {

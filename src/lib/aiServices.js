@@ -351,6 +351,143 @@ Return only the optimized prompt, no explanations.`;
 }
 
 // =============================================================================
+// BEST INTENTIONS AI
+// =============================================================================
+
+/**
+ * Process Brain Dump conversations and extract intentions
+ * 
+ * Current: Direct OpenRouter call with conversation management
+ * Future: Could route to n8n workflow for complex intention detection
+ */
+export async function processBrainDumpConversation(conversationHistory, isInitialDump = false) {
+  try {
+    console.log('[AI Services] Processing brain dump conversation');
+
+    const systemPrompt = `You are a warm, supportive family coach helping a parent create a focused "Best Intention" for their family. Your goal is to help them process messy thoughts and identify ONE meaningful area to work on.
+
+CONVERSATION FLOW:
+1. Read their brain dump and identify 2-4 main themes/areas of concern
+2. Acknowledge what you heard with empathy
+3. Help them choose ONE area to focus on first (most pressing or impactful)
+4. Ask clarifying questions to understand:
+   - Current State: What's happening now? What's the struggle?
+   - Desired State: What would success look like? What's the goal?
+   - Why It Matters: What's the deeper motivation? Why is this important?
+5. Keep conversation focused - max 8-10 exchanges per intention
+6. When you have clear answers, format the intention data
+
+TONE:
+- Warm and understanding (like talking to a supportive friend)
+- Non-judgmental
+- Gently guiding but not pushy
+- Acknowledge feelings while staying solution-focused
+- Use "you/your" language (not "we")
+
+CONSTRAINTS:
+- Focus on ONE intention at a time
+- If they dump many concerns, help prioritize
+- Ask one question at a time (don't overwhelm)
+- Keep responses conversational (2-4 sentences usually)
+- Avoid therapy-speak or being overly formal
+
+OUTPUT FORMAT:
+When intention is clear, return structured data in this JSON format:
+{
+  "response": "Your conversational response to the user",
+  "intentionReady": true/false,
+  "intention": {
+    "title": "Clear, action-oriented title (6-10 words)",
+    "current_state": "What's happening now",
+    "desired_state": "What success looks like", 
+    "why_it_matters": "The deeper motivation",
+    "category": "family_relationships|personal_growth|household_culture|spiritual_development",
+    "priority": "high|medium|low based on urgency in their language"
+  }
+}
+
+Continue conversation until you have enough clarity for all fields. Only set intentionReady to true when you have complete information.`;
+
+    // Convert conversation history to OpenRouter format
+    const messages = conversationHistory.map(msg => ({
+      role: msg.role === 'assistant' ? 'assistant' : 'user',
+      content: msg.content
+    }));
+
+    const response = await fetch(AI_CONFIG.openrouter.baseUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AI_CONFIG.openrouter.apiKey}`,
+        'Content-Type': 'application/json',
+        ...AI_CONFIG.openrouter.headers
+      },
+      body: JSON.stringify({
+        model: AI_CONFIG.openrouter.defaultModel,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ],
+        max_tokens: 1500,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new AIServiceError(
+        `OpenRouter API error: ${response.status} - ${errorData}`,
+        'openrouter'
+      );
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0]?.message?.content;
+
+    // Try to parse JSON response
+    let parsedResponse;
+    try {
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedResponse = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback: treat as plain text response
+        parsedResponse = {
+          response: aiResponse,
+          intentionReady: false,
+          intention: null
+        };
+      }
+    } catch (parseError) {
+      // Fallback: treat as plain text response
+      parsedResponse = {
+        response: aiResponse,
+        intentionReady: false,
+        intention: null
+      };
+    }
+
+    return {
+      success: true,
+      response: parsedResponse.response,
+      intentionReady: parsedResponse.intentionReady || false,
+      intention: parsedResponse.intention || null,
+      service: 'openrouter-direct'
+    };
+
+  } catch (error) {
+    console.error('[AI Services] Brain dump processing error:', error);
+    return {
+      success: false,
+      error: error.message,
+      response: "I'm sorry, I'm having trouble processing that right now. Could you try rephrasing your thoughts?",
+      intentionReady: false,
+      intention: null,
+      service: 'openrouter-direct'
+    };
+  }
+}
+
+// =============================================================================
 // QUICK ACTIONS AI
 // =============================================================================
 

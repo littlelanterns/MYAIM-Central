@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '1',
         email,
         role: 'parent',
-        familyId: 'family-1',
+        familyId: '123e4567-e89b-12d3-a456-426614174000',
         permissions: {},
         preferences: {}
       };

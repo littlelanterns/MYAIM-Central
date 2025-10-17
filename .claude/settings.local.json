@@ -3,7 +3,16 @@
     "allow": [
       "Bash(npm run build:*)",
       "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
+      "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
+      "Read(c:\\Users\\tenis\\Downloads/**)"
     ],
     "deny": [],
     "ask": []
