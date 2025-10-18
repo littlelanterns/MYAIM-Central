@@ -50,16 +50,13 @@ const BetaUpgradeModal = ({ isOpen, onClose, currentTier, targetTier, onUpgrade 
       if (!user) throw new Error('User not found');
 
       // Update family's subscription tier in the existing families table
-      // Generate a simple numeric ID from UUID for wordpress_user_id compatibility
-      const numericId = parseInt(user.id.replace(/-/g, '').substring(0, 8), 16);
-      
       const { error: updateError } = await supabase
         .from('families')
-        .update({ 
+        .update({
           subscription_tier: targetTier,
           updated_at: new Date().toISOString()
         })
-        .eq('wordpress_user_id', numericId);
+        .eq('auth_user_id', user.id);
 
       if (updateError) throw updateError;
 

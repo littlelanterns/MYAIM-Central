@@ -44,14 +44,18 @@ const CategorySelector: FC<CategorySelectorProps> = ({
 
   const loadCategories = async () => {
     try {
+      console.log('🔍 CategorySelector: Starting to load categories for familyId:', familyId);
       setLoading(true);
       setError(null);
       const data = await getFamilyCategories(familyId);
+      console.log('✅ CategorySelector: Received categories data:', data);
+      console.log('📊 CategorySelector: Number of categories:', data?.length || 0);
       setCategories(data || []);
     } catch (err) {
-      console.error('Error loading categories:', err);
+      console.error('❌ CategorySelector: Error loading categories:', err);
       setError('Failed to load categories');
     } finally {
+      console.log('🏁 CategorySelector: Setting loading to false');
       setLoading(false);
     }
   };
@@ -184,7 +188,7 @@ const CategorySelector: FC<CategorySelectorProps> = ({
             <optgroup label="System Categories" style={styles.optgroup}>
               {systemCategories.map(category => (
                 <option key={category.id} value={category.id} style={styles.option}>
-                  {category.icon} {category.display_name}
+                  {category.display_name}
                 </option>
               ))}
             </optgroup>
@@ -194,7 +198,7 @@ const CategorySelector: FC<CategorySelectorProps> = ({
             <optgroup label="Custom Categories" style={styles.optgroup}>
               {customCategories.map(category => (
                 <option key={category.id} value={category.id} style={styles.option}>
-                  {category.icon} {category.display_name}
+                  {category.display_name}
                 </option>
               ))}
             </optgroup>
@@ -204,7 +208,7 @@ const CategorySelector: FC<CategorySelectorProps> = ({
             <optgroup label="Guiding Values" style={styles.optgroup}>
               {guidingValueCategories.map(category => (
                 <option key={category.id} value={category.id} style={styles.option}>
-                  {category.icon} {category.display_name}
+                  {category.display_name}
                 </option>
               ))}
             </optgroup>

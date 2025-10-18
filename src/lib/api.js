@@ -17,7 +17,7 @@ export async function saveFamilySetup(familyData) {
     const { data: existingFamily, error: checkError } = await supabase
       .from('families')
       .select('id')
-      .eq('wordpress_user_id', familyData.wordpress_user_id)
+      .eq('auth_user_id', familyData.auth_user_id)
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') {
@@ -45,7 +45,8 @@ export async function saveFamilySetup(familyData) {
       const { data, error } = await supabase
         .from('families')
         .insert([{
-          wordpress_user_id: familyData.wordpress_user_id,
+          auth_user_id: familyData.auth_user_id,
+          family_login_name: familyData.family_login_name || null,
           family_name: familyData.family_name,
           subscription_tier: familyData.subscription_tier || 'basic'
         }])
@@ -148,7 +149,7 @@ export async function getFamilyByUserId(userId) {
     const { data, error } = await supabase
       .from('families')
       .select('*')
-      .eq('wordpress_user_id', userId)
+      .eq('auth_user_id', userId)
       .single();
       
     if (error && error.code !== 'PGRST116') throw error;

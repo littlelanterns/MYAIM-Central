@@ -64,16 +64,16 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 99999, // Increased to ensure it's above all other components
-      padding: '1rem',
+      justifyContent: 'flex-start',  // ✅ Align left instead of center
+      paddingLeft: '2rem',            // ✅ Space from left edge
+      zIndex: 2000,                   // ✅ Consistent z-index (not 99999)
       backdropFilter: 'blur(4px)',
     },
     modalContent: {
       background: 'var(--background-color, #fff4ec)',
       borderRadius: '16px',
-      maxWidth: '1000px',
-      width: '95%',
+      maxWidth: '900px',    // ✅ Slightly narrower to leave space for Smart Notepad
+      width: '90%',
       height: '85vh',
       maxHeight: '700px',
       overflow: 'hidden',

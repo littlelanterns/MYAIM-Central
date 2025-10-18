@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { 
-  saveUserPermissions, 
-  getUserPermissions, 
-  saveUserTheme, 
-  getUserTheme 
+import { supabase } from '../../../lib/supabase';
+import {
+  saveUserPermissions,
+  getUserPermissions,
+  saveUserTheme,
+  getUserTheme
 } from '../../../lib/api';
 
 // User interface
@@ -12,9 +13,11 @@ interface User {
   email: string;
   role: 'primary_parent' | 'parent' | 'teen' | 'child';
   familyId: string;
+  familyMemberId: string | null;  // family_members.id for foreign key references
   permissions: Record<string, boolean>;
   preferences: Record<string, any>;
-  wordpress_user_id?: string;
+  auth_user_id?: string;
+  name?: string;
 }
 
 // Auth state interface
@@ -120,6 +123,50 @@ export const useAuthContext = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Helper function to load family member data from Supabase
+  // Uses proper linking chain: auth.users → beta_users → families → family_members
+  const loadFamilyMemberData = async (authUserId: string) => {
+    try {
+      // Step 1: Get beta_user record (includes family_id)
+      const { data: betaUser, error: betaError } = await supabase
+        .from('beta_users')
+        .select('family_id')
+        .eq('user_id', authUserId)
+        .single();
+
+      if (betaError || !betaUser) {
+        console.error('❌ No beta_user record found for auth user:', authUserId, betaError);
+        return null;
+      }
+
+      // Step 2: Get family_member using family_id
+      // Assuming primary parent for beta users (adjust logic if needed)
+      const { data: memberData, error: memberError } = await supabase
+        .from('family_members')
+        .select('id, family_id, role, name')
+        .eq('family_id', betaUser.family_id)
+        .eq('role', 'primary_parent') // Adjust if beta users can have other roles
+        .single();
+
+      if (memberError || !memberData) {
+        console.error('❌ No family_member found for family_id:', betaUser.family_id, memberError);
+        return null;
+      }
+
+      console.log('✅ Successfully linked auth.users → beta_users → family_members:', {
+        authUserId,
+        familyId: betaUser.family_id,
+        memberId: memberData.id,
+        memberName: memberData.name
+      });
+
+      return memberData;
+    } catch (error) {
+      console.error('Error in loadFamilyMemberData:', error);
+      return null;
+    }
+  };
+
   // Helper functions
   const login = async (email: string, password: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
@@ -131,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         role: 'parent',
         familyId: '123e4567-e89b-12d3-a456-426614174000',
+        familyMemberId: null,
         permissions: {},
         preferences: {}
       };
@@ -230,6 +278,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isChild = (): boolean => {
     return state.user?.role === 'child';
   };
+
+  // Initialize auth state from Supabase session on mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          // Load family member data
+          const memberData = await loadFamilyMemberData(session.user.id);
+
+          if (memberData) {
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              role: memberData.role as 'primary_parent' | 'parent' | 'teen' | 'child',
+              familyId: memberData.family_id,
+              familyMemberId: memberData.id,
+              name: memberData.name,
+              permissions: {},
+              preferences: {}
+            };
+
+            dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+
+            console.log('✅ Auth initialized:', {
+              userId: user.id,
+              familyId: user.familyId,
+              familyMemberId: user.familyMemberId,
+              name: user.name
+            });
+          } else {
+            console.warn('⚠️ No family member data found for user');
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      }
+    };
+
+    initializeAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const memberData = await loadFamilyMemberData(session.user.id);
+
+        if (memberData) {
+          const user: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            role: memberData.role as 'primary_parent' | 'parent' | 'teen' | 'child',
+            familyId: memberData.family_id,
+            familyMemberId: memberData.id,
+            name: memberData.name,
+            permissions: {},
+            preferences: {}
+          };
+
+          dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        }
+      } else if (event === 'SIGNED_OUT') {
+        dispatch({ type: 'LOGOUT' });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Load user permissions on login
   useEffect(() => {

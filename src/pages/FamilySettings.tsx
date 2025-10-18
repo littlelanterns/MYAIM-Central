@@ -1,12 +1,13 @@
 // src/pages/FamilySettings.tsx - REFACTORED with shared types
 import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { 
-  saveFamilySetup, 
-  saveFamilyMember, 
-  getFamilyMembers, 
+import { supabase } from '../lib/supabase';
+import {
+  saveFamilySetup,
+  saveFamilyMember,
+  getFamilyMembers,
   getFamilyByUserId,
-  deleteFamilyMember 
+  deleteFamilyMember
 } from '../lib/api';
 import { processFamilyDescription } from '../lib/aiServices';
 import FamilyMemberForm from '../components/family/FamilyMemberForm';
@@ -43,7 +44,18 @@ const FamilySetupInterface: React.FC = () => {
   });
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const currentUserId: number = 1;
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Get authenticated user on mount
+  useEffect(() => {
+    const getAuthUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    getAuthUser();
+  }, []);
 
   // Relationship types with "out-of-nest" terminology
   const relationshipTypes: Record<string, RelationshipType> = {
@@ -257,7 +269,8 @@ const FamilySetupInterface: React.FC = () => {
       }
 
       const familyData = {
-        wordpress_user_id: currentUserId,
+        auth_user_id: currentUserId,
+        family_login_name: null,
         family_name: familyName,
         subscription_tier: 'basic'
       };

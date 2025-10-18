@@ -87,14 +87,12 @@ const ForcedFamilySetup = () => {
       let familyId = null;
       if (familyData.setupType === 'family') {
         // Create family record
-        // Generate a simple numeric ID from UUID for wordpress_user_id compatibility
-        const numericId = parseInt(user.id.replace(/-/g, '').substring(0, 8), 16);
-        
         const { data: newFamily, error: familyError } = await supabase
           .from('families')
           .insert({
             family_name: familyData.familyName,
-            wordpress_user_id: numericId,
+            auth_user_id: user.id,
+            family_login_name: null,
           })
           .select()
           .single();
@@ -107,10 +105,11 @@ const ForcedFamilySetup = () => {
           .from('family_members')
           .insert({
             family_id: familyId,
-            wordpress_user_id: numericId,
+            auth_user_id: user.id,
             name: familyData.primaryParentName,
             role: familyData.primaryParentRole,
             age: 30, // Default adult age
+            pin: null,
           });
 
         // Add partner if exists
@@ -122,6 +121,7 @@ const ForcedFamilySetup = () => {
               name: familyData.partnerName,
               role: familyData.partnerRole === 'mom' || familyData.partnerRole === 'dad' ? familyData.partnerRole : 'guardian',
               age: 30, // Default adult age
+              pin: null,
             });
         }
 
@@ -133,6 +133,7 @@ const ForcedFamilySetup = () => {
             role: parseInt(child.age) < 13 ? 'child' : parseInt(child.age) < 18 ? 'teen' : 'guardian',
             age: parseInt(child.age),
             interests: child.interests ? [child.interests] : [],
+            pin: null,
           }));
 
           await supabase
@@ -141,14 +142,12 @@ const ForcedFamilySetup = () => {
         }
       } else {
         // Solo setup - create a simple family record for the individual
-        // Generate a simple numeric ID from UUID for wordpress_user_id compatibility
-        const numericId = parseInt(user.id.replace(/-/g, '').substring(0, 8), 16);
-        
         const { data: newFamily, error: familyError } = await supabase
           .from('families')
           .insert({
             family_name: familyData.primaryParentName + "'s Family",
-            wordpress_user_id: numericId,
+            auth_user_id: user.id,
+            family_login_name: null,
           })
           .select()
           .single();
@@ -161,10 +160,11 @@ const ForcedFamilySetup = () => {
           .from('family_members')
           .insert({
             family_id: familyId,
-            wordpress_user_id: numericId,
+            auth_user_id: user.id,
             name: familyData.primaryParentName,
             role: familyData.primaryParentRole,
             age: 30, // Default adult age
+            pin: null,
           });
       }
 

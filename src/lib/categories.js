@@ -4,34 +4,50 @@ import { supabase } from './supabase';
 
 // FUNCTION 1: Get all categories for a family
 export async function getFamilyCategories(familyId) {
-  console.log('getFamilyCategories called with familyId:', familyId);
-  
+  console.log('🔍 [categories.js] getFamilyCategories called with familyId:', familyId);
+
   try {
+    console.log('🔄 [categories.js] Attempting RPC call: get_family_categories');
     const { data, error } = await supabase
       .rpc('get_family_categories', { p_family_id: familyId });
-    
-    console.log('getFamilyCategories RPC result:', { data, error });
-    
+
+    console.log('📥 [categories.js] RPC result:', { data, error });
+
     if (error) {
-      console.warn('RPC function failed, falling back to direct query:', error);
-      
+      console.warn('⚠️ [categories.js] RPC function failed, falling back to direct query:', error);
+      console.warn('⚠️ [categories.js] Error code:', error.code, 'Message:', error.message);
+
       // Fallback: Try direct query if RPC function doesn't exist
+      console.log('🔄 [categories.js] Attempting direct query to intention_categories table');
       const { data: fallbackData, error: fallbackError } = await supabase
         .from('intention_categories')
         .select('*')
         .or(`family_id.is.null,family_id.eq.${familyId}`)
         .order('sort_order', { ascending: true });
-        
-      console.log('getFamilyCategories fallback result:', { fallbackData, fallbackError });
-      
-      if (fallbackError) throw fallbackError;
+
+      console.log('📥 [categories.js] Fallback query result:', { fallbackData, fallbackError });
+      console.log('📊 [categories.js] Fallback data count:', fallbackData?.length || 0);
+
+      if (fallbackError) {
+        console.error('❌ [categories.js] Fallback query failed:', fallbackError);
+        throw fallbackError;
+      }
+
+      console.log('✅ [categories.js] Returning fallback data');
       return fallbackData;
     }
-    
+
+    console.log('✅ [categories.js] Returning RPC data');
     return data;
   } catch (err) {
-    console.error('getFamilyCategories failed:', err);
-    
+    console.error('❌ [categories.js] getFamilyCategories completely failed:', err);
+    console.error('❌ [categories.js] Error details:', {
+      message: err?.message,
+      code: err?.code,
+      details: err?.details
+    });
+
+    console.log('🔄 [categories.js] Returning mock categories as final fallback');
     // Return mock categories for development
     return [
       {

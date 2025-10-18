@@ -58,17 +58,17 @@ const QuickAddForm: FC<QuickAddFormProps> = ({
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 99999, // Increased to ensure it's above all other components
-      padding: '1rem',
+      justifyContent: 'flex-start',  // ✅ Align left instead of center
+      paddingLeft: '2rem',            // ✅ Space from left edge
+      zIndex: 2000,                   // ✅ Consistent z-index (not 99999)
       backdropFilter: 'blur(4px)',
     },
     modalContent: {
       background: 'var(--background-color, #fff4ec)',
       borderRadius: '16px',
-      maxWidth: '700px',
-      width: '95%',
-      maxHeight: '85vh',
+      maxWidth: '600px',    // ✅ Narrower to leave space for Smart Notepad
+      width: '90%',
+      maxHeight: '90vh',
       overflow: 'hidden',
       boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)',
       border: '1px solid var(--accent-color, #d4e3d9)',
@@ -305,19 +305,30 @@ const QuickAddForm: FC<QuickAddFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
+
+    // Validate required IDs exist
+    if (!authState.user?.familyId) {
+      setErrors({
+        submit: 'No family associated with your account. Please complete family setup.'
+      });
+      return;
+    }
+
+    if (!authState.user?.familyMemberId) {
+      setErrors({
+        submit: 'Your family member profile is not set up. Please complete family setup.'
+      });
+      return;
+    }
 
     setIsSubmitting(true);
 
     try {
-      if (!authState.user?.familyId || !authState.user?.id) {
-        throw new Error('User not authenticated');
-      }
-
       const intentionData = {
         family_id: authState.user.familyId,
-        created_by: authState.user.id.toString(),
+        created_by: authState.user.familyMemberId,  // ✅ Use family_members.id
         title: formData.title,
         current_state: formData.current_state,
         desired_state: formData.desired_state,
@@ -327,18 +338,40 @@ const QuickAddForm: FC<QuickAddFormProps> = ({
         privacy_level: selectedPrivacy,
       };
 
+      // Debug logging
+      console.log('Creating intention with:', {
+        family_id: authState.user.familyId,
+        created_by: authState.user.familyMemberId,
+        title: formData.title,
+        category_id: formData.category_id
+      });
+
       const result = await createIntention(intentionData);
-      console.log('Intention created successfully:', result);
-      
+      console.log('✅ Intention created successfully:', result);
+
       setShowSuccess(true);
-      
+
       // Call success callback to refresh parent data
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
-      console.error('Error saving intention:', error);
-      setErrors({ submit: 'Failed to save intention. Please try again.' });
+    } catch (error: any) {
+      console.error('❌ Error saving intention:', error);
+      console.error('Full error details:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+        sentData: {
+          family_id: authState.user?.familyId,
+          created_by: authState.user?.familyMemberId,
+          title: formData.title
+        }
+      });
+
+      setErrors({
+        submit: `Failed to save intention: ${error?.message || 'Unknown error'}. Check browser console for details.`
+      });
     } finally {
       setIsSubmitting(false);
     }

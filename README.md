@@ -1,484 +1,424 @@
-# AIMfM (AI for Modern Families) - Complete Ecosystem Guide
+# MyAIM-Central
 
-## 🎯 Business Vision & Mission
+**The Operating System for Family Context Management**
 
-**AIMfM transforms how families organize, optimize, and thrive together through intelligent automation and context-aware AI assistance.**
+MyAIM-Central empowers moms to amplify their visions using AI—even with a teething two-year-old on their lap.
 
-### Core Value Proposition
-- **95% Cost Reduction**: From $2.35 to $0.10 per family per month through intelligent local processing
-- **Context-Aware Intelligence**: Not just another AI chat - deeply understands your family's unique dynamics
-- **Visual Organization**: Bublup-style "baseball card" system for intuitive family management
-- **Agentic Automation**: Smart systems that learn and optimize family workflows automatically
+---
 
-### Target Market
-- **Primary**: Tech-savvy families seeking intelligent home automation
-- **Secondary**: Parents overwhelmed by digital family management  
-- **Tertiary**: Families wanting to teach children AI literacy through practical tools
+## 🎯 Core Mission
 
-## 🏗️ System Architecture Overview
+MyAIM-Central is a platform-agnostic family context management system that helps families organize their unique dynamics, values, and goals—then transforms that context into optimized prompts for ANY AI platform (ChatGPT, Claude, Gemini, Midjourney, and more).
 
-### Three-LiLa™ Architecture
-The heart of AIMfM is our three-pronged AI assistant system:
+### The Three Pillars
 
-#### 1. LiLa™ Optimizer
-- **Purpose**: Proactive family workflow optimization
-- **Key Features**: Pattern recognition, routine automation, resource optimization
-- **Cost**: ~$0.05/month per family (95% local processing)
+1. **📚 Education Hub (Library)** - Teach moms HOW to use AI effectively and safely
+2. **🧠 Context Engine (Archives)** - Centralized family context management for ANY AI platform
+3. **🤖 LiLa Prompt Crafter** - Transform context into platform-specific optimized prompts
 
-#### 2. LiLa™ Assist  
-- **Purpose**: Reactive help and task completion
-- **Key Features**: Real-time support, multi-model AI access, context-aware responses
-- **Cost**: ~$0.03/month per family (smart caching + local processing)
+---
 
-#### 3. LiLa™ Help
-- **Purpose**: Educational AI literacy and family learning
-- **Key Features**: Child-safe explanations, learning modules, AI concept teaching
-- **Cost**: ~$0.02/month per family (primarily local content)
+## 🌟 What Makes MyAIM-Central Different
 
-### Technical Foundation
-- **Database**: Supabase (PostgreSQL + Auth + Real-time + Vector Store)
-- **Frontend**: React with TypeScript
-- **Automation**: n8n workflows as the automation backbone
-- **AI Access**: OpenRouter API for multi-model capabilities
-- **Deployment**: Multiple formats (Opal Apps, Custom GPTs, Gemini Gems, React Components)
+### Platform-Agnostic Architecture
+Unlike tools that lock you into one AI platform, MyAIM-Central works with ALL of them:
+- ✅ ChatGPT, Claude, Gemini, Perplexity
+- ✅ Midjourney, DALL-E, Stable Diffusion
+- ✅ Custom GPTs, Gemini Gems, and future AI platforms
 
-## 🗺️ AIMfM Navigation & Current Architecture
+### Context-Driven Intelligence
+Build your family's context **once**, use it **everywhere**:
+- Bublup-style folder organization with custom covers
+- Checkbox-controlled context (you decide what AI knows)
+- Best Intentions system aligns AI outputs with family values
+- Portable context files export to any platform
 
-### **Command Center** (`/command-center` or `/`) - Main Hub ✅
-The central navigation with 4 core cards:
-1. **Family Dashboard** → Primary parent family management interface
-2. **Your Archives** → Family archive and history system  
-3. **Inner Oracle** → Self-discovery and family values (modal interface)
-4. **Library** → Netflix-style AI tool hub with admin interface
+### Progressive Learning Journey
+From AI beginner to power user in weeks:
+1. **Discovery & Learning** (Days 1-7) - Tutorials and safe, guided tools
+2. **Context Building** (Weeks 2-4) - Family profiles and Best Intentions
+3. **Cross-Platform Power** (Month 2+) - Optimized prompts for any AI
+4. **Advanced Features** (Month 3+) - Custom models, automation, marketplace
 
-### **Role-Based Dashboard System** (75% Complete ✅)
-Each family member gets their own optimized interface:
+---
 
-#### **Primary Parent** (`/family-dashboard`): 
-- **Complete family management control**
-- **Mom Dashboard** with 7 widgets:
-  - Family Overview Widget
-  - Task Management Widget  
-  - Child Progress Widget
-  - Schedule Widget
-  - Notifications Widget
-  - Quick Actions Widget
-  - Victory Recorder Widget
+## 🏗️ System Architecture
 
-#### **Additional Adult** (`/adult-dashboard`): 
-- **Nearly all permissions, own customizable layout**
-- Similar widget access with personalized interface
-- ⚠️ *Needs to be created*
+### Frontend Stack
+- **Framework:** React with TypeScript
+- **Styling:** Styled Components + Emotion
+- **State Management:** React Context API
+- **Routing:** React Router v6
 
-#### **Teen** (`/teen-dashboard`): ✅
-- **Self-managing interface** with 6 widgets:
-  - Task Overview Widget
-  - Task Progress Widget
-  - Achievement Widget
-  - Calendar Widget
-  - Rewards Widget
-  - Victory Recorder Widget
+### Backend Stack
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth (email/password)
+- **Real-time:** Supabase Real-time subscriptions
+- **Storage:** Supabase Storage (folder covers, user files)
+- **Vector Search:** pgvector for context retrieval
 
-#### **Child** (`/child-dashboard`): ✅
-- **Parent-monitored interface** with 5 widgets:
-  - My Tasks Widget
-  - Task Image Widget
-  - Success Animation Widget
-  - Reward Stars Widget
-  - Victory Recorder Widget
+### Core Data Models
 
-### **Current Route Structure**
 ```
-Authentication Routes:
-├─ /login (Supabase email/password auth)
-├─ /beta/login (Beta user login)
-└─ /beta/family-setup (ForcedFamilySetup.jsx)
+families
+├── subscription_tier (essential, enhanced, full_magic, creator)
+└── context_privacy_level
 
-Standalone Dashboard Routes (No MainLayout):
-├─ /teen-dashboard ✅ Fully implemented
-├─ /child-dashboard ✅ Fully implemented
-└─ /adult-dashboard ⚠️ Needs creation
+family_members
+├── role (mom, dad, child, teen, guardian)
+├── display_title (custom: "Mom", "Grandma", etc.)
+├── is_primary_parent (boolean)
+└── dashboard_type (adult, teen, child)
 
-Main App Routes (With MainLayout):
-├─ / → Command Center ✅ Fully implemented
-├─ /command-center ✅ Fully implemented
-├─ /family-dashboard ✅ Primary parent interface
-├─ /family-archive ✅ Family history system
-├─ /your-archives ✅ Personal archives
-├─ /library ✅ Netflix-style AI tool hub
-├─ /library/admin ✅ Library management
-├─ /beta/admin ✅ Beta system management
-├─ /aim-admin ✅ Super admin dashboard
-└─ /family-setup ✅ Family creation interface
+best_intentions
+├── title, current_state, desired_state
+├── why_it_matters
+├── category_id
+├── privacy_level
+└── is_active (checkbox toggle)
+
+intention_categories
+├── system_default (available to all)
+├── custom (family-specific)
+└── guiding_value (from Inner Oracle)
+
+archive_folders (User-Created)
+├── folder_name, folder_type
+├── cover_photo_url (Supabase Storage)
+├── parent_folder_id (nested folders)
+└── linked_member_id (if folder represents a person)
+
+family_context (Archive Files)
+├── folder_id
+├── file_name, file_path
+├── content_data (JSONB - flexible content)
+├── is_active (checkbox for AI usage)
+└── usage_count
 ```
 
-### **Family Creation & Setup System** ✅
-- **Beta Login**: Special beta user authentication (`BetaLogin.jsx`)
-- **Forced Family Setup**: First-time family creation (`ForcedFamilySetup.jsx`)
-- **Family Setup Interface**: Complete family member management (`FamilySetupInterface.tsx`)
-- **Role Assignment**: Automatic role-based routing after login
-- **Permission System**: Granular permissions for each family member type
+---
 
-### **Task Creation & Management System** ✅
-- **Task Creator**: Intelligent task generation already implemented
-- **Role-Based Task Management**: Different task interfaces for each family member
-- **Task Assignment**: Parents can assign tasks to children/teens
-- **Progress Tracking**: Visual progress monitoring across all dashboards
-- **Victory Recorder**: Achievement celebration system in all dashboards
+## 📚 The Library Vault
 
-## 🎨 Design Philosophy & Personality
+### Purpose
+Teach moms to use AI effectively through tutorials, tools, and templates.
 
-### Visual Design Principles
+### Content Types
 
-#### Bublup-Style Organization (To Be Added)
-- **Baseball Card Family Profiles**: Each family member gets a visual "card" showing:
-  - Photo, name, age, interests
-  - Current goals and progress
-  - Recent achievements
-  - AI-suggested optimizations
-- **Context Folders**: Visual containers for different family domains (school, work, health, fun)
-- **Toggle System**: Simple on/off switches for context categories
+**1. Tutorials** (Educational)
+- AI Basics for Moms
+- Writing Great Prompts
+- Understanding AI Models
+- AI Safety for Kids
+- Image Generation 101
+- Automation for Beginners
 
-#### Living Widgets (Enhancement Needed)
-Enhance existing dashboard widgets with real-time family data:
-- **Family Calendar**: Shared events with smart conflict detection
-- **Goal Tracker**: Visual progress on Best Intentions
-- **Resource Monitor**: Family budget, time allocation, energy levels
-- **Achievement Gallery**: Celebrating family wins, big and small
+**2. Tools** (Functional)
+- Task Breaker
+- Meal Planner
+- Story Generator
+- Homework Helper
+- Conflict Mediator
+- Receipt Analyzer
 
-### Personality Traits
+**3. Templates** (Starting Points)
+- Prompt templates
+- Context file templates
+- Best Intention examples
+- Workflow templates
 
-#### LiLa™ Core Personality
-- **Warm but Efficient**: Like a caring family assistant who gets things done
-- **Non-Intrusive**: Suggests without nagging, optimizes without overwhelming
-- **Growth-Oriented**: Always looking for ways to help the family improve
-- **Contextually Intelligent**: Understands family dynamics, not just individual requests
+### Social Features (Internal Only)
+- ❤️ Like - Show appreciation
+- 💬 Comment - Share tips with app users
+- ⭐ Bookmark - Save to favorites
+- ❌ NO external sharing - Protects subscriber content
 
-#### Communication Style
-- **For Parents**: Professional but warm, data-driven insights with emotional intelligence
-- **For Children**: Encouraging, educational, age-appropriate explanations
-- **For Families**: Inclusive language that brings everyone together
+### "Add to Dashboard" Feature
+Click "Add to Dashboard" from any Library tool to add it as a widget on your personalized Dashboard for instant access.
 
-## 🗺️ System Integration Map
+---
 
-### Core Data Flow Integration
+## 🗂️ The Archives System
+
+### Flexible Folder Organization
+Create **ANY** folder structure you want—no pre-defined templates:
+
 ```
-Command Center → Role-Based Dashboard → Context-Aware Widgets → LiLa™ Processing → Family Optimization
-     ↑                                                              ↓
-Family Archive ←→ Task Creator ←→ Inner Oracle ←→ Library ←→ Living Data Integration
+📁 Archives
+  ├─ 📁 Mom (Sarah) [Custom cover photo]
+  │   ├─ 🗂️ AUTO-GENERATED OVERVIEW CARD
+  │   ├─ 📄 Personality.md
+  │   ├─ 📄 Interests.md
+  │   └─ 📷 Photos
+  │
+  ├─ 📁 Best Intentions [Custom cover]
+  │   ├─ 🗂️ AUTO-GENERATED OVERVIEW CARD
+  │   └─ [Your intentions]
+  │
+  ├─ 📁 Jake's Soccer [Custom cover]
+  │   ├─ 🗂️ AUTO-GENERATED OVERVIEW CARD
+  │   ├─ 📄 Practice_Schedule.md
+  │   └─ 📷 Game photos
+  │
+  └─ 📁 [ANY FOLDER YOU CREATE]
 ```
 
-### Component Relationships
+### Auto-Generated Overview Cards
+Every folder automatically gets a "baseball card" overview showing:
+- Custom folder cover photo
+- All contents with checkbox toggles
+- Usage statistics (times used in AI prompts)
+- Last updated timestamp
+- Quick actions (Edit, Export, Settings)
 
-#### 1. **User Interface Layer (Already Built ✅)**
-- **Command Center**: Main navigation hub with visual cards
-- **Role-Based Dashboards**: Personalized interfaces for each family member type
-- **Task Creator**: Intelligent task generation and management system
-- **Family Archive**: Historical family data and progress tracking
-- **Library**: Netflix-style AI tool discovery and management
+### Cross-Device File Access
+- Files stored in Supabase Storage (cloud-based)
+- Accessible from phone and computer
+- Automatic syncing
+- Offline caching for performance
 
-#### 2. **Context & Intelligence Layer (Needs LiLa™ Integration)**
-- **Dashboard Widgets**: Convert existing widgets to context-aware LiLa™ powered interfaces
-- **Family Profile Cards**: Add Bublup-style visual family member cards to existing dashboards
-- **Context Folders**: 79-Point Context Engineering integrated into existing family structure
-- **Inner Oracle**: Self-discovery system feeding family context for AI personalization
-
-#### 3. **AI Processing Layer (To Be Added)**
-- **LiLa™ Optimizer**: Enhance existing Task Creator with pattern recognition and workflow automation
-- **LiLa™ Assist**: Add real-time AI help to existing dashboard widgets
-- **LiLa™ Help**: Integrate educational AI literacy into existing child/teen interfaces
-- **Agentic RAG**: Advanced retrieval system powering all existing interfaces
-
-## 📈 Development Roadmap (Dependency-Based Strategy)
-
-### **Your Strategic Insight is 100% Correct** 🎯
-LiLa™ Optimizer can't work without its data sources. The dependency order is:
-
-**LiLa™ Optimizer Dependencies:**
-1. **Family Archives** - Where family member context lives
-2. **Best Intentions** - The "heart" that makes optimization meaningful  
-3. **Family Members** - Basic profiles and relationships
-
-**Library Priority is Smart:**
-- Library can deliver standalone value immediately
-- Tutorials and tools work without LiLa™
-- Provides content while building foundation systems
-- Generates user engagement during development
+### Context Export
+Export active context to use with any AI platform:
+- Markdown, Plain Text, or JSON formats
+- Include only checked items
+- Platform-specific formatting
+- Copy to clipboard or download
 
 ---
 
-## 🏗️ **PHASE 1: Foundation Systems (Build First)**
-*These are the data sources that everything else depends on*
+## 🎯 Best Intentions System
 
-### **MILESTONE 1: Family Members & Profiles** ✅ *Mostly Complete*
-**Status:** Database exists, needs UI polish  
-**Time Estimate:** 1-2 days
+### The Heart of MyAIM-Central
+Best Intentions are your family's goals and values that guide AI optimization.
 
-**What's Needed:**
-- ✅ Family member CRUD operations working
-- ✅ Profile editing UI functional  
-- ✅ Family member data accessible to other systems
+### Default Categories (Available to All Families)
+1. 👨‍👩‍👧‍👦 Family Relationships
+2. 🌱 Personal Growth
+3. 🏠 Household Management
+4. 💚 Health & Wellness
+5. 📚 Education & Learning
+6. 💬 Communication
+7. ⏰ Daily Routines
+8. 🤗 Emotional Support
+9. 🙏 Spiritual Development
+10. 💰 Financial Goals
 
-**Why First:** Everything references family members, Best Intentions links to family members, Archives organize by family member, LiLa™ needs to know who it's optimizing for.
+### Custom Categories
+Families can create custom categories aligned with their unique values.
 
-### **MILESTONE 2: Best Intentions System** ❌ **CRITICAL DEPENDENCY**
-**Status:** Doesn't exist yet - THIS IS THE MISSING PIECE  
-**Time Estimate:** 3-5 days
+### Privacy Levels
+- **Family** - All family members can see
+- **Parents Only** - Only parents can view
+- **Private** - Only creator can see
 
-**Why This is Essential:** Best Intentions is the "heart" of LiLa™ Optimizer. Without it, LiLa™ is just a generic prompt improver. With it, LiLa™ becomes family-context-aware AI that helps you live according to your values.
-
-**What to Build:**
-1. **Database Schema** - `best_intentions` and `intention_opportunities` tables
-2. **Capture Interface** - Simple form for moms to add Best Intentions
-3. **Management Interface** - View/edit intentions with filtering and categorization
-4. **Integration Hooks** - API functions for LiLa™ to access and reference intentions
-
-**Deliverables:**
-- ✅ Database tables created
-- ✅ Capture interface working
-- ✅ Management interface functional
-- ✅ API functions ready for LiLa™ integration
-- ✅ Moms can add and manage their Best Intentions
-
-### **MILESTONE 3: Family Archives & Context Storage** 🔨 *Partially Built*
-**Status:** UI exists, needs enhanced data capture  
-**Time Estimate:** 3-4 days
-
-**Why This Matters:** Family Archives store the rich context about each family member that makes LiLa™'s optimizations personal and effective.
-
-**What to Build:**
-1. **Context Data Structure** - Expand `family_context` table with flexible JSONB storage
-2. **Context Capture UI** - Structured fields for personality, interests, challenges, strengths
-3. **Context Display** - Enhanced FamilyArchiveSystem component with visual organization
-4. **Integration with Best Intentions** - Link context to intentions for AI optimization
-
-**Deliverables:**
-- ✅ Context storage working
-- ✅ Capture UI functional
-- ✅ Display UI enhanced
-- ✅ Integration with Best Intentions
+### Active/Inactive Toggles
+Use checkboxes to control which intentions LiLa uses for AI optimization.
 
 ---
 
-## 🎨 **PHASE 2: Content & User Value (Parallel Track)**
-*Work on Library content while building foundation systems*
+## 🤖 LiLa Prompt Crafter System
 
-### **MILESTONE 4: Library Vault Completion** 🔨 *Database Exists*
-**Status:** Database structure exists, needs content and browsing UI  
-**Time Estimate:** 4-6 days (content creation is time-consuming)
+### The Three LiLas
 
-**Why This is Smart to Do Now:**
-- Delivers immediate value to users
-- Doesn't depend on LiLa™ Optimizer
-- Can be used standalone
-- Generates engagement while building other systems
-- Provides tutorials that support Best Intentions and family context
+**1. LiLa Optimizer** - Context-aware prompt enhancement
+- Mom types simple request
+- LiLa reads active context from Archives
+- LiLa reads active Best Intentions
+- LiLa crafts optimized, platform-specific prompt
+- Mom copies to any AI platform
 
-**What to Build:**
-1. **Content Population** - Create 10-15 core tutorials across categories
-2. **Browsing UI** - Complete Netflix-style interface with search and filtering
-3. **Tutorial Embedding** - Integrate Gamma presentations with authentication
-4. **Engagement Features** - Enable social features (likes, comments, moderation)
+**2. LiLa Assist** - Real-time help within the app
+- Quick answers
+- Tool suggestions
+- Tutorial recommendations
+- Navigation help
 
-**Deliverables:**
-- ✅ 10-15 tutorials created and uploaded
-- ✅ Browsing UI complete
-- ✅ Gamma embedding working
-- ✅ Engagement features active
-- ✅ Users can browse, view, and interact with tutorials
+**3. LiLa Help** - Educational AI literacy
+- Explaining AI concepts to kids
+- Teaching prompt writing
+- AI safety education
+- Feature tutorials
 
----
+### Platform-Specific Optimization
 
-## 🤖 **PHASE 3: LiLa™ System (After Foundation is Built)**
-*Now that you have the data sources, you can build LiLa™ features*
+LiLa formats prompts differently for each platform:
 
-### **MILESTONE 5: LiLa™ Optimizer - Mom-Only** 🔨 *UI Exists*
-**Status:** UI exists, needs AI integration and data connections  
-**Dependencies:** ✅ Milestones 1, 2, 3 must be complete  
-**Time Estimate:** 5-7 days
+**ChatGPT** - Conversational, friendly tone
+**Claude** - Detailed, structured with clear context blocks
+**Midjourney** - Image generation syntax with parameters
+**Gemini** - Multimodal format for text + images
 
-**What to Build:**
-1. **Database Tables** - LiLa™-specific tables for conversations, context, patterns
-2. **OpenRouter Integration** - API key management, rate limiting (20 calls/month), cost tracking
-3. **Context Integration** - Connect to Family Archives and Best Intentions
-4. **Optimization Logic** - 80% JavaScript templates, 20% OpenRouter for complex prompts
-5. **Best Intentions Integration** - The magic that makes LiLa™ special
+### Example Optimization
 
-**The Magic Features:**
-- Detect relevant intentions based on prompt keywords
-- Ask clarifying questions to gather context
-- Weave intentions into optimized prompt
-- Show Mom how intentions influenced result
-- Track intention usage
+**Mom's Input:**
+```
+help with math homework
+```
 
-**Deliverables:**
-- ✅ LiLa™ Optimizer fully functional
-- ✅ Connected to Family Archives
-- ✅ Connected to Best Intentions
-- ✅ OpenRouter API working
-- ✅ Cost tracking active
-- ✅ Mom can optimize prompts with family context
+**LiLa Reads Context:**
+- ☑️ Jake (age 10, visual learner, loves Minecraft)
+- ☑️ Best Intention: "Help kids be independent learners"
 
-### **MILESTONE 6: LiLa™ Assist - All Family Members** 🔨 *Likely Exists*
-**Status:** Likely exists, needs role-specific responses  
-**Time Estimate:** 3-4 days
-
-### **MILESTONE 7: LiLa™ Help - All Family Members** 🔨 *Likely Exists*  
-**Status:** Likely exists, needs ticket system  
-**Time Estimate:** 3-4 days
+**LiLa Output (for ChatGPT):**
+```
+I need help creating a math homework strategy for my 10-year-old
+son Jake. He's a visual learner who loves Minecraft. Can you
+suggest ways to explain [topic] using visual aids or Minecraft-
+related examples? The goal is to help him become more independent,
+so please include ways I can teach him to solve similar problems
+on his own.
+```
 
 ---
 
-## 🚀 **Recommended Build Sequence**
+## 🎨 Dashboard Widget System
 
-### **Week 1: Foundation**
-- **Day 1-2:** Milestone 1 (Family Members UI polish)
-- **Day 3-5:** Milestone 2 (Best Intentions - critical!)
-- **Day 6-7:** Start Milestone 3 (Family Archives)
+### Purpose
+Your personalized command center with drag-and-drop customization.
 
-### **Week 2: Foundation + Content**
-- **Day 1-2:** Finish Milestone 3 (Family Archives)
-- **Day 3-7:** Milestone 4 (Library Vault - can work in parallel)
+### Widget Types
 
-### **Week 3: LiLa™ Optimizer**
-- **Day 1-7:** Milestone 5 (LiLa™ Optimizer with all integrations)
+**1. Tool Widgets** (from Library)
+- Full-functioning tools
+- Added via "Add to Dashboard"
+- Retain all functionality
+- Configurable settings
 
-### **Week 4: LiLa™ Assist & Help**
-- **Day 1-3:** Milestone 6 (LiLa™ Assist)
-- **Day 4-6:** Milestone 7 (LiLa™ Help)
-- **Day 7:** Start Integration
+**2. Info Widgets** (Display Data)
+- Best Intentions summary
+- Upcoming tasks
+- Family calendar
+- Recent Archive updates
+- Quick stats
 
-### **Week 5: Polish & Launch**
-- **Day 1-3:** Cross-system integration
-- **Day 4-7:** Beta prep and launch
+**3. Quick Action Widgets**
+- Add new intention
+- Mind Sweep capture
+- Export context
+- Open Multi-AI Panel
+- One-click shortcuts
 
----
-
-## 🎯 **Minimum Viable Beta**
-
-**You can launch beta with:**
-- ✅ Milestone 1: Family Members
-- ✅ Milestone 2: Best Intentions
-- ✅ Milestone 3: Family Archives
-- ✅ Milestone 4: Library Vault
-- ✅ Milestone 5: LiLa™ Optimizer
-
-**Optional for beta (can add later):**
-- Milestone 6: LiLa™ Assist
-- Milestone 7: LiLa™ Help
-- Cross-system integration
-
-**Why this works:**
-- Delivers core value (LiLa™ Optimizer with Best Intentions)
-- Provides standalone value (Library)
-- Validates business model
-- Can add support features based on beta feedback
+### Layout System
+- Pinterest-style masonry grid
+- Drag-and-drop repositioning
+- Auto-arrange or manual mode
+- Responsive (mobile/desktop)
+- Save custom layouts
 
 ---
 
-## 💡 **Strategic Recommendations**
+## 📦 Subscription Tiers
 
-### **Start with Best Intentions (Milestone 2)**
-**Why:**
-- It's the missing critical dependency
-- It's what makes LiLa™ Optimizer special
-- It's relatively quick to build (3-5 days)
-- It will clarify how everything else should work
+### Essential Tier
+- Core tutorials in Library
+- Basic prompt tools
+- Limited context storage
+- Manual context export
+- Best Intentions (up to 5 active)
 
-### **Library as Parallel Track**
-**Why:**
-- Doesn't depend on LiLa™
-- Delivers immediate value
-- Content creation takes time anyway
-- Keeps momentum while building foundation
+### Enhanced Tier
+- All tutorials
+- All basic tools
+- Full context management
+- LiLa prompt optimization
+- Unlimited Best Intentions
+- Dashboard widgets
 
-**Approach:**
-- Create 2-3 tutorials per day
-- Focus on high-value topics
-- Use existing content where possible
-- Polish UI as you go
+### Full Magic Tier
+- Everything in Enhanced
+- Advanced tools
+- Multi-AI panel integration
+- Context presets/scenes
+- Automation features
+- Priority support
 
-## 💰 Business Model & Economics
+### Creator Tier
+- Everything in Full Magic
+- Custom tool builder
+- Marketplace access (sell tools)
+- White-label options
+- Advanced analytics
 
-### Cost Optimization Strategy
-- **Traditional AI Family Tools**: $2.35/month per family
-- **AIMfM Target**: $0.10/month per family (95% reduction)
+### Premium Upsells (One-time or Add-ons)
+- Custom model training (family photos)
+- Voice cloning for audiobooks
+- Image generation seed codes
+- Advanced integrations
 
-#### Cost Breakdown:
-- **LiLa™ Optimizer**: $0.05/month (local processing + smart caching)
-- **LiLa™ Assist**: $0.03/month (efficient API usage + local fallbacks)
-- **LiLa™ Help**: $0.02/month (primarily local educational content)
-
-### Revenue Streams
-1. **Subscription Tiers**:
-   - Basic: $9.99/month (core LiLa™ functionality)
-   - Premium: $19.99/month (full Library access)
-   - Enterprise: $39.99/month (advanced analytics + custom tools)
-
-2. **Tool Marketplace**: Revenue sharing with AI tool creators
-3. **Custom Implementation**: White-label solutions for organizations
-
-## 🔧 Current Implementation Status (Based on Codebase Analysis)
-
-### ✅ **Already Built (Strong Foundation)**
-- ✅ **Family Members System**: Database table with comprehensive fields, basic profile data, relationship tracking, privacy levels and permissions
-- ✅ **Command Center**: Main navigation hub with 4 core cards fully implemented
-- ✅ **Role-Based Authentication**: Supabase email/password with automatic role routing
-- ✅ **Family Dashboards**: Teen and Child dashboards fully functional with widget systems
-- ✅ **Dashboard Widgets**: 18+ widgets across Mom, Teen, Child interfaces
-- ✅ **Task Creator**: Intelligent task generation and management system
-- ✅ **Library System (Partial)**: Database tables exist (library_items, library_categories, subscription_tiers), Admin interface exists, Tutorial cards and preview modals exist, Vault content engagement system (likes, comments, favorites)
-- ✅ **Family Archive (Partial)**: Components exist (FamilyArchiveSystem.tsx, ProjectsArchive.tsx, YourArchives.tsx), Basic folder structure UI, Generates context files for family members
-- ✅ **Family Setup**: Beta user onboarding and family creation system
-- ✅ **Permission System**: Granular role-based permissions
-- ✅ **Database Schema**: Supabase + pgvector integration
-
-### ❌ **Missing (Critical Dependencies)**
-- ❌ **Best Intentions**: No database table, No UI components, No capture/editing interface, No AI integration - **THIS IS CRITICAL FOR LiLa™ OPTIMIZER**
-- ❌ **Family Context Storage**: Archives have UI but limited data capture, No structured context fields, No approval workflow, No integration with LiLa™
-- ❌ **Library Content**: Database structure exists, No tutorials populated, Browsing UI incomplete
-- ❌ **LiLa™ AI Integration**: UI exists but needs AI integration and data connections
-- ❌ **Adult Dashboard**: Additional adult interface needs creation
-
-### 🔄 **Partially Built (Needs Enhancement)**
-- 🔄 **Family Archives**: UI exists but needs enhanced data capture and structured context storage
-- 🔄 **Library System**: Database and admin exist but needs content population and browsing UI completion
-- 🔄 **Family Dashboard**: Primary parent interface needs LiLa™ integration
-
-### ⏳ **Next Priority (Based on Dependencies)**
-1. **🚨 MILESTONE 2: Best Intentions System** - The critical missing piece that makes LiLa™ special
-2. **MILESTONE 3: Family Archives Enhancement** - Complete the context storage system
-3. **MILESTONE 4: Library Vault Completion** - Content population and browsing UI (parallel track)
-4. **MILESTONE 5: LiLa™ Optimizer Integration** - Connect AI to all data sources
-
-## 🎯 Success Metrics
-
-### Technical KPIs
-- **Cost per Family**: Target <$0.10/month
-- **Response Time**: <200ms for local processing
-- **Context Accuracy**: >95% relevant suggestions
-- **Family Engagement**: >80% daily active usage
-
-### Business KPIs
-- **Family Retention**: >90% monthly retention
-- **Goal Achievement**: >70% of family goals met with AI assistance
-- **Time Savings**: Average 2+ hours/week per family
-- **Satisfaction Score**: >4.5/5 family happiness rating
+---
 
 ## 🚀 Getting Started
 
-### For Developers
-1. **Set up local environment**: Node.js, React, Supabase CLI
-2. **Understand existing architecture**: Explore Command Center and dashboard system
-3. **Start with Context Folders**: Add visual context to existing dashboards
-4. **Follow the dependency order**: Context Enhancement → LiLa™ Integration → Library Expansion
+### For New Users
 
-### For Families
-1. **Sign up**: Create your family account through beta system
-2. **Complete Family Setup**: Add family members with roles and permissions
-3. **Explore Dashboards**: Each family member gets their own personalized interface
-4. **Use Task Creator**: Start creating and managing family tasks
-5. **Discover Library**: Explore AI tools in the Netflix-style hub
+1. **Sign Up** - Create your account through beta login
+2. **Family Setup** - Add family members with roles
+3. **Create First Best Intention** - Define what matters to your family
+4. **Organize Archives** - Create folders for family members and interests
+5. **Explore Library** - Browse tutorials and tools
+6. **Try LiLa** - Optimize your first prompt
+
+### For Developers
+
+#### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/MyAIM_Central.git
+cd MyAIM_Central
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Add your Supabase URL and keys to .env
+
+# Run development server
+npm start
+```
+
+#### Environment Variables
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+#### Database Setup
+
+1. Create Supabase project
+2. Run migrations in `supabase/migrations/` folder in order:
+   - `001_initial_schema.sql`
+   - `002_best_intentions_rls_and_functions.sql`
+   - `003_seed_default_intention_categories.sql`
+
+---
+
+## 📂 Project Structure
+
+```
+MyAIM_Central/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # React components
+│   │   ├── auth/          # Authentication components
+│   │   ├── BestIntentions/ # Best Intentions system
+│   │   ├── Library/       # Library Vault system
+│   │   ├── Archives/      # Archives system
+│   │   ├── Dashboard/     # Dashboard widgets
+│   │   └── LiLa/          # LiLa Prompt Crafter
+│   ├── lib/               # Utility functions
+│   │   ├── categories.js  # Category management
+│   │   └── supabase.js    # Supabase client
+│   ├── styles/            # Global styles
+│   └── App.tsx            # Main app component
+├── supabase/
+│   └── migrations/        # Database migrations
+├── .env.example           # Environment template
+├── package.json
+└── README.md
+```
 
 ---
 
@@ -486,16 +426,168 @@ LiLa™ Optimizer can't work without its data sources. The dependency order is:
 
 ### Available Scripts
 
-#### `npm start`
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+# Start development server
+npm start
 
-#### `npm test`
-Launches the test runner in interactive watch mode.
+# Run tests
+npm test
 
-#### `npm run build`
-Builds the app for production to the `build` folder.
+# Build for production
+npm run build
+
+# Deploy to Vercel
+vercel --prod
+```
 
 ---
 
-**AIMfM isn't just another AI tool - it's the intelligent foundation that helps modern families thrive together. Our existing dashboard architecture provides the perfect foundation for context-aware AI that understands your unique family dynamics and delivers personalized optimization that generic AI simply cannot match.**
+## 🔒 Security & Privacy
+
+### Data Privacy
+- **Granular Control** - Checkbox toggles for what AI knows
+- **Privacy Levels** - Family, Parents Only, or Private
+- **No External Sharing** - Library content stays internal
+- **Portable Context** - Export your data anytime
+
+### Authentication
+- Supabase Auth (email/password)
+- Row Level Security (RLS) policies
+- Beta user access control
+- Permission-based routing
+
+---
+
+## 📈 Roadmap
+
+### Phase 1: Beta Launch (Current)
+- ✅ Best Intentions system
+- ✅ Basic Archives
+- 🔨 Library browsing (in progress)
+- 🔨 LiLa prompt crafting (in progress)
+
+### Phase 2: Enhanced Context
+- Context presets/scenes
+- Smart suggestions
+- Progress tracking
+- Version history
+
+### Phase 3: Advanced AI
+- Multi-AI panel
+- Platform-specific optimization
+- Automation workflows
+- Advanced integrations
+
+### Phase 4: Custom Models (Upsell)
+- Train on family photos
+- Custom image generation codes
+- Voice cloning
+- Personalized AI models
+
+### Phase 5: Creator Economy
+- Tool marketplace
+- Template selling
+- Revenue sharing
+- White-label options
+
+---
+
+## 🎯 Competitive Advantages
+
+### What Competitors Offer
+- **ChatGPT/Claude:** Generic AI, no family context
+- **Custom GPTs:** Siloed to one platform
+- **Notion AI:** Not portable, not AI-optimized
+- **Other "AI for families":** Just wrapped ChatGPT
+
+### What MyAIM-Central Offers
+- ✅ Platform-agnostic (use ANY AI)
+- ✅ Beautiful organization (Bublup-style)
+- ✅ Purpose-driven (Best Intentions)
+- ✅ Education included (Library tutorials)
+- ✅ Privacy-first (checkbox control)
+- ✅ Portable context (export anywhere)
+- ✅ Multi-AI integration (convenience)
+- ✅ Growing smarter over time
+
+**This is a category creator: "Family Context Operating System"**
+
+---
+
+## 💡 Core Design Principles
+
+### 1. "Mom Can Do This With a Teething Two-Year-Old"
+- 5-minute workflows
+- No technical knowledge required
+- Clear, simple interfaces
+- Quick wins first
+
+### 2. Privacy & Control
+- Mom decides what AI knows
+- Visual privacy indicators
+- Granular sharing controls
+- No data surprises
+
+### 3. Platform Agnostic
+- Don't compete with AI platforms
+- Enhance ALL of them
+- Export to anywhere
+- Future-proof
+
+### 4. Education First
+- Teach, don't assume
+- Progressive feature revelation
+- In-context help
+- Safe experimentation
+
+### 5. Purpose-Driven
+- Not just tools, but goals (Best Intentions)
+- Progress tracking
+- Celebrate wins
+- Meaningful outcomes
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines (coming soon).
+
+---
+
+## 📞 Support
+
+### For Users
+- Email: support@myaimcentral.com
+- "Hit a Snag" button in-app
+- Beta user feedback system
+
+### For Developers
+- GitHub Issues: [Report bugs or request features]
+- Discord Community: [Coming soon]
+
+---
+
+## 📄 License
+
+Proprietary - All Rights Reserved
+
+---
+
+## 🙏 Acknowledgments
+
+Built with love for modern families who want to amplify their brilliance using AI.
+
+**Let's amplify brilliance. Let's get moms RICH.** 💰✨
+
+---
+
+## 📊 Current Status
+
+- **Version:** Beta v1.0
+- **Status:** Active Development
+- **Last Updated:** 2025-10-17
+- **Next Milestone:** Library Vault completion + LiLa integration
+
+---
+
+**MyAIM-Central isn't just an app—it's infrastructure for the AI age. Build your family's context once, use it everywhere. From AI newbie to power user. From simple requests to professional results.**

@@ -35,6 +35,7 @@ const CategoryFilter: FC<CategoryFilterProps> = ({
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllSystem, setShowAllSystem] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -233,7 +234,10 @@ const CategoryFilter: FC<CategoryFilterProps> = ({
   const renderCategoryItem = (category: Category | null, label: string, icon?: string) => {
     const isSelected = selectedCategoryId === category?.id;
     const count = category ? categoryCounts[category.id] || 0 : Object.values(categoryCounts).reduce((sum, count) => sum + count, 0);
-    
+
+    // Determine icon display - only show if explicitly provided
+    const displayIcon = icon || category?.icon;
+
     return (
       <div
         key={category?.id || 'all'}
@@ -256,9 +260,11 @@ const CategoryFilter: FC<CategoryFilterProps> = ({
       >
         <div style={styles.categoryContent}>
           {isSelected && <Check size={14} style={{ marginRight: '4px' }} />}
-          <span style={styles.categoryIcon}>
-            {icon || category?.icon || '📂'}
-          </span>
+          {displayIcon && (
+            <span style={styles.categoryIcon}>
+              {displayIcon}
+            </span>
+          )}
           <span style={{
             ...styles.categoryName,
             ...(category?.id === null ? styles.allFilter : {})
@@ -266,7 +272,7 @@ const CategoryFilter: FC<CategoryFilterProps> = ({
             {label}
           </span>
         </div>
-        
+
         {showCounts && (
           <span style={{
             ...styles.categoryCount,
@@ -296,8 +302,27 @@ const CategoryFilter: FC<CategoryFilterProps> = ({
         <div style={styles.section}>
           <div style={styles.sectionTitle}>System Categories</div>
           <div style={styles.categoryList}>
-            {systemCategories.map(category => 
+            {(showAllSystem ? systemCategories : systemCategories.slice(0, 5)).map(category =>
               renderCategoryItem(category, category.display_name)
+            )}
+            {systemCategories.length > 5 && (
+              <button
+                style={{
+                  ...styles.addButton,
+                  marginTop: '8px',
+                  padding: '6px 12px',
+                  fontSize: '0.8rem',
+                }}
+                onClick={() => setShowAllSystem(!showAllSystem)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(104, 163, 149, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none';
+                }}
+              >
+                {showAllSystem ? '− Show Less' : `+ Show ${systemCategories.length - 5} More`}
+              </button>
             )}
           </div>
         </div>
