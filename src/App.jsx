@@ -15,7 +15,9 @@ import Library from './pages/Library.jsx';
 import LibraryAdmin from './components/Admin/LibraryAdmin.jsx';
 import BetaAdmin from './components/Admin/BetaAdmin.jsx';
 import AimAdminDashboard from './components/Admin/AimAdminDashboard.jsx';
-import Login from './pages/Login.tsx';
+import NormalMomLogin from './pages/NormalMomLogin.tsx';
+import AdminLogin from './pages/AdminLogin.tsx';
+import FamilyMemberLogin from './pages/FamilyMemberLogin.tsx';
 import FamilySetupInterface from './pages/FamilySettings.tsx';
 import BetaLogin from './components/auth/BetaLogin.jsx';
 import ForcedFamilySetup from './components/auth/ForcedFamilySetup.jsx';
@@ -29,8 +31,11 @@ function App() {
           <Router>
             <div className="App">
             <Routes>
-              <Route path="/login" element={<Login />} />
-              
+              {/* Login Routes - 3 Different Entry Points */}
+              <Route path="/login" element={<NormalMomLogin />} />
+              <Route path="/admin" element={<AdminLogin />} />
+              <Route path="/dashboard" element={<FamilyMemberLogin />} />
+
               {/* Beta Routes */}
               <Route path="/beta/login" element={<BetaLogin />} />
               <Route path="/beta/family-setup" element={<ForcedFamilySetup />} />
