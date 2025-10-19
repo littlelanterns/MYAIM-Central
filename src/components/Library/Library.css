@@ -1438,6 +1438,73 @@
   transform: translateY(-50%) scale(1.05) !important;
 }
 
+/* ===== FILTER BAR ===== */
+.library-filters {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  margin: 1rem auto;
+  max-width: 800px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--library-shadow);
+}
+
+.filter-btn {
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--accent-color, #d4e3d9);
+  background: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-color, #5a4033);
+}
+
+.filter-btn.active {
+  background: var(--primary-color, #68a395);
+  color: white;
+  border-color: var(--primary-color, #68a395);
+}
+
+.filter-btn:hover:not(.active) {
+  border-color: var(--primary-color, #68a395);
+  background: rgba(104, 163, 149, 0.1);
+}
+
+.filter-btn.clear-filters {
+  background: var(--secondary-color, #d6a461);
+  color: white;
+  border-color: var(--secondary-color, #d6a461);
+}
+
+.filter-btn.clear-filters:hover {
+  background: #c4934e;
+  border-color: #c4934e;
+}
+
+.filter-select {
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--accent-color, #d4e3d9);
+  border-radius: 20px;
+  cursor: pointer;
+  background: white;
+  color: var(--text-color, #5a4033);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition);
+  outline: none;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+  border-color: var(--primary-color, #68a395);
+}
+
 /* ===== FEATURED SECTION ===== */
 
 .featured-section {
@@ -1662,6 +1729,20 @@
 
 .featured-badge {
   background: var(--secondary-color, #d6a461);
+}
+
+.gift-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
 }
 
 .card-quick-actions {

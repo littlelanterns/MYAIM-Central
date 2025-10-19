@@ -23,10 +23,21 @@ const Library = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
+  const [activeFilters, setActiveFilters] = useState({
+    tag: null,          // Any tag (seasonal, gift, or general hashtag)
+    toolType: null      // Filter by tool type
+  });
+  const [groupedTagOptions, setGroupedTagOptions] = useState({
+    seasonal: [],
+    giftIdeas: [],
+    general: []
+  });
+  const [toolTypeOptions, setToolTypeOptions] = useState([]);
 
   useEffect(() => {
     initializeLibrary();
     getCurrentUser();
+    loadFilterOptions();
   }, []);
 
   const initializeLibrary = async () => {
@@ -50,12 +61,95 @@ const Library = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
-      
+
       if (user) {
         loadUserBookmarks(user.id);
       }
     } catch (error) {
       console.error('Error getting current user:', error);
+    }
+  };
+
+  const loadFilterOptions = async () => {
+    try {
+      // Get all published library items with ALL tag fields
+      const { data: items, error } = await supabase
+        .from('library_items')
+        .select('seasonal_tags, gift_idea_tags, tags, tool_type')
+        .eq('status', 'published');
+
+      if (error) throw error;
+
+      // Organize tags by category with counts
+      const seasonalMap = new Map();
+      const giftIdeasMap = new Map();
+      const generalMap = new Map();
+
+      items?.forEach(item => {
+        // Seasonal tags
+        if (item.seasonal_tags && Array.isArray(item.seasonal_tags)) {
+          item.seasonal_tags.forEach(tag => {
+            const count = seasonalMap.get(tag) || 0;
+            seasonalMap.set(tag, count + 1);
+          });
+        }
+
+        // Gift idea tags
+        if (item.gift_idea_tags && Array.isArray(item.gift_idea_tags)) {
+          item.gift_idea_tags.forEach(tag => {
+            const count = giftIdeasMap.get(tag) || 0;
+            giftIdeasMap.set(tag, count + 1);
+          });
+        }
+
+        // General hashtags
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags.forEach(tag => {
+            // Remove # if present
+            const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+            const count = generalMap.get(cleanTag) || 0;
+            generalMap.set(cleanTag, count + 1);
+          });
+        }
+      });
+
+      // Convert each category to sorted arrays
+      const seasonalOptions = Array.from(seasonalMap.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const giftIdeasOptions = Array.from(giftIdeasMap.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const generalOptions = Array.from(generalMap.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+
+      setGroupedTagOptions({
+        seasonal: seasonalOptions,
+        giftIdeas: giftIdeasOptions,
+        general: generalOptions
+      });
+
+      // Extract unique tool types with counts
+      const toolTypeMap = new Map();
+      items?.forEach(item => {
+        if (item.tool_type) {
+          const count = toolTypeMap.get(item.tool_type) || 0;
+          toolTypeMap.set(item.tool_type, count + 1);
+        }
+      });
+
+      // Convert to array and sort by count (descending)
+      const toolOptions = Array.from(toolTypeMap.entries())
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count);
+
+      setToolTypeOptions(toolOptions);
+
+    } catch (error) {
+      console.error('Error loading filter options:', error);
     }
   };
 
@@ -159,6 +253,73 @@ const Library = () => {
     setIsSearching(false);
   };
 
+  // Format tag names for display (capitalize, replace dashes with spaces)
+  const formatTagName = (tag) => {
+    return tag
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Format tool type names for display
+  const formatToolTypeName = (type) => {
+    const typeMap = {
+      'tutorial': 'Tutorials',
+      'custom-gpt': 'Custom GPTs',
+      'gemini-gem': 'Gemini Gems',
+      'opal-app': 'Opal Apps',
+      'caffeine-app': 'Caffeine Apps',
+      'perplexity-app': 'Perplexity Tools',
+      'custom-link': 'Custom Links',
+      'tool-collection': 'Tool Collections',
+      'workflow': 'Workflows',
+      'prompt-pack': 'Prompt Packs'
+    };
+    return typeMap[type] || formatTagName(type);
+  };
+
+  // Filter tutorials based on active filters
+  const filterTutorials = (tutorials) => {
+    if (!tutorials || tutorials.length === 0) return tutorials;
+
+    return tutorials.filter(item => {
+      // Tag filter - check ALL tag fields (seasonal, gift, general hashtags)
+      if (activeFilters.tag) {
+        const hasTag = (
+          (item.seasonal_tags && item.seasonal_tags.includes(activeFilters.tag)) ||
+          (item.gift_idea_tags && item.gift_idea_tags.includes(activeFilters.tag)) ||
+          (item.tags && item.tags.some(t => {
+            const cleanTag = t.startsWith('#') ? t.substring(1) : t;
+            return cleanTag === activeFilters.tag;
+          }))
+        );
+
+        if (!hasTag) return false;
+      }
+
+      // Tool type filter
+      if (activeFilters.toolType && item.tool_type !== activeFilters.toolType) {
+        return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Apply filters to categories
+  const getFilteredCategories = () => {
+    if (!activeFilters.tag && !activeFilters.toolType) {
+      return categories; // No filters active, return all
+    }
+
+    return categories
+      .map(category => ({
+        ...category,
+        tutorials: filterTutorials(category.tutorials)
+      }))
+      .filter(category => category.tutorials && category.tutorials.length > 0); // Remove empty categories
+  };
+
   if (loading) {
     return (
       <div className="library-container">
@@ -192,6 +353,78 @@ const Library = () => {
             </svg>
           </button>
         </form>
+
+        {/* Filter Bar */}
+        <div className="library-filters">
+          {/* Grouped Tags Filter - organized by category */}
+          {(groupedTagOptions.seasonal.length > 0 || groupedTagOptions.giftIdeas.length > 0 || groupedTagOptions.general.length > 0) && (
+            <select
+              className="filter-select"
+              value={activeFilters.tag || ''}
+              onChange={(e) => setActiveFilters({...activeFilters, tag: e.target.value || null})}
+            >
+              <option value="">Browse by Tag</option>
+
+              {/* Seasonal Tags Group */}
+              {groupedTagOptions.seasonal.length > 0 && (
+                <optgroup label="Seasonal">
+                  {groupedTagOptions.seasonal.map(option => (
+                    <option key={option.tag} value={option.tag}>
+                      {formatTagName(option.tag)} ({option.count})
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+
+              {/* Gift Ideas Group */}
+              {groupedTagOptions.giftIdeas.length > 0 && (
+                <optgroup label="Gift Ideas">
+                  {groupedTagOptions.giftIdeas.map(option => (
+                    <option key={option.tag} value={option.tag}>
+                      {formatTagName(option.tag)} ({option.count})
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+
+              {/* General Tags Group */}
+              {groupedTagOptions.general.length > 0 && (
+                <optgroup label="Topics">
+                  {groupedTagOptions.general.map(option => (
+                    <option key={option.tag} value={option.tag}>
+                      {formatTagName(option.tag)} ({option.count})
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+          )}
+
+          {/* Dynamic Tool Type Filter - only shows types that exist in your content */}
+          {toolTypeOptions.length > 0 && (
+            <select
+              className="filter-select"
+              value={activeFilters.toolType || ''}
+              onChange={(e) => setActiveFilters({...activeFilters, toolType: e.target.value || null})}
+            >
+              <option value="">All Types</option>
+              {toolTypeOptions.map(option => (
+                <option key={option.type} value={option.type}>
+                  {formatToolTypeName(option.type)} ({option.count})
+                </option>
+              ))}
+            </select>
+          )}
+
+          {(activeFilters.tag || activeFilters.toolType) && (
+            <button
+              className="filter-btn clear-filters"
+              onClick={() => setActiveFilters({ tag: null, toolType: null })}
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Search Results */}
@@ -272,10 +505,11 @@ const Library = () => {
       )}
 
       {/* Category Rows (only show when not searching) */}
-      {!isSearching && categories.map((category) => (
+      {!isSearching && getFilteredCategories().map((category) => (
         <CategoryRow
           key={category.id}
           category={category}
+          currentUser={currentUser}
           onSelectTutorial={handleSelectTutorial}
           userBookmarks={userBookmarks}
           onBookmark={handleBookmark}
@@ -288,10 +522,18 @@ const Library = () => {
       ))}
 
       {/* Empty State */}
-      {!isSearching && categories.length === 0 && (
+      {!isSearching && getFilteredCategories().length === 0 && (
         <div className="empty-state">
-          <h2>No tutorials available yet</h2>
-          <p>Check back soon for new AI tutorials and tools!</p>
+          <h2>
+            {(activeFilters.giftIdeas || activeFilters.seasonal || activeFilters.toolType)
+              ? 'No items match your filters'
+              : 'No tutorials available yet'}
+          </h2>
+          <p>
+            {(activeFilters.giftIdeas || activeFilters.seasonal || activeFilters.toolType)
+              ? 'Try adjusting your filters to see more content'
+              : 'Check back soon for new AI tutorials and tools!'}
+          </p>
         </div>
       )}
 

@@ -20,7 +20,7 @@ const MainLayout = () => {
     //   const { data } = await supabase
     //     .from('family_members')
     //     .select('theme_preference')
-    //     .eq('wordpress_user_id', currentUserId)
+    //     .eq('auth_user_id', currentUserId)  // FIXED: Changed from wordpress_user_id
     //     .single();
     //   if (data?.theme_preference) {
     //     setCurrentTheme(data.theme_preference);

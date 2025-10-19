@@ -244,7 +244,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = family_context.family_id
     )
 );
@@ -256,7 +256,7 @@ TO authenticated
 WITH CHECK (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = family_context.family_id
     )
 );

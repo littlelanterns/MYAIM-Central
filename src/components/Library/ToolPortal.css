@@ -1,0 +1,251 @@
+/* Tool Portal Styles */
+.tool-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.tool-portal.prep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.portal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+}
+
+.portal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.portal-close-btn:hover {
+  background: #f0f0f0;
+}
+
+.portal-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.portal-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.portal-description {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.portal-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.portal-section h3 {
+  margin-top: 0;
+  color: var(--primary-color, #68a395);
+}
+
+.portal-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.portal-tips li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.portal-tips li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #68a395);
+  font-weight: bold;
+}
+
+.auth-notice {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+}
+
+.usage-info {
+  background: #e8f4f8;
+  border-left: 4px solid var(--primary-color, #68a395);
+  text-align: center;
+}
+
+.launch-tool-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: var(--primary-color, #68a395);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 1.5rem;
+}
+
+.launch-tool-btn:hover:not(:disabled) {
+  background: var(--primary-hover, #5a8d7f);
+}
+
+.launch-tool-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.limit-message {
+  text-align: center;
+  color: #d32f2f;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Active tool view */
+.tool-portal.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--primary-color, #68a395);
+  color: white;
+}
+
+.tool-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.tool-header .close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.tool-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tool-embed-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.session-timer {
+  padding: 0.5rem;
+  text-align: center;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.external-link-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+}
+
+.launch-external-btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  margin-top: 1rem;
+  background: var(--primary-color, #68a395);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.launch-external-btn:hover {
+  background: var(--primary-hover, #5a8d7f);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .portal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .portal-close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .portal-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .portal-description {
+    font-size: 1rem;
+  }
+
+  .launch-tool-btn {
+    font-size: 1rem;
+    padding: 0.875rem;
+  }
+}

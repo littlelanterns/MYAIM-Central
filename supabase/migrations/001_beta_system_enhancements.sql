@@ -200,7 +200,7 @@ CREATE TRIGGER on_auth_user_beta_created
 -- Views for admin dashboard
 DROP VIEW IF EXISTS beta_user_overview;
 CREATE VIEW beta_user_overview AS
-SELECT 
+SELECT
     bu.id,
     bu.user_id,
     u.email,
@@ -216,13 +216,13 @@ SELECT
     (SELECT MAX(timestamp) FROM user_activity_log WHERE user_id = bu.user_id) as last_activity_time
 FROM beta_users bu
 JOIN auth.users u ON bu.user_id = u.id
-LEFT JOIN family_members fm ON bu.user_id::text = fm.wordpress_user_id::text
+LEFT JOIN family_members fm ON bu.user_id = fm.auth_user_id  -- FIXED: Changed from wordpress_user_id
 LEFT JOIN families f ON fm.family_id = f.id
 ORDER BY bu.created_at DESC;
 
 DROP VIEW IF EXISTS feedback_dashboard;
 CREATE VIEW feedback_dashboard AS
-SELECT 
+SELECT
     fs.id,
     fs.user_id,
     u.email,
@@ -236,18 +236,18 @@ SELECT
     fs.created_at,
     fs.updated_at,
     (
-        SELECT COUNT(*) 
-        FROM feedback_submissions fs2 
-        WHERE fs2.page_url = fs.page_url 
-        AND fs2.issue_type = fs.issue_type 
+        SELECT COUNT(*)
+        FROM feedback_submissions fs2
+        WHERE fs2.page_url = fs.page_url
+        AND fs2.issue_type = fs.issue_type
         AND fs2.created_at > fs.created_at - INTERVAL '7 days'
     ) as similar_issues_count
 FROM feedback_submissions fs
 JOIN auth.users u ON fs.user_id = u.id
-LEFT JOIN family_members fm ON fs.user_id::text = fm.wordpress_user_id::text
+LEFT JOIN family_members fm ON fs.user_id = fm.auth_user_id  -- FIXED: Changed from wordpress_user_id
 LEFT JOIN families f ON fm.family_id = f.id
-ORDER BY 
-    CASE 
+ORDER BY
+    CASE
         WHEN fs.priority = 'blocking' THEN 1
         WHEN fs.priority = 'annoying' THEN 2
         ELSE 3

@@ -37,7 +37,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.id = best_intentions.created_by
     )
 );
@@ -50,7 +50,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = best_intentions.family_id
         AND fm.role = 'mom'
     )
@@ -64,7 +64,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = best_intentions.family_id
         AND (
             -- Private: only creator can see (handled by creator policy above)
@@ -98,7 +98,7 @@ USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
         JOIN best_intentions bi ON bi.family_id = fm.family_id
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND bi.id = intention_progress.intention_id
     )
 );
@@ -124,7 +124,7 @@ USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
         JOIN best_intentions bi ON bi.family_id = fm.family_id
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND bi.id = intention_opportunities.intention_id
     )
 );
@@ -137,7 +137,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.id = inner_oracle_assessments.family_member_id
     )
 );
@@ -149,7 +149,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.id = growth_intentions.family_member_id
     )
 );
@@ -161,7 +161,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.id = reflections.family_member_id
     )
 );
@@ -174,7 +174,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = lila_conversations.family_id
     )
 );
@@ -204,7 +204,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = lila_api_usage.family_id
     )
 );
@@ -216,7 +216,7 @@ TO authenticated
 WITH CHECK (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = lila_api_usage.family_id
     )
 );
@@ -229,7 +229,7 @@ TO authenticated
 USING (
     EXISTS (
         SELECT 1 FROM family_members fm 
-        WHERE fm.wordpress_user_id::text = auth.uid()::text 
+        WHERE fm.auth_user_id::text = auth.uid()::text 
         AND fm.family_id = mindsweep_items.family_id
     )
 );
@@ -329,7 +329,7 @@ DECLARE
 BEGIN
     SELECT id INTO member_id
     FROM family_members 
-    WHERE wordpress_user_id::text = target_user_id::text;
+    WHERE auth_user_id::text = target_user_id::text;
     
     RETURN member_id;
 END;

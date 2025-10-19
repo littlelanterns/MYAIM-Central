@@ -37,7 +37,7 @@ const BetaUpgradeModal = ({ isOpen, onClose, currentTier, targetTier, onUpgrade 
 
   const handleUpgrade = async () => {
     if (betaCode.toLowerCase() !== 'beta') {
-      setError('Please enter the beta access code provided by your coordinator');
+      setError('Please enter the beta access code');
       return;
     }
 
@@ -139,7 +139,7 @@ const BetaUpgradeModal = ({ isOpen, onClose, currentTier, targetTier, onUpgrade 
               <div className="text-sm text-blue-800">
                 <p className="font-medium">Beta Testing Instructions</p>
                 <p className="mt-1">
-                  Since you're a beta tester, you won't be charged. Simply enter the beta access code provided by your coordinator to unlock these features.
+                  Since you're a beta tester, you won't be charged. Simply enter the beta access code to unlock these features.
                 </p>
               </div>
             </div>
@@ -190,7 +190,10 @@ const BetaUpgradeModal = ({ isOpen, onClose, currentTier, targetTier, onUpgrade 
         {/* Additional Info */}
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-500">
-            Need the beta code? Contact your beta coordinator
+            Need the beta code? Contact{' '}
+            <a href="mailto:aimagicformoms@gmail.com" className="text-purple-600 hover:underline">
+              aimagicformoms@gmail.com
+            </a>
           </p>
         </div>
       </div>

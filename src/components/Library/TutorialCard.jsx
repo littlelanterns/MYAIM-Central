@@ -1,13 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 import './Library.css';
 
-const TutorialCard = ({ 
-  tutorial, 
-  onSelect, 
-  isBookmarked, 
-  onBookmark, 
-  onQuickAction 
+const TutorialCard = ({
+  tutorial,
+  onSelect,
+  isBookmarked,
+  onBookmark,
+  onQuickAction,
+  currentUser  // User object with id
 }) => {
+  const [showNew, setShowNew] = useState(false);
+
+  // Check if item should show NEW badge based on first-visit tracking
+  useEffect(() => {
+    if (!tutorial.is_new || !tutorial.first_seen_tracking || !currentUser?.id) {
+      setShowNew(false);
+      return;
+    }
+
+    checkIfNew();
+  }, [tutorial.id, tutorial.is_new, tutorial.first_seen_tracking, currentUser?.id]);
+
+  const checkIfNew = async () => {
+    try {
+      // Check if user has seen this item before
+      const { data: firstVisit } = await supabase
+        .from('user_library_first_visits')
+        .select('first_visit_at')
+        .eq('user_id', currentUser.id)
+        .eq('library_item_id', tutorial.id)
+        .single();
+
+      if (!firstVisit) {
+        // First time seeing this item - mark it and show NEW badge
+        await supabase.from('user_library_first_visits').insert({
+          user_id: currentUser.id,
+          library_item_id: tutorial.id
+        });
+        setShowNew(true);
+        return;
+      }
+
+      // Check if within the NEW badge duration window
+      const daysSinceFirstSeen = Math.floor(
+        (Date.now() - new Date(firstVisit.first_visit_at)) / (1000 * 60 * 60 * 24)
+      );
+
+      const badgeDuration = tutorial.new_badge_duration_days || 30;
+      setShowNew(daysSinceFirstSeen < badgeDuration);
+
+    } catch (error) {
+      console.error('Error checking NEW badge status:', error);
+      // Fallback to simple is_new check
+      setShowNew(tutorial.is_new);
+    }
+  };
+
   const handleBookmarkClick = (e) => {
     e.stopPropagation();
     onBookmark(tutorial.id);
@@ -29,6 +78,12 @@ const TutorialCard = ({
   const getContentTypeIcon = (type) => {
     switch (type) {
       case 'tutorial': return '📚';
+      case 'custom-gpt': return '🤖';
+      case 'gemini-gem': return '💎';
+      case 'opal-app': return '🔮';
+      case 'caffeine-app': return '☕';
+      case 'perplexity-app': return '🔍';
+      case 'custom-link': return '🔗';
       case 'tool-collection': return '🛠️';
       case 'workflow': return '⚡';
       case 'prompt-pack': return '💬';
@@ -55,9 +110,14 @@ const TutorialCard = ({
           >
             {isBookmarked ? '❤️' : '🤍'}
           </button>
-          
-          {tutorial.is_new && <span className="new-badge">NEW</span>}
+
+          {showNew && <span className="new-badge">NEW</span>}
           {tutorial.is_featured && <span className="featured-badge">★</span>}
+
+          {/* Gift idea badge */}
+          {tutorial.gift_idea_tags && tutorial.gift_idea_tags.length > 0 && (
+            <span className="gift-badge">🎁</span>
+          )}
         </div>
 
         <div className="card-quick-actions">

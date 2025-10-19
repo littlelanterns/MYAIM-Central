@@ -1,5 +1,5 @@
 // src/components/global/QuickActions.js - FIXED with Portal placeholders
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -18,26 +18,14 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   const [showComplimentGenerator, setShowComplimentGenerator] = useState(false);
   const [showSillyQuestions, setShowSillyQuestions] = useState(false);
   const [showManners, setShowManners] = useState(false);
-  
-  // Check if current user is AIM-Admin (separate from family admin)
-  const isAimAdmin = () => {
-    // Simple approach: Check localStorage flag that you can set
-    // This keeps it separate from your family admin system
-    const isAimAdminFlag = localStorage.getItem('aim_admin_access');
-    
-    // You can also check by email or any other method:
-    // const currentUserEmail = getCurrentUser()?.email;
-    // return currentUserEmail === 'your-email@example.com';
-    
-    return isAimAdminFlag === 'true';
-  };
 
   // Actions with usage count for auto-rearrangement
   const getInitialActions = () => {
     const baseActions = [
       { name: "Command Center", usageCount: 0, id: 'command-center', type: 'navigation' },
       { name: "Family Setup", usageCount: 0, id: 'family-setup', type: 'navigation' },
-      { name: "AIM-Admin", usageCount: 0, id: 'aim-admin', type: 'navigation' },
+      // ARCHIVED: AIM-Admin moved to direct URL access only (/aim-admin)
+      // { name: "AIM-Admin", usageCount: 0, id: 'aim-admin', type: 'navigation' },
       { name: "Create Task", usageCount: 0, id: 'create-task', type: 'modal' },
       { name: "Me with Manners", usageCount: 0, id: 'manners', type: 'modal' },
       { name: "Task Breaker", usageCount: 0, id: 'task-breaker', type: 'modal' },
@@ -46,7 +34,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       { name: "Compliment Generator", usageCount: 0, id: 'compliment-generator', type: 'modal' },
       { name: "Silly Question Generator", usageCount: 0, id: 'silly-questions', type: 'modal' },
     ];
-    
+
     return baseActions;
   };
 
@@ -104,9 +92,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       case 'family-setup':
         navigate('/family-setup');
         break;
-      case 'aim-admin':
-        navigate('/aim-admin');
-        break;
+      // ARCHIVED: aim-admin navigation removed (access directly via /aim-admin URL)
       default:
         console.log(`Navigation not implemented for: ${actionId}`);
     }

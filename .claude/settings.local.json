@@ -12,7 +12,8 @@
       "Read(c:\\Users\\tenis\\Downloads/**)",
       "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
       "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
-      "Read(c:\\Users\\tenis\\Downloads/**)"
+      "Read(c:\\Users\\tenis\\Downloads/**)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []
