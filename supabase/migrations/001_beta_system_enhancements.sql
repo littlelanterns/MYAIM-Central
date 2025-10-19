@@ -161,12 +161,12 @@ USING (
 
 -- Trigger function for updated_at columns
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Apply triggers
 DROP TRIGGER IF EXISTS update_beta_users_updated_at ON beta_users;
@@ -181,7 +181,7 @@ CREATE TRIGGER update_feedback_submissions_updated_at
 
 -- Function to auto-create beta user records
 CREATE OR REPLACE FUNCTION handle_beta_user_creation()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.raw_user_meta_data->>'is_beta_user' = 'true' THEN
         INSERT INTO beta_users (user_id, created_by)
@@ -190,7 +190,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS on_auth_user_beta_created ON auth.users;
 CREATE TRIGGER on_auth_user_beta_created

@@ -1,4 +1,4 @@
-// src/layouts/MainLayout.tsx - FIXED Default Theme
+// src/layouts/MainLayout.tsx - FIXED Default Theme with Database Persistence
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalHeader from '../components/global/GlobalHeader';
@@ -7,6 +7,7 @@ import LiLaPanel from '../components/global/LiLaPanel';
 import { useModalContext } from '../contexts/ModalContext';
 import DraggableModal from '../components/ui/DraggableModal';
 import { personalThemes, createThemeVariables } from '../styles/colors';
+import { supabase } from '../lib/supabase';
 import './MainLayout.css';
 
 const MainLayout = () => {
@@ -15,18 +16,31 @@ const MainLayout = () => {
   const { modals } = useModalContext();
 
   useEffect(() => {
-    // TODO: Load user's saved theme preference from Supabase
-    // const loadUserTheme = async () => {
-    //   const { data } = await supabase
-    //     .from('family_members')
-    //     .select('theme_preference')
-    //     .eq('auth_user_id', currentUserId)  // FIXED: Changed from wordpress_user_id
-    //     .single();
-    //   if (data?.theme_preference) {
-    //     setCurrentTheme(data.theme_preference);
-    //   }
-    // };
-    // loadUserTheme();
+    // Load user's saved theme preference from Supabase
+    const loadUserTheme = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('family_members')
+          .select('theme_preference')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (error) {
+          console.log('No theme preference found, using default');
+          return;
+        }
+
+        if (data?.theme_preference) {
+          setCurrentTheme(data.theme_preference);
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    };
+    loadUserTheme();
   }, []);
 
   useEffect(() => {

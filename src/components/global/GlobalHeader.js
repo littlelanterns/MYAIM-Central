@@ -1,7 +1,8 @@
-// src/components/global/GlobalHeader.js - Clean header with theme-appropriate icons
+// src/components/global/GlobalHeader.js - Clean header with theme persistence
 import React from 'react';
 import QuickActions from './QuickActions';
 import { personalThemes } from '../../styles/colors';
+import { supabase } from '../../lib/supabase';
 import './GlobalHeader.css';
 
 const GlobalHeader = ({ 
@@ -11,10 +12,29 @@ const GlobalHeader = ({
   onSettingsClick,
   className = ''
 }) => {
-  const handleThemeChange = (e) => {
+  const handleThemeChange = async (e) => {
     const newTheme = e.target.value;
+
+    // Update local state immediately for responsive UI
     if (onThemeChange) {
       onThemeChange(newTheme);
+    }
+
+    // Save to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('family_members')
+          .update({ theme_preference: newTheme })
+          .eq('auth_user_id', user.id);
+
+        if (error) {
+          console.error('Error saving theme preference:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating theme:', error);
     }
   };
 

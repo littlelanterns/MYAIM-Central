@@ -9,7 +9,8 @@ import CommandCenter from './pages/CommandCenter.tsx';
 import FamilyDashboard from './pages/FamilyDashboard.tsx';
 import TeenDashboard from './pages/TeenDashboard.tsx';
 import ChildDashboard from './pages/ChildDashboard.tsx';
-import FamilyArchive from './pages/FamilyArchive.tsx';
+import Archives from './pages/Archives.tsx';
+import PromptLibrary from './pages/PromptLibrary.tsx';
 import YourArchivesPage from './pages/YourArchives.tsx';
 import Library from './pages/Library.jsx';
 import LibraryAdmin from './components/Admin/LibraryAdmin.jsx';
@@ -49,7 +50,9 @@ function App() {
                 <Route index element={<CommandCenter />} />
                 <Route path="command-center" element={<CommandCenter />} />
                 <Route path="family-dashboard" element={<FamilyDashboard />} />
-                <Route path="family-archive" element={<FamilyArchive />} />
+                <Route path="family-archive" element={<Archives />} />
+                <Route path="archives" element={<Archives />} />
+                <Route path="prompt-library" element={<PromptLibrary />} />
                 <Route path="your-archives" element={<YourArchivesPage />} />
                 <Route path="library" element={<Library />} />
                 <Route path="library/admin" element={<LibraryAdmin />} />

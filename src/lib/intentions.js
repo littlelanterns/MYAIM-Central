@@ -1,5 +1,6 @@
 // src/lib/intentions.js - Best Intentions API Layer
 import { supabase } from './supabase';
+import { bestIntentionsService } from './bestIntentionsService';
 
 // FUNCTION 1: Get all intentions for a family
 export async function getFamilyIntentions(familyId) {
@@ -73,8 +74,17 @@ export async function createIntention(intentionData) {
       )
     `)
     .single();
-  
+
   if (error) throw error;
+
+  // Sync to Family Archives system
+  try {
+    await bestIntentionsService.syncBestIntentionToArchive(data.id);
+  } catch (syncError) {
+    console.error('Failed to sync Best Intention to Archives:', syncError);
+    // Don't throw - intention was created successfully
+  }
+
   return data;
 }
 
@@ -82,9 +92,9 @@ export async function createIntention(intentionData) {
 export async function updateIntention(intentionId, updates) {
   const { data, error } = await supabase
     .from('best_intentions')
-    .update({ 
-      ...updates, 
-      updated_at: new Date().toISOString() 
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString()
     })
     .eq('id', intentionId)
     .select(`
@@ -98,8 +108,17 @@ export async function updateIntention(intentionId, updates) {
       )
     `)
     .single();
-  
+
   if (error) throw error;
+
+  // Sync to Family Archives system
+  try {
+    await bestIntentionsService.syncBestIntentionToArchive(intentionId);
+  } catch (syncError) {
+    console.error('Failed to sync Best Intention to Archives:', syncError);
+    // Don't throw - intention was updated successfully
+  }
+
   return data;
 }
 

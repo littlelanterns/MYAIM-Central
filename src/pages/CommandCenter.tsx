@@ -23,42 +23,49 @@ interface ModalAction {
 
 type CommandCenterAction = PageAction | ModalAction;
 
-// Updated data for command center cards
+// Updated data for command center cards - Ordered by priority
 const commandCenterActions: CommandCenterAction[] = [
   {
     type: 'page',
     path: '/family-dashboard',
     title: 'DASHBOARD',
     subtitle: 'Family Dashboard',
-    description: 'Complete family overview with task creation, progress tracking, victory celebrations, and AI-powered insights.'
-  },
-  {
-    type: 'modal',
-    actionId: 'best_intentions',
-    title: 'BEST INTENTIONS',
-    subtitle: 'Best Intentions',
-    description: 'Your compass for what matters most. Keep priorities and goals front of mind so LiLa™ supports your journey.'
-  },
-  {
-    type: 'page',
-    path: '/family-archive',
-    title: 'ARCHIVE',
-    subtitle: 'Your Archives',
-    description: 'Your digital filing system for family members, context, and memories. Beautiful organization that replaces notebooks.'
-  },
-  {
-    type: 'modal',
-    actionId: 'inner_oracle',
-    title: 'INNER ORACLE',
-    subtitle: 'Inner Oracle (Coming Soon)',
-    description: 'Connect with your intuition and inner wisdom through guided reflection and mindful decision-making tools. Currently in development.'
+    description: 'Your family command center where chaos becomes coordination. Create tasks (or opportunities!), track progress, celebrate victories, and keep everyone moving forward together.'
   },
   {
     type: 'page',
     path: '/library',
     title: 'LIBRARY',
     subtitle: 'AI Learning Library',
-    description: 'Vault-style browsing for AI prompts, tutorials, and learning resources. Discover and optimize content with LiLa™.'
+    description: 'Discover AI tools, prompts, and tutorials built to amplify what you already do amazingly. This isn\'t just about making life easier—it\'s about giving moms a voice in shaping how AI impacts our families, our kids, and our future. Browse, optimize with LiLa™, and master skills that matter.'
+  },
+  {
+    type: 'page',
+    path: '/family-archive',
+    title: 'ARCHIVE',
+    subtitle: 'Your Archives',
+    description: 'Your beautiful context vault for all those open tabs in your mom brain. Create folders for anything—family members, projects, recipes, whatever matters. Carry your context with you to any AI tool, and control exactly what AI knows about your family.'
+  },
+  {
+    type: 'modal',
+    actionId: 'best_intentions',
+    title: 'BEST INTENTIONS',
+    subtitle: 'Best Intentions',
+    description: 'Keep what truly matters front and center. Capture the priorities that make life meaningful—deeper connections, spiritual moments, the relationships you\'re building—so LiLa™ proactively weaves them into your conversations, decisions, and daily life.'
+  },
+  {
+    type: 'modal',
+    actionId: 'inner_oracle',
+    title: 'INNER ORACLE',
+    subtitle: 'Inner Oracle (Coming Soon)',
+    description: 'Your intuition\'s best friend. Guided reflection, mindful decision-making, and deep wisdom discovery. Because sometimes you need to hear what you already know—just said back to you in a way that finally makes sense.'
+  },
+  {
+    type: 'modal',
+    actionId: 'mindsweep',
+    title: 'MINDSWEEP',
+    subtitle: 'MindSweep (Coming Soon)',
+    description: 'Brain dump everything—voice memos, photos, random thoughts, that thing you need to remember—and watch it organize itself into family intelligence. Clear your mental clutter and capture ideas before they vanish into the chaos of Tuesday.'
   }
 ];
 
@@ -72,32 +79,32 @@ const CommandCenter: FC = () => {
         setBestIntentionsOpen(true);
       } else if (action.actionId === 'inner_oracle') {
         open('Inner Oracle', (
-          <div style={{ 
-            padding: '40px', 
+          <div style={{
+            padding: '40px',
             textAlign: 'center',
             background: 'linear-gradient(135deg, rgba(104, 163, 149, 0.1), rgba(255, 244, 236, 0.8))',
             borderRadius: '12px',
             margin: '20px'
           }}>
-            <h2 style={{ 
-              fontSize: '2rem', 
-              color: 'var(--primary-color, #68a395)', 
+            <h2 style={{
+              fontSize: '2rem',
+              color: 'var(--primary-color, #68a395)',
               marginBottom: '24px',
               fontFamily: "'The Seasons', 'Playfair Display', serif"
             }}>
               ✨ Coming Soon ✨
             </h2>
-            <p style={{ 
-              fontSize: '1.2rem', 
-              marginBottom: '20px', 
+            <p style={{
+              fontSize: '1.2rem',
+              marginBottom: '20px',
               color: 'var(--text-color, #5a4033)',
               fontWeight: '500'
             }}>
               Inner Oracle
             </p>
-            <p style={{ 
-              fontSize: '1rem', 
-              color: 'var(--text-color, #5a4033)', 
+            <p style={{
+              fontSize: '1rem',
+              color: 'var(--text-color, #5a4033)',
               opacity: 0.8,
               lineHeight: '1.6',
               maxWidth: '400px',
@@ -112,9 +119,62 @@ const CommandCenter: FC = () => {
               borderRadius: '8px',
               border: '1px solid rgba(104, 163, 149, 0.2)'
             }}>
-              <p style={{ 
-                fontSize: '0.9rem', 
-                color: 'var(--text-color, #5a4033)', 
+              <p style={{
+                fontSize: '0.9rem',
+                color: 'var(--text-color, #5a4033)',
+                opacity: 0.7,
+                margin: 0
+              }}>
+                This feature is currently in development and will be available in a future update.
+              </p>
+            </div>
+          </div>
+        ), 'medium');
+      } else if (action.actionId === 'mindsweep') {
+        open('MindSweep', (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, rgba(104, 163, 149, 0.1), rgba(255, 244, 236, 0.8))',
+            borderRadius: '12px',
+            margin: '20px'
+          }}>
+            <h2 style={{
+              fontSize: '2rem',
+              color: 'var(--primary-color, #68a395)',
+              marginBottom: '24px',
+              fontFamily: "'The Seasons', 'Playfair Display', serif"
+            }}>
+              ✨ Coming Soon ✨
+            </h2>
+            <p style={{
+              fontSize: '1.2rem',
+              marginBottom: '20px',
+              color: 'var(--text-color, #5a4033)',
+              fontWeight: '500'
+            }}>
+              MindSweep
+            </p>
+            <p style={{
+              fontSize: '1rem',
+              color: 'var(--text-color, #5a4033)',
+              opacity: 0.8,
+              lineHeight: '1.6',
+              maxWidth: '400px',
+              margin: '0 auto'
+            }}>
+              Quickly capture everything on your mind and automatically organize it into actionable categories. Perfect for brain dumps and mental clarity.
+            </p>
+            <div style={{
+              marginTop: '30px',
+              padding: '16px',
+              background: 'rgba(104, 163, 149, 0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(104, 163, 149, 0.2)'
+            }}>
+              <p style={{
+                fontSize: '0.9rem',
+                color: 'var(--text-color, #5a4033)',
                 opacity: 0.7,
                 margin: 0
               }}>

@@ -1,15 +1,19 @@
-// src/components/global/QuickActions.js - FIXED with Portal placeholders
-import React, { useState, useRef } from 'react';
+// src/components/global/QuickActions.js - With Database Usage Tracking
+import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TaskCreationModal from '../tasks/TaskCreationModal.tsx';
+import { supabase } from '../../lib/supabase';
 import './QuickActions.css';
 
 const QuickActions = ({ contextType = 'dashboard' }) => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
-  
+
+  // User state for database tracking
+  const [familyMemberId, setFamilyMemberId] = useState(null);
+
   // Modal states
   const [showTaskCreator, setShowTaskCreator] = useState(false);
   const [showMealPlanner, setShowMealPlanner] = useState(false);
@@ -40,6 +44,65 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
 
   const [actions, setActions] = useState(getInitialActions());
 
+  // Load family member ID and usage data on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Get family member ID
+        const { data: memberData, error: memberError } = await supabase
+          .from('family_members')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (memberError) {
+          console.log('No family member found for user');
+          return;
+        }
+
+        setFamilyMemberId(memberData.id);
+
+        // Load usage data
+        const { data: usageData, error: usageError } = await supabase
+          .from('quick_action_usage')
+          .select('action_name, click_count')
+          .eq('family_member_id', memberData.id);
+
+        if (usageError) {
+          console.log('No usage data found (table may not exist yet)');
+          return;
+        }
+
+        // Update actions with usage counts from database
+        if (usageData && usageData.length > 0) {
+          setActions(prevActions => {
+            const updatedActions = prevActions.map(action => {
+              const usage = usageData.find(u => u.action_name === action.id);
+              return {
+                ...action,
+                usageCount: usage ? usage.click_count : 0
+              };
+            });
+
+            // Sort by usage count
+            return updatedActions.sort((a, b) => {
+              if (b.usageCount !== a.usageCount) {
+                return b.usageCount - a.usageCount;
+              }
+              return a.name.localeCompare(b.name);
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+
+    loadUserData();
+  }, []);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -50,17 +113,17 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
     }
   };
 
-  const handleActionClick = (actionId) => {
+  const handleActionClick = async (actionId) => {
     console.log('QuickAction clicked:', actionId);
-    
-    // Update usage count and sort
+
+    // Update local usage count and sort
     setActions(prevActions => {
-      const updatedActions = prevActions.map(action => 
-        action.id === actionId 
+      const updatedActions = prevActions.map(action =>
+        action.id === actionId
           ? { ...action, usageCount: action.usageCount + 1 }
           : action
       );
-      
+
       // Sort by usage count (descending), then by name
       return updatedActions.sort((a, b) => {
         if (b.usageCount !== a.usageCount) {
@@ -69,10 +132,26 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
         return a.name.localeCompare(b.name);
       });
     });
-    
+
+    // Save to database (non-blocking)
+    if (familyMemberId) {
+      try {
+        const { error } = await supabase.rpc('increment_quick_action_usage', {
+          p_family_member_id: familyMemberId,
+          p_action_name: actionId
+        });
+
+        if (error) {
+          console.error('Error saving quick action usage:', error);
+        }
+      } catch (error) {
+        console.error('Error calling increment function:', error);
+      }
+    }
+
     // Handle the action based on type
     const clickedAction = actions.find(a => a.id === actionId);
-    
+
     if (clickedAction.type === 'navigation') {
       console.log('Navigating to:', actionId);
       handleNavigation(actionId);
@@ -80,7 +159,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       console.log('Opening modal:', actionId);
       handleModalOpen(actionId);
     }
-    
+
     console.log(`Triggered: ${clickedAction.name}`);
   };
 

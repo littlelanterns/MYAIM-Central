@@ -187,7 +187,7 @@ USING (true);
 
 DROP POLICY IF EXISTS "Super admin can manage optimization patterns" ON lila_optimization_patterns;
 CREATE POLICY "Super admin can manage optimization patterns"
-ON lila_optimization_patterns FOR INSERT, UPDATE, DELETE
+ON lila_optimization_patterns FOR ALL
 TO authenticated
 USING (
     auth.jwt() ->> 'email' = ANY(ARRAY[
