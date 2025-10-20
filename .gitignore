@@ -22,3 +22,20 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Development and debugging scripts
+check-*.js
+diagnose-*.js
+run-migration*.js
+execute-migration*.js
+fix-*.js
+inspect-*.js
+test-supabase*.js
+migrate.js
+
+# Temporary directories
+supabase/.temp/
+.temp/
+
+# Development archive
+dev-archive/
