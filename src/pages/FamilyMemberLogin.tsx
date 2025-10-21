@@ -152,14 +152,8 @@ const FamilyMemberLogin = () => {
       localStorage.setItem('aimfm_session', JSON.stringify(sessionData));
       localStorage.setItem('last_login_type', 'family_member');
 
-      // Determine which dashboard to redirect to
-      let redirectPath = '/command-center'; // Default for adults
-
-      if (memberData.dashboard_type === 'teen' || (memberData.age && memberData.age >= 13 && memberData.age < 18)) {
-        redirectPath = '/teen-dashboard';
-      } else if (memberData.dashboard_type === 'child' || (memberData.age && memberData.age < 13)) {
-        redirectPath = '/child-dashboard';
-      }
+      // Redirect to member dashboard (which will load the appropriate mode)
+      const redirectPath = `/member/${memberData.id}`;
 
       console.log(`Family member ${memberData.name} logged in, redirecting to ${redirectPath}`);
       navigate(redirectPath);

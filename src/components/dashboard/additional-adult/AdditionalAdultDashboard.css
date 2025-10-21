@@ -1,43 +1,55 @@
+/**
+ * Additional Adult Dashboard Styles
+ * CRITICAL: Uses CSS variables ONLY - NO hard-coded colors
+ * Must work with all 26+ themes
+ */
+
 .additional-adult-dashboard {
   padding: 2rem;
   max-width: 1600px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #e8f5e9 0%, #fff3e0 100%);
+  background: var(--gradient-background);
   min-height: 100vh;
+  color: var(--text-color);
+  transition: all 0.3s ease;
 }
 
 .additional-adult-header {
-  background: white;
+  background: var(--background-color);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid var(--primary-color);
 }
 
 .additional-adult-header h1 {
   font-size: 2rem;
   margin: 0 0 0.5rem 0;
-  color: #333;
+  color: var(--primary-color);
+  font-family: 'The Seasons', 'Playfair Display', serif;
 }
 
 .role-description {
   margin: 0;
-  color: #666;
+  color: var(--text-color);
+  opacity: 0.7;
   font-size: 0.95rem;
 }
 
 .permission-notice {
-  background: white;
+  background: var(--background-color);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--accent-color);
 }
 
 .permission-notice h3 {
   margin: 0 0 1rem 0;
-  color: #4caf50;
+  color: var(--primary-color);
+  font-size: 1.25rem;
 }
 
 .permissions-list {
@@ -45,7 +57,7 @@
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.75rem;
 }
 
@@ -56,48 +68,143 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
 .permissions-list li.granted {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 2px solid #4caf50;
+  background: var(--gradient-background);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
 }
 
 .permissions-list li.denied {
-  background: #f5f5f5;
-  color: #999;
-  border: 2px solid #e0e0e0;
+  background: var(--background-color);
+  color: var(--text-color);
+  opacity: 0.5;
+  border: 2px solid var(--accent-color);
 }
 
 .additional-adult-widgets {
   display: grid;
   gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.additional-adult-card {
+  background: var(--background-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--accent-color);
+  transition: all 0.2s ease;
+}
+
+.additional-adult-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.additional-adult-card h3 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+.additional-adult-button {
+  background: var(--primary-color);
+  color: var(--background-color);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.additional-adult-button:hover {
+  background: var(--secondary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.additional-adult-button:active {
+  transform: translateY(0);
+}
+
+.additional-adult-button:disabled {
+  background: var(--accent-color);
+  color: var(--text-color);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.additional-adult-button.secondary {
+  background: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--accent-color);
+}
+
+.additional-adult-button.secondary:hover {
+  background: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .placeholder-message {
-  background: white;
+  background: var(--background-color);
   border-radius: 12px;
   padding: 4rem 2rem;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.placeholder-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  border: 1px solid var(--accent-color);
 }
 
 .placeholder-message h2 {
-  color: #4caf50;
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
+  font-size: 1.5rem;
 }
 
 .placeholder-message p {
-  color: #666;
+  color: var(--text-color);
+  opacity: 0.7;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+}
+
+/* Quick Actions Grid */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Permission Badge */
+.permission-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--accent-color);
+  color: var(--text-color);
+  border: 1px solid var(--primary-color);
+}
+
+.permission-badge.granted {
+  background: var(--gradient-background);
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .additional-adult-widgets {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -108,4 +215,32 @@
   .permissions-list {
     grid-template-columns: 1fr;
   }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .additional-adult-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Scrollbar theming for dashboard sections */
+.additional-adult-dashboard ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.additional-adult-dashboard ::-webkit-scrollbar-track {
+  background: var(--accent-color);
+  border-radius: 4px;
+}
+
+.additional-adult-dashboard ::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, var(--gradient-primary));
+  border-radius: 4px;
+}
+
+.additional-adult-dashboard ::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, var(--primary-color));
 }
