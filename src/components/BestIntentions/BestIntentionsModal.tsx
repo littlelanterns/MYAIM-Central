@@ -15,7 +15,6 @@ interface BestIntentionsModalProps {
 }
 
 type ViewMode = 'landing' | 'view' | 'create';
-type IntentionCategory = 'family_relationships' | 'personal_growth' | 'household_culture' | 'spiritual_development';
 type PrivacyLevel = 'private' | 'parents_only' | 'family';
 
 // Intention interface for future use when we implement data loading
@@ -122,9 +121,8 @@ const BestIntentionsModal: FC<BestIntentionsModalProps> = ({ isOpen, onClose }) 
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-start',  // ✅ Align left instead of center
-      paddingLeft: '2rem',            // ✅ Space from left edge
-      zIndex: 2000,                   // ✅ Consistent z-index (not 99999)
+      justifyContent: 'center',  // ✅ Center the modal
+      zIndex: 2000,
       backdropFilter: 'blur(4px)',
     },
     modalContent: {

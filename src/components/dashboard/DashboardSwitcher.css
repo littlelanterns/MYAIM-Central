@@ -1,0 +1,223 @@
+.dashboard-switcher {
+  position: relative;
+  z-index: 100;
+}
+
+.switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 2px solid var(--primary-color, #68a395);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color, #5a4033);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.switcher-trigger:hover {
+  background: var(--background-color, #fff4ec);
+  box-shadow: 0 4px 12px rgba(104, 163, 149, 0.2);
+  transform: translateY(-1px);
+}
+
+.current-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-icon {
+  font-size: 1.3rem;
+}
+
+.dashboard-name {
+  font-weight: 600;
+}
+
+.chevron {
+  transition: transform 0.2s;
+  color: var(--primary-color, #68a395);
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.switcher-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 98;
+}
+
+.switcher-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 320px;
+  background: white;
+  border: 2px solid var(--primary-color, #68a395);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 99;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid var(--accent-color, #d4e3d9);
+}
+
+.dropdown-header h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--primary-color, #68a395);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-options {
+  padding: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dashboard-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-option:hover {
+  background: var(--background-color, #fff4ec);
+  border-color: var(--accent-color, #d4e3d9);
+}
+
+.dashboard-option.active {
+  background: linear-gradient(135deg,
+    var(--primary-color, #68a395) 0%,
+    var(--secondary-color, #d6a461) 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.dashboard-option.active .option-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.option-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+
+.option-description {
+  font-size: 0.8rem;
+  color: var(--secondary-text-color, #8b7355);
+  opacity: 0.85;
+}
+
+.active-indicator {
+  font-size: 1.2rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.dropdown-footer {
+  padding: 0.75rem 1.25rem;
+  border-top: 2px solid var(--accent-color, #d4e3d9);
+  background: var(--background-color, #fff4ec);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.dropdown-footer small {
+  color: var(--secondary-text-color, #8b7355);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Scrollbar styling for dashboard options */
+.dashboard-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-options::-webkit-scrollbar-track {
+  background: var(--background-color, #fff4ec);
+  border-radius: 3px;
+}
+
+.dashboard-options::-webkit-scrollbar-thumb {
+  background: var(--primary-color, #68a395);
+  border-radius: 3px;
+}
+
+.dashboard-options::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color, #d6a461);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .switcher-dropdown {
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 90vw;
+    max-width: 400px;
+  }
+
+  .dashboard-name {
+    display: none;
+  }
+
+  .switcher-trigger {
+    padding: 0.5rem 0.75rem;
+  }
+}

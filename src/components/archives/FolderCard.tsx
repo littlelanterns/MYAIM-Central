@@ -1,6 +1,5 @@
 // src/components/archives/FolderCard.tsx - Individual folder card in grid
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
 import { archivesService } from '../../lib/archivesService';
 import type { ArchiveFolder, ArchiveContextItem } from '../../types/archives';
 
@@ -30,6 +29,15 @@ export function FolderCard({ folder, onClick, onRefresh }: FolderCardProps) {
     }
   }
 
+  // Helper to darken/lighten color for gradients
+  function adjustColor(color: string, amount: number): string {
+    const num = parseInt(color.replace('#', ''), 16);
+    const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  }
+
   // Calculate completeness
   const totalFields = 5; // personality, interests, learning_style, challenges, strengths
   const filledFields = contextItems.filter(
@@ -37,82 +45,41 @@ export function FolderCard({ folder, onClick, onRefresh }: FolderCardProps) {
   ).length || 0;
   const completeness = Math.round((filledFields / totalFields) * 100);
 
-  // Get active context count
-  const activeCount = contextItems.filter(
-    item => item.use_for_context
-  ).length || 0;
-
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 border-2 border-transparent hover:border-[#68a395]"
+      className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105"
     >
-      {/* Cover Photo */}
-      <div className="relative h-48 bg-gradient-to-br from-[#68a395] to-[#5a9285]">
+      {/* Photo or Gradient Background */}
+      <div
+        className="relative aspect-square w-full"
+        style={{
+          background: folder.cover_photo_url
+            ? 'none'
+            : `linear-gradient(135deg, ${folder.color_hex || '#68a395'} 0%, ${adjustColor(folder.color_hex || '#68a395', -20)} 100%)`
+        }}
+      >
         {folder.cover_photo_url ? (
           <img
             src={folder.cover_photo_url}
             alt={folder.folder_name}
             className="w-full h-full object-cover"
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl">
-            {folder.icon}
-          </div>
-        )}
+        ) : null}
 
-        {/* Completeness Badge */}
-        {folder.folder_type === 'family_member' && !loading && (
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-semibold">
-            {completeness >= 80 ? '✨' : '📝'} {completeness}%
-          </div>
-        )}
-      </div>
+        {/* Hover Overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
 
-      {/* Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-semibold text-[#5a4033] mb-2">
-          {folder.folder_name}
-        </h3>
-
-        {folder.description && (
-          <p className="text-sm text-gray-600 mb-4">
-            {folder.description}
-          </p>
-        )}
-
-        {/* Context Preview */}
-        {!loading && contextItems.length > 0 && (
-          <div className="space-y-2 mb-4">
-            {contextItems.slice(0, 3).map(item => (
-              <div key={item.id} className="text-sm">
-                <span className="font-medium text-[#68a395]">
-                  {item.context_field}:
-                </span>{' '}
-                <span className="text-[#5a4033]">
-                  {item.context_value.length > 40
-                    ? item.context_value.substring(0, 40) + '...'
-                    : item.context_value
-                  }
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Context Status */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-          <div className="flex items-center gap-2">
-            {activeCount > 0 ? (
-              <CheckCircle2 size={18} className="text-[#68a395]" />
-            ) : (
-              <Circle size={18} className="text-gray-400" />
-            )}
-            <span className="text-sm font-medium text-[#5a4033]">
-              {activeCount > 0 ? `${activeCount} items active` : 'Not configured'}
-            </span>
-          </div>
-          <span className="text-xs text-gray-500">Click to edit</span>
+        {/* Name Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+          <h3 className="text-white font-semibold text-lg">
+            {folder.folder_name}
+          </h3>
+          {folder.folder_type === 'family_member' && !loading && (
+            <p className="text-white/80 text-sm mt-1">
+              {completeness >= 80 ? '✨ Complete' : `${completeness}% complete`}
+            </p>
+          )}
         </div>
       </div>
     </div>

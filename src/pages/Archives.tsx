@@ -29,17 +29,20 @@ export default function Archives() {
   }, [expandedMaster]);
 
   async function loadMasterFolders() {
+    console.log('[Archives] Starting to load master folders...');
     setInitialLoading(true);
     try {
-      console.log('Loading master folders...');
       const masters = await archivesService.getMasterFolders();
-      console.log('Loaded master folders:', masters.length, masters);
+      console.log('[Archives] Successfully loaded master folders:', masters.length, masters);
       setMasterFolders(masters);
     } catch (error) {
-      console.error('Error loading master folders:', error);
+      console.error('[Archives] ERROR loading master folders:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Error loading Archives: ${errorMessage}. Check console for details.`);
       // Fallback to empty array
       setMasterFolders([]);
     } finally {
+      console.log('[Archives] Finishing load, setting initialLoading to false');
       setInitialLoading(false);
     }
   }

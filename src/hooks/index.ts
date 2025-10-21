@@ -6,7 +6,7 @@ export * from './family/useFamilyIntelligence';
 
 // Dashboard Hooks
 export * from './dashboard/useDashboardLayout';
-export * from './dashboard/useWidgets';
+// export * from './dashboard/useWidgets'; // Temporarily disabled - broken imports
 export * from './dashboard/useDashboardPreferences';
 export * from './dashboard/useChildAnimations';
 export * from './dashboard/useImageUpload';

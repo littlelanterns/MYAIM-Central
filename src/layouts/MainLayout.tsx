@@ -53,27 +53,9 @@ const MainLayout = () => {
       root.style.setProperty(key, value);
     });
 
-    // Add specific header gradients using brand-approved colors
-    const headerGradients = {
-      classic: 'linear-gradient(135deg, #68a395 0%, #2c5d60 100%)',
-      forest: 'linear-gradient(135deg, #4b7c66 0%, #355f50 100%)',
-      ocean: 'linear-gradient(135deg, #2c5d60 0%, #355f50 100%)',
-      sunset: 'linear-gradient(135deg, #b99c34 0%, #b86432 100%)',
-      lavender: 'linear-gradient(135deg, #805a82 0%, #5d3e60 100%)',
-      earthy: 'linear-gradient(135deg, #6f4f3a 0%, #4e3426 100%)',
-      rosegold: 'linear-gradient(135deg, #d69a84 0%, #f4dcb7 100%)',
-      spring: 'linear-gradient(135deg, #4b7c66 0%, #68a395 100%)',
-      summer: 'linear-gradient(135deg, #fae49b 0%, #b99c34 100%)',
-      autumn: 'linear-gradient(135deg, #b86432 0%, #8a4a25 100%)',
-      fall: 'linear-gradient(135deg, #b86432 0%, #805a82 100%)',
-      winter: 'linear-gradient(135deg, #68a395 0%, #355f50 100%)',
-      christmas: 'linear-gradient(135deg, #4b7c66 0%, #b25a58 100%)',
-      storm: 'linear-gradient(135deg, #1a365d 0%, #4a5568 100%)',
-      woodland: 'linear-gradient(135deg, #2f4f2f 0%, #8b8680 100%)'
-    };
-    
-    const headerGradient = (headerGradients as any)[currentTheme] || headerGradients.classic;
-    root.style.setProperty('--theme-header-gradient', headerGradient);
+    // Header gradient now uses the same --gradient-primary as the rest of the theme
+    // This ensures the header always matches the selected theme
+    root.style.setProperty('--theme-header-gradient', `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`);
     
     // Add scrollbar styling variables
     root.style.setProperty('--scrollbar-thumb', `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`);

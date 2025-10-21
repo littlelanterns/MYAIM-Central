@@ -1,0 +1,147 @@
+.victory-celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.victory-celebration-modal {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  border-radius: 20px;
+  padding: 3rem;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.celebration-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.confetti {
+  position: absolute;
+  font-size: 3rem;
+  animation: confettiFall 3s ease-in-out infinite;
+}
+
+.confetti:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.confetti:nth-child(2) {
+  left: 30%;
+  animation-delay: 0.5s;
+}
+
+.confetti:nth-child(3) {
+  left: 70%;
+  animation-delay: 1s;
+}
+
+.confetti:nth-child(4) {
+  left: 90%;
+  animation-delay: 1.5s;
+}
+
+@keyframes confettiFall {
+  0% {
+    top: -10%;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+    transform: rotate(360deg);
+  }
+}
+
+.celebration-content {
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+.celebration-content h2 {
+  font-size: 2.5rem;
+  margin: 0 0 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.celebration-message {
+  font-size: 1.3rem;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.play-voice-btn,
+.close-celebration-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 0.5rem;
+}
+
+.play-voice-btn {
+  background: white;
+  color: #f39c12;
+}
+
+.play-voice-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.close-celebration-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+}
+
+.close-celebration-btn:hover {
+  background: white;
+  color: #f39c12;
+}

@@ -39,7 +39,6 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [intentionPreview, setIntentionPreview] = useState<IntentionPreview | null>(null);
   const [isIntentionReady, setIsIntentionReady] = useState(false);
-  const [conversationCount, setConversationCount] = useState(0);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -64,9 +63,8 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-start',  // ✅ Align left instead of center
-      paddingLeft: '2rem',            // ✅ Space from left edge
-      zIndex: 2000,                   // ✅ Consistent z-index (not 99999)
+      justifyContent: 'center',
+      zIndex: 2000,
       backdropFilter: 'blur(4px)',
     },
     modalContent: {
@@ -360,7 +358,6 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
     setMessages(updatedMessages);
     setCurrentMessage('');
     setIsAiThinking(true);
-    setConversationCount(prev => prev + 1);
     
     try {
       // Call OpenRouter API with the full conversation history
@@ -598,7 +595,6 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
                       setMessages([]);
                       setIntentionPreview(null);
                       setIsIntentionReady(false);
-                      setConversationCount(0);
                     }}
                   >
                     <RotateCcw size={16} style={{ marginRight: '4px' }} />
@@ -660,7 +656,6 @@ const BrainDumpCoach: FC<BrainDumpCoachProps> = ({
             setMessages([]);
             setIntentionPreview(null);
             setIsIntentionReady(false);
-            setConversationCount(0);
           }}
         >
           Create Another

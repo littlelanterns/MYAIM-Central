@@ -58,9 +58,8 @@ const QuickAddForm: FC<QuickAddFormProps> = ({
       background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-start',  // ✅ Align left instead of center
-      paddingLeft: '2rem',            // ✅ Space from left edge
-      zIndex: 2000,                   // ✅ Consistent z-index (not 99999)
+      justifyContent: 'center',
+      zIndex: 2000,
       backdropFilter: 'blur(4px)',
     },
     modalContent: {

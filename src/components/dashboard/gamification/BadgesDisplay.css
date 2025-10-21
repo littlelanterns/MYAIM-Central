@@ -1,0 +1,153 @@
+.badges-display {
+  padding: 1rem;
+}
+
+.badges-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.badges-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.badge-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: #ffa500;
+}
+
+.filter-btn.active {
+  background: #ffa500;
+  color: white;
+  border-color: #ffa500;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.badge-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.badge-card.locked {
+  opacity: 0.6;
+  filter: grayscale(50%);
+}
+
+.badge-card.earned {
+  border-color: #ffa500;
+  background: linear-gradient(135deg, #fff7ed 0%, #fff 100%);
+  opacity: 1;
+  filter: none;
+}
+
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.badge-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.badge-name {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.badge-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.badge-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.badge-rarity {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-rarity.common {
+  background: #e0e0e0;
+  color: #666;
+}
+
+.badge-rarity.rare {
+  background: #bbdefb;
+  color: #1976d2;
+}
+
+.badge-rarity.epic {
+  background: #e1bee7;
+  color: #7b1fa2;
+}
+
+.badge-rarity.legendary {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+.badge-points {
+  color: #ffa500;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.placeholder-message {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #999;
+}
+
+@media (max-width: 768px) {
+  .badges-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .badges-grid {
+    grid-template-columns: 1fr;
+  }
+}

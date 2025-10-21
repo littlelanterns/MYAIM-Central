@@ -1,8 +1,9 @@
 // src/components/archives/SubfolderGrid.tsx - Display subfolders in expandable sections
 import React, { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
 import { FolderCard } from './FolderCard';
 import { FolderDetailView } from './FolderDetailView';
+import { AddFamilyMemberModal } from './AddFamilyMemberModal';
+import { LilaInterviewModal } from './LilaInterviewModal';
 import { archivesService } from '../../lib/archivesService';
 import type { ArchiveFolder } from '../../types/archives';
 
@@ -22,6 +23,9 @@ export function SubfolderGrid({
   const [selectedFolder, setSelectedFolder] = useState<ArchiveFolder | null>(null);
   const [localFolders, setLocalFolders] = useState<ArchiveFolder[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [newMemberId, setNewMemberId] = useState<string | null>(null);
+  const [showInterviewForNew, setShowInterviewForNew] = useState(false);
 
   // Sort folders by updated_at (most recent first) unless user has manually reordered
   useEffect(() => {
@@ -42,6 +46,25 @@ export function SubfolderGrid({
   const canCreateCustom =
     masterFolder.folder_type === 'master_personal' ||
     masterFolder.folder_type === 'master_extended_family';
+
+  // Determine if this is the Family master folder
+  const isFamilyMaster = masterFolder.folder_type === 'master_family';
+
+  async function handleMemberCreated(memberId: string, memberName: string, startInterview: boolean) {
+    setShowAddMember(false);
+
+    if (startInterview) {
+      // Start interview after folder is created
+      setNewMemberId(memberId);
+      // Wait for folder to be created by trigger
+      setTimeout(() => {
+        setShowInterviewForNew(true);
+      }, 1000);
+    }
+
+    // Refresh the folder list
+    onRefresh();
+  }
 
   // Drag and drop handlers
   function handleDragStart(index: number) {
@@ -103,19 +126,39 @@ export function SubfolderGrid({
           </div>
         ))}
 
+        {/* Add Family Member Button (for Family master) */}
+        {isFamilyMaster && (
+          <div
+            onClick={() => setShowAddMember(true)}
+            className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-[#68a395]/10 to-[#68a395]/5 border-2 border-dashed border-[#68a395]/30 hover:border-[#68a395] aspect-square flex items-center justify-center"
+          >
+            <div className="text-center">
+              <div className="text-6xl text-[#68a395] mb-3">⊕</div>
+              <p className="text-lg font-semibold text-[#68a395] mb-1">
+                Add Family Member
+              </p>
+              <p className="text-sm text-gray-600 px-4">
+                Add someone to your family
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Add New Button (for custom folders) */}
         {canCreateCustom && (
           <div
             onClick={onCreateNew}
-            className="bg-white rounded-xl p-6 border-2 border-dashed border-[#d4e3d9] hover:border-[#68a395] hover:bg-[#f0f8f6] cursor-pointer transition-all flex flex-col items-center justify-center min-h-[200px]"
+            className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-[#68a395]/10 to-[#68a395]/5 border-2 border-dashed border-[#68a395]/30 hover:border-[#68a395] aspect-square flex items-center justify-center"
           >
-            <Plus size={48} className="text-[#68a395] mb-3" />
-            <p className="text-lg font-semibold text-[#68a395] mb-1">
-              Add New
-            </p>
-            <p className="text-sm text-gray-600 text-center">
-              Create a custom folder
-            </p>
+            <div className="text-center">
+              <div className="text-6xl text-[#68a395] mb-3">⊕</div>
+              <p className="text-lg font-semibold text-[#68a395] mb-1">
+                Add New
+              </p>
+              <p className="text-sm text-gray-600 px-4">
+                Create a custom folder
+              </p>
+            </div>
           </div>
         )}
 
@@ -146,6 +189,33 @@ export function SubfolderGrid({
           onClose={() => setSelectedFolder(null)}
           onUpdate={() => {
             setSelectedFolder(null);
+            onRefresh();
+          }}
+        />
+      )}
+
+      {/* Add Family Member Modal */}
+      {showAddMember && (
+        <AddFamilyMemberModal
+          familyId={masterFolder.family_id}
+          onClose={() => setShowAddMember(false)}
+          onCreated={(memberId, memberName) => {
+            handleMemberCreated(memberId, memberName, true);
+          }}
+        />
+      )}
+
+      {/* Interview Modal for New Member */}
+      {showInterviewForNew && newMemberId && (
+        <LilaInterviewModal
+          folder={localFolders.find(f => f.member_id === newMemberId)!}
+          onClose={() => {
+            setShowInterviewForNew(false);
+            setNewMemberId(null);
+          }}
+          onComplete={() => {
+            setShowInterviewForNew(false);
+            setNewMemberId(null);
             onRefresh();
           }}
         />

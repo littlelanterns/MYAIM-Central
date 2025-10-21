@@ -1,0 +1,111 @@
+.additional-adult-dashboard {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #e8f5e9 0%, #fff3e0 100%);
+  min-height: 100vh;
+}
+
+.additional-adult-header {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #4caf50;
+}
+
+.additional-adult-header h1 {
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.role-description {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.permission-notice {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.permission-notice h3 {
+  margin: 0 0 1rem 0;
+  color: #4caf50;
+}
+
+.permissions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.permissions-list li {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.permissions-list li.granted {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #4caf50;
+}
+
+.permissions-list li.denied {
+  background: #f5f5f5;
+  color: #999;
+  border: 2px solid #e0e0e0;
+}
+
+.additional-adult-widgets {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.placeholder-message {
+  background: white;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.placeholder-message h2 {
+  color: #4caf50;
+  margin-bottom: 0.5rem;
+}
+
+.placeholder-message p {
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .additional-adult-dashboard {
+    padding: 1rem;
+  }
+
+  .permissions-list {
+    grid-template-columns: 1fr;
+  }
+}

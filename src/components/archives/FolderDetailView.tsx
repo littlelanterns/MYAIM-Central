@@ -1,9 +1,10 @@
 // src/components/archives/FolderDetailView.tsx - Full folder view/edit modal
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Edit2, Plus } from 'lucide-react';
+import { X, Upload, Edit2, Plus, Palette } from 'lucide-react';
 import { ContextItemRow } from './ContextItemRow';
 import { LilaInterviewModal } from './LilaInterviewModal';
 import { CoverPhotoUpload } from './CoverPhotoUpload';
+import { ColorPickerModal } from './ColorPickerModal';
 import { archivesService } from '../../lib/archivesService';
 import type { ArchiveFolder, ArchiveContextItem } from '../../types/archives';
 
@@ -17,6 +18,7 @@ export function FolderDetailView({ folder, onClose, onUpdate }: FolderDetailView
   const [contextItems, setContextItems] = useState<ArchiveContextItem[]>([]);
   const [showInterview, setShowInterview] = useState(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [folderName, setFolderName] = useState(folder.folder_name);
   const [loading, setLoading] = useState(true);
@@ -76,6 +78,25 @@ export function FolderDetailView({ folder, onClose, onUpdate }: FolderDetailView
     }
   }
 
+  async function handleColorSelect(colorHex: string, colorName: string) {
+    try {
+      await archivesService.updateFolderColor(folder.id, colorHex);
+      setShowColorPicker(false);
+      onUpdate();
+    } catch (error) {
+      console.error('Error updating folder color:', error);
+    }
+  }
+
+  // Helper to darken/lighten color for gradients
+  function adjustColor(color: string, amount: number): string {
+    const num = parseInt(color.replace('#', ''), 16);
+    const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -83,7 +104,12 @@ export function FolderDetailView({ folder, onClose, onUpdate }: FolderDetailView
         <div className="relative">
           {/* Cover Photo */}
           <div
-            className="h-64 bg-gradient-to-br from-[#68a395] to-[#5a9285] relative group cursor-pointer"
+            className="h-64 relative group cursor-pointer"
+            style={{
+              background: folder.cover_photo_url
+                ? 'none'
+                : `linear-gradient(135deg, ${folder.color_hex || '#68a395'} 0%, ${adjustColor(folder.color_hex || '#68a395', -20)} 100%)`
+            }}
             onClick={() => setShowPhotoUpload(true)}
           >
             {folder.cover_photo_url ? (
@@ -102,9 +128,30 @@ export function FolderDetailView({ folder, onClose, onUpdate }: FolderDetailView
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <div className="text-white text-center">
                 <Upload size={32} className="mx-auto mb-2" />
-                <p className="text-sm font-medium">Upload Cover Photo</p>
+                <p className="text-sm font-medium">Change Cover Photo</p>
               </div>
             </div>
+          </div>
+
+          {/* Customization Buttons */}
+          <div className="absolute top-4 left-4 flex gap-2">
+            {/* Change Color */}
+            <button
+              onClick={() => setShowColorPicker(true)}
+              className="p-3 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-lg group"
+              title="Change folder color"
+            >
+              <Palette size={20} className="text-[#5a4033] group-hover:text-[#68a395]" />
+            </button>
+
+            {/* Upload Photo */}
+            <button
+              onClick={() => setShowPhotoUpload(true)}
+              className="p-3 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-lg group"
+              title="Upload cover photo"
+            >
+              <Upload size={20} className="text-[#5a4033] group-hover:text-[#68a395]" />
+            </button>
           </div>
 
           {/* Close Button */}
@@ -240,6 +287,14 @@ export function FolderDetailView({ folder, onClose, onUpdate }: FolderDetailView
             setShowPhotoUpload(false);
             onUpdate();
           }}
+        />
+      )}
+
+      {showColorPicker && (
+        <ColorPickerModal
+          currentColor={folder.color_hex || '#68a395'}
+          onSelectColor={handleColorSelect}
+          onClose={() => setShowColorPicker(false)}
         />
       )}
     </div>

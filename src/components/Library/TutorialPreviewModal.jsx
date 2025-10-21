@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { OptimizeWithLiLaButton } from './OptimizeWithLiLaButton';
 import VCEngagement from './VCEngagement';
 import VCDiscussion from './VCDiscussion';
 import './Library.css';
 
-const TutorialPreviewModal = ({ 
-  tutorial, 
-  onClose, 
-  onStartTutorial, 
-  onBookmark, 
-  onUseWithLila,
+const TutorialPreviewModal = ({
+  tutorial,
+  onClose,
+  onStartTutorial,
+  onBookmark,
   isBookmarked,
-  currentUser 
+  currentUser
 }) => {
   const [userAccess, setUserAccess] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -226,7 +226,7 @@ const TutorialPreviewModal = ({
 
         <div className="modal-actions">
           {currentUser && (
-            <button 
+            <button
               className={`heart-bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
               onClick={handleBookmark}
               title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
@@ -234,16 +234,15 @@ const TutorialPreviewModal = ({
               {isBookmarked ? '❤️' : '🤍'}
             </button>
           )}
-          
-          <button 
-            className="lila-optimize-btn"
-            onClick={() => onUseWithLila && onUseWithLila(tutorial)}
-            disabled={!userAccess}
-          >
-            🤖 Use with LiLa
-          </button>
-          
-          <button 
+
+          {tutorial.enable_lila_optimization && userAccess && (
+            <OptimizeWithLiLaButton
+              libraryItem={tutorial}
+              customPrompt={tutorial.lila_optimization_prompt}
+            />
+          )}
+
+          <button
             className={`start-tutorial-btn ${!userAccess ? 'disabled' : ''}`}
             onClick={handleStartTutorial}
             disabled={!userAccess}

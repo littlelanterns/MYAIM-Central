@@ -1,0 +1,62 @@
+.permissioned-widget {
+  position: relative;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.permissioned-widget.denied {
+  background: #f5f5f5;
+  border: 2px dashed #ccc;
+}
+
+.access-denied-message {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #999;
+}
+
+.lock-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.access-denied-message h3 {
+  color: #666;
+  margin: 0 0 0.5rem 0;
+}
+
+.access-denied-message p {
+  margin: 0 0 0.5rem 0;
+  color: #999;
+}
+
+.access-denied-message small {
+  display: block;
+  color: #bbb;
+  font-size: 0.85rem;
+}
+
+.permissioned-widget.read-only {
+  border: 2px solid #ff9800;
+}
+
+.read-only-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #ff9800;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.permissioned-widget.can-edit {
+  border: 2px solid #4caf50;
+}

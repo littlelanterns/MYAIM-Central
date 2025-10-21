@@ -54,7 +54,11 @@ const LibraryAdmin = () => {
     usage_limit_type: 'daily_uses',
     usage_limit_amount: 0,
     usage_limit_notes: '',
-    session_timeout_minutes: 60
+    session_timeout_minutes: 60,
+
+    // LiLa Optimization
+    enable_lila_optimization: false,
+    lila_optimization_prompt: ''
   });
 
   const [existingCategories, setExistingCategories] = useState([]);
@@ -159,7 +163,7 @@ const LibraryAdmin = () => {
       const filePath = `library-images/${fileName}`;
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('library-assets')
         .upload(filePath, file);
 
@@ -306,7 +310,7 @@ const LibraryAdmin = () => {
         }
       });
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('library_items')
         .insert([tutorialData])
         .select();
@@ -356,7 +360,9 @@ const LibraryAdmin = () => {
         usage_limit_type: 'daily_uses',
         usage_limit_amount: 0,
         usage_limit_notes: '',
-        session_timeout_minutes: 60
+        session_timeout_minutes: 60,
+        enable_lila_optimization: false,
+        lila_optimization_prompt: ''
       });
 
       // Reload data
@@ -719,7 +725,7 @@ const LibraryAdmin = () => {
                 <small>Recommended: 800x600px, JPG or PNG</small>
                 {formData.preview_image_url && (
                   <div className="image-preview">
-                    <img src={formData.preview_image_url} alt="Preview image" />
+                    <img src={formData.preview_image_url} alt="Tool preview" />
                     <button type="button" onClick={() => removeImage('preview_image_url')}>Remove</button>
                   </div>
                 )}
@@ -797,6 +803,41 @@ const LibraryAdmin = () => {
                 />
                 Mark as "NEW"
               </label>
+            </div>
+
+            {/* LiLa Optimization */}
+            <div className="form-section" style={{marginTop: '2rem', padding: '1.5rem', background: '#fef6ff', borderRadius: '8px', border: '2px solid #e0d4f7'}}>
+              <h3 style={{marginTop: 0, color: '#68a395'}}>✨ LiLa Optimization</h3>
+              <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '1rem'}}>
+                Add an "Optimize with LiLa" button that personalizes this tool with the family's context (kids' names, learning styles, preferences, etc.)
+              </p>
+
+              <div className="form-group checkboxes">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="enable_lila_optimization"
+                    checked={formData.enable_lila_optimization}
+                    onChange={handleInputChange}
+                  />
+                  ✨ Enable "Optimize with LiLa" button on this tool
+                </label>
+              </div>
+
+              {formData.enable_lila_optimization && (
+                <div className="form-group">
+                  <label htmlFor="lila_optimization_prompt">Custom Instructions for LiLa (Optional)</label>
+                  <textarea
+                    id="lila_optimization_prompt"
+                    name="lila_optimization_prompt"
+                    value={formData.lila_optimization_prompt}
+                    onChange={handleInputChange}
+                    rows={4}
+                    placeholder="e.g., 'Focus on visual learning strategies' or 'Emphasize time management tips' - Leave blank for general optimization"
+                  />
+                  <small>These instructions tell LiLa how to personalize this tool for each family</small>
+                </div>
+              )}
             </div>
 
             {/* Portal/Prep Information (for non-tutorial tools) */}

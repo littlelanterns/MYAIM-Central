@@ -1,0 +1,64 @@
+/* Optimize with LiLa Button Styles */
+
+.optimize-lila-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.optimize-lila-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.optimize-lila-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.optimize-lila-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.optimize-lila-icon {
+  font-size: 1.25rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.optimize-lila-text {
+  font-family: 'The Seasons', 'Playfair Display', serif;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+/* Compact variant */
+.optimize-lila-button.compact {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Full width variant */
+.optimize-lila-button.full-width {
+  width: 100%;
+  justify-content: center;
+}

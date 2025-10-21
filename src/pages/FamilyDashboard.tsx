@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import DashboardSwitcher from '../components/dashboard/DashboardSwitcher';
 
 // Icons
 const Users = () => (
@@ -34,21 +35,29 @@ const FamilyDashboard: React.FC = () => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       <div style={{
-        textAlign: 'center',
-        marginBottom: '3rem'
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '3rem',
+        flexWrap: 'wrap',
+        gap: '1rem'
       }}>
-        <h1 style={{
-          color: 'var(--primary-color, #68a395)',
-          marginBottom: '1rem',
-          fontFamily: '"The Seasons", "Playfair Display", serif',
-          fontSize: '2.5rem',
-          fontWeight: '600'
-        }}>Family Dashboard</h1>
-        <p style={{
-          color: 'var(--text-color, #5a4033)',
-          fontSize: '1.1rem',
-          opacity: '0.8'
-        }}>Central hub for all family members and activities</p>
+        <div style={{ textAlign: 'left', flex: '1' }}>
+          <h1 style={{
+            color: 'var(--primary-color, #68a395)',
+            marginBottom: '0.5rem',
+            fontFamily: '"The Seasons", "Playfair Display", serif',
+            fontSize: '2.5rem',
+            fontWeight: '600'
+          }}>Family Dashboard</h1>
+          <p style={{
+            color: 'var(--text-color, #5a4033)',
+            fontSize: '1.1rem',
+            opacity: '0.8',
+            margin: 0
+          }}>Central hub for all family members and activities</p>
+        </div>
+        <DashboardSwitcher />
       </div>
 
       <div style={{

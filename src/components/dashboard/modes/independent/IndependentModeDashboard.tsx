@@ -1,6 +1,12 @@
+/**
+ * IndependentModeDashboard Component
+ * Dashboard for teens and independent adults
+ * Features: Full customization, advanced tools, self-management
+ */
+
 import React, { useState, useEffect } from 'react';
-import { personalThemes, primaryBrand, colorPalette } from '../styles/colors';
-import SmartNotepad from '../components/ui/SmartNotepad.jsx';
+import { personalThemes, primaryBrand, colorPalette } from '../../../../styles/colors';
+import SmartNotepad from '../../../ui/SmartNotepad.jsx';
 
 // Type definitions
 interface Subtask {
@@ -24,6 +30,10 @@ interface Task {
   due_date?: string;
   opportunity_type?: 'personal' | 'family' | 'bonus';
   completed_at?: string;
+}
+
+interface IndependentModeDashboardProps {
+  familyMemberId: string;
 }
 
 // Icons
@@ -94,12 +104,12 @@ const VideoCamera = () => (
   </svg>
 )
 
-// Sample data for teen
-const teenMember = {
+// Sample data for independent user
+const independentMember = {
   id: 3,
   name: "Emma",
   age: 16,
-  dashboard_type: "teen",
+  dashboard_type: "independent",
   points_balance: 245,
   level: 3,
   background_image: null
@@ -111,7 +121,7 @@ const getThemeGroups = () => {
   const seasonal: Array<{key: string, theme: any}> = [];
   const holiday: Array<{key: string, theme: any}> = [];
   const childFriendly: Array<{key: string, theme: any}> = [];
-  
+
   Object.entries(personalThemes).forEach(([key, theme]) => {
     const themeWithFlags = theme as any;
     if (themeWithFlags.childFriendly) {
@@ -124,7 +134,7 @@ const getThemeGroups = () => {
       standard.push({ key, theme });
     }
   });
-  
+
   return { standard, seasonal, holiday, childFriendly };
 };
 
@@ -168,75 +178,10 @@ const assignedTasks: Task[] = [
     ],
     reward_type: "points",
     created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 3,
-    task_name: "Deep clean closet",
-    description: "Organize, donate unused items",
-    assignee: ["Emma"],
-    task_type: "task",
-    task_frequency: "monthly",
-    points_value: 50,
-    status: "pending",
-    due_date: "2024-01-31T23:59:59Z",
-    reward_type: "points",
-    created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 4,
-    task_name: "Learn guitar chord",
-    description: "Practice new chord for 30 minutes",
-    assignee: ["Emma"],
-    task_type: "opportunity",
-    opportunity_type: "personal",
-    task_frequency: "one-time",
-    points_value: 15,
-    status: "pending",
-    reward_type: "points",
-    created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 5,
-    task_name: "Movie night setup",
-    description: "Set up living room for family movie night",
-    assignee: [], // Open to anyone
-    task_type: "opportunity",
-    opportunity_type: "family",
-    task_frequency: "one-time",
-    points_value: 20,
-    status: "pending",
-    reward_type: "points",
-    created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 6,
-    task_name: "Extra math practice",
-    description: "Complete bonus worksheet for extra credit",
-    assignee: ["Emma"],
-    task_type: "opportunity",
-    opportunity_type: "bonus",
-    task_frequency: "one-time",
-    points_value: 30,
-    status: "pending",
-    reward_type: "points",
-    created_at: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 7,
-    task_name: "Help with dinner prep",
-    description: "Chop vegetables and set table",
-    assignee: ["Emma"],
-    task_type: "task",
-    task_frequency: "one-time",
-    points_value: 10,
-    status: "complete",
-    completed_at: "2024-01-15T18:30:00Z",
-    reward_type: "points",
-    created_at: "2024-01-15T10:00:00Z"
   }
 ]
 
-const TeenDashboard: React.FC = () => {
+const IndependentModeDashboard: React.FC<IndependentModeDashboardProps> = ({ familyMemberId }) => {
   const [tasks, setTasks] = useState<Task[]>(assignedTasks)
   const [showTaskCreator, setShowTaskCreator] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -245,7 +190,7 @@ const TeenDashboard: React.FC = () => {
   const [selectedTaskForBreakdown, setSelectedTaskForBreakdown] = useState<Task | null>(null)
   // Standalone theme system - no global sync needed
   const [currentTheme, setCurrentTheme] = useState<keyof typeof personalThemes>('classic')
-  const [backgroundImage, setBackgroundImage] = useState<string | null>(teenMember.background_image)
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(independentMember.background_image)
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -261,24 +206,24 @@ const TeenDashboard: React.FC = () => {
   }, [])
 
   const handleTaskComplete = (taskId: number) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { 
-            ...task, 
+    setTasks(tasks.map(task =>
+      task.id === taskId
+        ? {
+            ...task,
             status: task.status === 'complete' ? 'pending' as const : 'complete' as const,
-            completed_at: task.status === 'complete' ? undefined : new Date().toISOString() 
+            completed_at: task.status === 'complete' ? undefined : new Date().toISOString()
           }
         : task
     ))
   }
 
   const handleSubtaskToggle = (taskId: number, subtaskId: number) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
+    setTasks(tasks.map(task =>
+      task.id === taskId
         ? {
             ...task,
             ai_subtasks: task.ai_subtasks ? task.ai_subtasks.map(subtask =>
-              subtask.id === subtaskId 
+              subtask.id === subtaskId
                 ? { ...subtask, completed: !subtask.completed }
                 : subtask
             ) : []
@@ -289,12 +234,12 @@ const TeenDashboard: React.FC = () => {
 
   const handleCreateTask = () => {
     if (!newTask.title.trim()) return
-    
+
     const task: Task = {
       id: Date.now(),
       task_name: newTask.title,
       description: newTask.description,
-      assignee: [teenMember.name],
+      assignee: [independentMember.name],
       task_type: "task" as const,
       task_frequency: "one-time" as const,
       points_value: newTask.priority === 'high' ? 20 : newTask.priority === 'medium' ? 15 : 10,
@@ -302,7 +247,7 @@ const TeenDashboard: React.FC = () => {
       reward_type: "points" as const,
       created_at: new Date().toISOString()
     }
-    
+
     setTasks([...tasks, task])
     setNewTask({ title: '', description: '', priority: 'medium' })
     setShowTaskCreator(false)
@@ -329,20 +274,20 @@ const TeenDashboard: React.FC = () => {
 
   // Standalone theme system - no global sync needed
   const theme = personalThemes[currentTheme] || personalThemes.classic
-  
+
   // Get theme groups for dropdown
   const { standard, seasonal, holiday, childFriendly } = getThemeGroups()
-  
+
   // Separate tasks by type and frequency using real database structure
   const regularTasks = tasks.filter(task => task.task_type === 'task' && task.task_frequency === 'one-time' && task.status !== 'complete')
   const weeklyTasks = tasks.filter(task => task.task_type === 'task' && task.task_frequency === 'weekly' && task.status !== 'complete')
   const monthlyTasks = tasks.filter(task => task.task_type === 'task' && task.task_frequency === 'monthly' && task.status !== 'complete')
-  
+
   // Separate opportunities by type
   const personalOpportunities = tasks.filter(task => task.task_type === 'opportunity' && task.opportunity_type === 'personal' && task.status !== 'complete')
   const familyOpportunities = tasks.filter(task => task.task_type === 'opportunity' && task.opportunity_type === 'family' && task.status !== 'complete')
   const bonusOpportunities = tasks.filter(task => task.task_type === 'opportunity' && task.opportunity_type === 'bonus' && task.status !== 'complete')
-  
+
   const completedTasks = tasks.filter(task => task.status === 'complete')
   const allPendingTasks = tasks.filter(task => task.status !== 'complete')
 
@@ -358,9 +303,9 @@ const TeenDashboard: React.FC = () => {
   const weather = { temp: 72, condition: "Sunny" }
 
   return (
-    <div 
-      className="teen-dashboard" 
-      style={{ 
+    <div
+      className="independent-mode-dashboard"
+      style={{
         background: backgroundImage ? `url(${backgroundImage})` : `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
         minHeight: '100vh',
         color: theme.text,
@@ -369,12 +314,12 @@ const TeenDashboard: React.FC = () => {
       }}
     >
       <style>{`
-        /* Mobile-First Standalone Teen Dashboard Styles */
-        .teen-dashboard {
+        /* Mobile-First Standalone Independent Dashboard Styles */
+        .independent-mode-dashboard {
           padding: 0;
           margin: 0;
         }
-        
+
         /* Mobile Header */
         .mobile-header {
           background: rgba(0, 0, 0, 0.2);
@@ -389,21 +334,21 @@ const TeenDashboard: React.FC = () => {
           border-bottom: 1px solid rgba(255, 255, 255, 0.2);
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .header-left h1 {
           margin: 0;
           font-size: 1.3rem;
           font-weight: 700;
           color: ${primaryBrand.warmCream};
         }
-        
+
         .level-points {
           margin: 0;
           font-size: 0.8rem;
           color: rgba(255,255,255,0.8);
           margin-top: 2px;
         }
-        
+
         .theme-dropdown {
           background: ${primaryBrand.warmCream};
           border: 1px solid ${theme.primary}60;
@@ -415,17 +360,17 @@ const TeenDashboard: React.FC = () => {
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
+
         .theme-dropdown option {
           background: ${primaryBrand.warmCream};
           color: ${theme.text};
         }
-        
+
         .mobile-controls {
           display: flex;
           gap: 0.5rem;
         }
-        
+
         .mobile-btn {
           background: rgba(255, 255, 255, 0.2);
           border: none;
@@ -440,11 +385,11 @@ const TeenDashboard: React.FC = () => {
           cursor: pointer;
           transition: background 0.2s;
         }
-        
+
         .mobile-btn:hover {
           background: rgba(255, 255, 255, 0.3);
         }
-        
+
         /* Content Container */
         .dashboard-content {
           padding: 1rem;
@@ -453,42 +398,42 @@ const TeenDashboard: React.FC = () => {
           overflow-y: auto;
           max-height: calc(100vh - 120px);
         }
-        
+
         /* ===== Hybrid Corner System ===== */
         /* Outer layout elements - sharp, professional */
         .mobile-header, .dashboard-content {
           border-radius: 0;
         }
-        
+
         /* Inner cards - friendly, approachable */
         .stat-card, .action-btn {
           border-radius: 12px;
           box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
-        
+
         /* Task items - softer cards */
         .task-item {
           border-radius: 12px;
           box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
-        
+
         /* Buttons - softer, inviting */
         .mobile-btn, .theme-dropdown, button {
           border-radius: 8px;
           transition: all 0.2s ease;
         }
-        
+
         .mobile-btn:hover, .action-btn:hover, button:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
-        
+
         /* Header inner accent elements */
         .level-info, .task-count {
           border-radius: 10px;
           font-weight: bold;
         }
-        
+
         /* Header logo card - hybrid corner system - matches stat cards */
         .header-logo-card {
           background: var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%));
@@ -501,7 +446,7 @@ const TeenDashboard: React.FC = () => {
           transition: all 0.3s ease;
           position: relative;
         }
-        
+
         .header-logo-card::before {
           content: '';
           position: absolute;
@@ -513,42 +458,42 @@ const TeenDashboard: React.FC = () => {
           border-radius: 12px 12px 0 0;
           opacity: 0.8;
         }
-        
+
         .header-logo-card:hover {
           transform: translateY(-3px);
           background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
           box-shadow: 0 12px 40px rgba(0,0,0,0.2);
           color: white;
         }
-        
+
         .header-logo-card h1 {
           margin: 0 0 0.25rem 0;
           color: inherit;
         }
-        
+
         .header-logo-card .level-points {
           margin: 0;
           color: inherit;
           opacity: 0.8;
         }
-        
+
         .header-logo-card:hover h1,
         .header-logo-card:hover .level-points {
           color: white;
         }
-        
+
         /* Desktop Layout */
         .content-layout {
           display: flex;
           gap: 1.5rem;
           align-items: flex-start;
         }
-        
+
         .tasks-area {
           flex: 2;
           min-width: 0;
         }
-        
+
         .notepad-area {
           flex: 1;
           min-width: 300px;
@@ -556,20 +501,20 @@ const TeenDashboard: React.FC = () => {
           position: sticky;
           top: 1rem;
         }
-        
+
         /* Mobile Layout - Stack Vertically */
         @media (max-width: 768px) {
           .content-layout {
             flex-direction: column;
           }
-          
+
           .notepad-area {
             position: static;
             max-width: none;
             min-width: auto;
           }
         }
-        
+
         /* Stats Row - Mobile Optimized */
         .stats-mobile {
           display: grid;
@@ -577,7 +522,7 @@ const TeenDashboard: React.FC = () => {
           gap: 1rem;
           margin-bottom: 1.5rem;
         }
-        
+
         .stat-card {
           background: var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%));
           border-radius: 16px;
@@ -589,7 +534,7 @@ const TeenDashboard: React.FC = () => {
           position: relative;
           color: var(--text-color, #5a4033);
         }
-        
+
         .stat-card::before {
           content: '';
           position: absolute;
@@ -601,7 +546,7 @@ const TeenDashboard: React.FC = () => {
           border-radius: 16px 16px 0 0;
           opacity: 0.8;
         }
-        
+
         .stat-card:hover {
           transform: translateY(-3px);
           background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
@@ -609,19 +554,19 @@ const TeenDashboard: React.FC = () => {
           box-shadow: 0 12px 40px rgba(0,0,0,0.2);
           color: white;
         }
-        
+
         .stat-value {
           font-size: 1.5rem;
           font-weight: bold;
           display: block;
           margin-bottom: 0.25rem;
         }
-        
+
         .stat-label {
           font-size: 0.8rem;
           opacity: 0.8;
         }
-        
+
         /* Action Buttons - Mobile Optimized */
         .mobile-actions {
           display: grid;
@@ -629,7 +574,7 @@ const TeenDashboard: React.FC = () => {
           gap: 1rem;
           margin-bottom: 1.5rem;
         }
-        
+
         .action-btn {
           background: var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%));
           border: 1px solid var(--primary-color, #68a395);
@@ -648,7 +593,7 @@ const TeenDashboard: React.FC = () => {
           box-shadow: 0 8px 32px rgba(0,0,0,0.1);
           position: relative;
         }
-        
+
         .action-btn::before {
           content: '';
           position: absolute;
@@ -659,7 +604,7 @@ const TeenDashboard: React.FC = () => {
           background: var(--secondary-color, #d6a461);
           opacity: 0.6;
         }
-        
+
         .action-btn:hover {
           background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
           transform: translateY(-2px);
@@ -667,7 +612,7 @@ const TeenDashboard: React.FC = () => {
           box-shadow: 0 12px 40px rgba(0,0,0,0.15);
           color: white;
         }
-        
+
         /* Task Sections - Mobile Optimized - FORCE SQUARE CORNERS */
         .task-section {
           background: var(--accent-color, #d4e3d9);
@@ -677,7 +622,7 @@ const TeenDashboard: React.FC = () => {
           overflow: hidden;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-        
+
         .section-header {
           background: linear-gradient(135deg, ${theme.primary}20, ${theme.accent}20);
           padding: 1rem;
@@ -686,14 +631,14 @@ const TeenDashboard: React.FC = () => {
           align-items: center;
           gap: 0.75rem;
         }
-        
+
         .section-title {
           font-size: 1.1rem;
           font-weight: 600;
           margin: 0;
           flex: 1;
         }
-        
+
         .task-count {
           background: ${theme.primary};
           color: ${primaryBrand.warmCream};
@@ -702,11 +647,11 @@ const TeenDashboard: React.FC = () => {
           font-size: 0.75rem;
           font-weight: 600;
         }
-        
+
         .task-list {
           padding: 0;
         }
-        
+
         .task-item {
           padding: 1rem;
           transition: all 0.3s ease;
@@ -717,11 +662,11 @@ const TeenDashboard: React.FC = () => {
           box-shadow: 0 8px 32px rgba(0,0,0,0.1);
           position: relative;
         }
-        
+
         .task-item:last-child {
           border-bottom: none;
         }
-        
+
         .task-item::before {
           content: '';
           position: absolute;
@@ -733,7 +678,7 @@ const TeenDashboard: React.FC = () => {
           border-radius: 12px 12px 0 0;
           opacity: 0.8;
         }
-        
+
         .task-item:hover {
           transform: translateY(-3px);
           background: var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)));
@@ -741,14 +686,14 @@ const TeenDashboard: React.FC = () => {
           box-shadow: 0 12px 40px rgba(0,0,0,0.2);
           color: white;
         }
-        
+
         .task-item:hover h4,
         .task-item:hover p,
         .task-item:hover .task-meta span,
         .task-item:hover .subtask-text {
           color: white;
         }
-        
+
         .task-header {
           display: flex;
           justify-content: space-between;
@@ -756,32 +701,32 @@ const TeenDashboard: React.FC = () => {
           margin-bottom: 0.75rem;
           gap: 1rem;
         }
-        
+
         .task-info {
           flex: 1;
         }
-        
+
         .task-info h4 {
           margin: 0 0 0.25rem 0;
           font-size: 1rem;
           font-weight: 600;
           line-height: 1.3;
         }
-        
+
         .task-info p {
           margin: 0;
           opacity: 0.8;
           font-size: 0.85rem;
           line-height: 1.4;
         }
-        
+
         .task-buttons {
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
           flex-shrink: 0;
         }
-        
+
         .task-btn {
           background: rgba(255, 255, 255, 0.2);
           border: 1px solid rgba(255, 255, 255, 0.3);
@@ -794,23 +739,23 @@ const TeenDashboard: React.FC = () => {
           transition: all 0.2s ease;
           white-space: nowrap;
         }
-        
+
         .task-btn:hover {
           background: rgba(255, 255, 255, 0.3);
         }
-        
+
         .task-btn.complete {
           background: rgba(34, 197, 94, 0.3);
           border-color: rgba(34, 197, 94, 0.5);
           color: #86efac;
         }
-        
+
         .task-btn.breakdown {
           background: ${theme.primary}30;
           border-color: ${theme.primary}60;
           color: ${theme.primary};
         }
-        
+
         .task-meta {
           display: flex;
           flex-wrap: wrap;
@@ -818,7 +763,7 @@ const TeenDashboard: React.FC = () => {
           margin-top: 0.75rem;
           font-size: 0.75rem;
         }
-        
+
         .meta-badge {
           background: rgba(255, 255, 255, 0.2);
           padding: 0.25rem 0.5rem;
@@ -827,20 +772,20 @@ const TeenDashboard: React.FC = () => {
           align-items: center;
           gap: 0.25rem;
         }
-        
+
         /* Subtasks - Mobile Optimized */
         .subtasks {
           margin-top: 1rem;
           padding-top: 1rem;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .subtasks h5 {
           margin: 0 0 0.75rem 0;
           font-size: 0.85rem;
           opacity: 0.9;
         }
-        
+
         .subtask-item {
           display: flex;
           align-items: flex-start;
@@ -848,7 +793,7 @@ const TeenDashboard: React.FC = () => {
           padding: 0.5rem 0;
           font-size: 0.85rem;
         }
-        
+
         .subtask-checkbox {
           width: 18px;
           height: 18px;
@@ -864,23 +809,23 @@ const TeenDashboard: React.FC = () => {
           flex-shrink: 0;
           margin-top: 2px;
         }
-        
+
         .subtask-checkbox.checked {
           background: ${theme.primary};
           border-color: ${theme.primary};
           color: ${primaryBrand.warmCream};
         }
-        
+
         .subtask-text {
           flex: 1;
           line-height: 1.4;
         }
-        
+
         .subtask-text.completed {
           text-decoration: line-through;
           opacity: 0.6;
         }
-        
+
         /* Modals - Mobile Optimized */
         .modal-overlay {
           position: fixed;
@@ -895,14 +840,14 @@ const TeenDashboard: React.FC = () => {
           z-index: 1000;
           padding: 0;
         }
-        
+
         @media (min-width: 640px) {
           .modal-overlay {
             align-items: center;
             padding: 1rem;
           }
         }
-        
+
         .modal-content {
           background: ${theme.background};
           border-radius: 16px 16px 0 0;
@@ -912,14 +857,14 @@ const TeenDashboard: React.FC = () => {
           overflow-y: auto;
           color: ${theme.text};
         }
-        
+
         @media (min-width: 640px) {
           .modal-content {
             border-radius: 16px;
             max-width: 500px;
           }
         }
-        
+
         .modal-header {
           display: flex;
           justify-content: space-between;
@@ -928,14 +873,14 @@ const TeenDashboard: React.FC = () => {
           padding-bottom: 1rem;
           border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
-        
+
         .modal-header h3 {
           margin: 0;
           font-size: 1.25rem;
           font-weight: 600;
           color: ${theme.primary};
         }
-        
+
         .close-btn {
           background: none;
           border: none;
@@ -946,17 +891,17 @@ const TeenDashboard: React.FC = () => {
           transition: background 0.2s;
           opacity: 0.7;
         }
-        
+
         .close-btn:hover {
           background: rgba(0, 0, 0, 0.1);
           opacity: 1;
         }
-        
+
         /* Form Elements - Mobile Optimized */
         .form-group {
           margin-bottom: 1.5rem;
         }
-        
+
         .form-group label {
           display: block;
           margin-bottom: 0.5rem;
@@ -964,7 +909,7 @@ const TeenDashboard: React.FC = () => {
           font-size: 0.9rem;
           color: ${theme.primary};
         }
-        
+
         .form-input, .form-select {
           width: 100%;
           padding: 0.75rem;
@@ -975,20 +920,20 @@ const TeenDashboard: React.FC = () => {
           font-size: 1rem;
           box-sizing: border-box;
         }
-        
+
         .form-input:focus, .form-select:focus {
           outline: none;
           border-color: ${theme.primary};
           background: ${primaryBrand.warmCream};
         }
-        
+
         .modal-actions {
           display: flex;
           gap: 1rem;
           justify-content: flex-end;
           margin-top: 2rem;
         }
-        
+
         .btn-secondary, .btn-primary {
           padding: 0.75rem 1.5rem;
           border-radius: 8px;
@@ -998,28 +943,28 @@ const TeenDashboard: React.FC = () => {
           transition: all 0.2s ease;
           border: none;
         }
-        
+
         .btn-secondary {
           background: rgba(0, 0, 0, 0.1);
           color: ${theme.text};
         }
-        
+
         .btn-primary {
           background: ${theme.primary};
           color: ${primaryBrand.warmCream};
         }
-        
+
         .btn-primary:hover {
           background: ${theme.secondary};
         }
-        
+
         /* Empty States */
         .empty-state {
           text-align: center;
           padding: 2rem;
           opacity: 0.7;
         }
-        
+
         /* Desktop Adjustments */
         @media (min-width: 768px) {
           .dashboard-content {
@@ -1027,16 +972,16 @@ const TeenDashboard: React.FC = () => {
             max-width: 800px;
             margin: 0 auto;
           }
-          
+
           .stats-mobile {
             grid-template-columns: repeat(4, 1fr);
           }
-          
+
           .mobile-actions {
             grid-template-columns: repeat(3, 1fr);
           }
         }
-        .teen-dashboard::before {
+        .independent-mode-dashboard::before {
           content: '';
           position: fixed;
           top: 0;
@@ -1046,560 +991,18 @@ const TeenDashboard: React.FC = () => {
           background: ${backgroundImage ? 'rgba(0, 0, 0, 0.3)' : 'transparent'};
           z-index: -1;
         }
-
-        .dashboard-header {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          margin-bottom: 1.5rem;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-        }
-
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .avatar {
-          width: 50px;
-          height: 50px;
-          background: ${theme.primary};
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-          font-weight: bold;
-          color: ${primaryBrand.warmCream};
-        }
-
-        .user-details h2 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 600;
-        }
-
-        .user-details p {
-          margin: 0;
-          opacity: 0.8;
-          font-size: 0.9rem;
-        }
-
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .date-weather {
-          text-align: center;
-        }
-
-        .date-display {
-          font-size: 1.1rem;
-          font-weight: 600;
-          margin-bottom: 0.25rem;
-        }
-
-        .weather-display {
-          font-size: 0.85rem;
-          opacity: 0.8;
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-        }
-
-        .time-display {
-          font-size: 1.25rem;
-          font-weight: 600;
-          opacity: 0.9;
-        }
-
-        .header-controls {
-          display: flex;
-          gap: 0.5rem;
-        }
-
-        .icon-btn {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: ${primaryBrand.warmCream};
-          padding: 0.5rem;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          backdrop-filter: blur(10px);
-        }
-
-        .icon-btn:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-
-        .stats {
-          display: flex;
-          gap: 2rem;
-          justify-content: center;
-        }
-
-        .stat-item {
-          text-align: center;
-        }
-
-        .stat-value {
-          font-size: 1.5rem;
-          font-weight: bold;
-          display: block;
-        }
-
-        .stat-label {
-          font-size: 0.8rem;
-          opacity: 0.8;
-        }
-
-        .actions-bar {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-        }
-
-        .btn-primary {
-          background: rgba(255, 255, 255, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: ${primaryBrand.warmCream};
-          padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          cursor: pointer;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          backdrop-filter: blur(10px);
-        }
-
-        .btn-primary:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-1px);
-        }
-
-        .content-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 1.5rem;
-          max-width: 800px;
-          margin: 0 auto;
-        }
-
-        .task-section {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border-radius: 16px;
-          padding: 1.5rem;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .section-header {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin: 0;
-        }
-
-        .task-count {
-          background: rgba(255, 255, 255, 0.2);
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: 500;
-        }
-
-        .task-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .task-item {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 12px;
-          padding: 1.25rem;
-          transition: all 0.2s ease;
-        }
-
-        .task-item:hover {
-          background: rgba(255, 255, 255, 0.12);
-          transform: translateY(-1px);
-        }
-
-        .task-item.completed {
-          opacity: 0.7;
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        .task-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 0.75rem;
-        }
-
-        .task-info h4 {
-          margin: 0 0 0.25rem 0;
-          font-size: 1.1rem;
-          font-weight: 600;
-        }
-
-        .task-info p {
-          margin: 0;
-          opacity: 0.8;
-          font-size: 0.9rem;
-        }
-
-        .task-meta {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-top: 0.75rem;
-          flex-wrap: wrap;
-        }
-
-        .points-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-          font-size: 0.8rem;
-          opacity: 0.8;
-        }
-
-        .task-assignor {
-          font-size: 0.75rem;
-          opacity: 0.7;
-        }
-
-        .complete-btn {
-          background: rgba(34, 197, 94, 0.3);
-          border: 1px solid rgba(34, 197, 94, 0.5);
-          color: #86efac;
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 0.85rem;
-          font-weight: 500;
-          transition: all 0.2s ease;
-          min-width: 80px;
-        }
-
-        .complete-btn:hover {
-          background: rgba(34, 197, 94, 0.4);
-        }
-
-        .complete-btn.completed {
-          background: rgba(34, 197, 94, 0.6);
-          color: ${primaryBrand.warmCream};
-        }
-
-        .subtasks {
-          margin-top: 1rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .subtasks h5 {
-          margin: 0 0 0.75rem 0;
-          font-size: 0.9rem;
-          opacity: 0.8;
-        }
-
-        .subtask-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .subtask-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.85rem;
-          padding: 0.25rem;
-          border-radius: 4px;
-          transition: all 0.2s ease;
-        }
-
-        .subtask-item:hover {
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        .subtask-item.completed {
-          opacity: 0.6;
-        }
-
-        .subtask-checkbox {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(255, 255, 255, 0.5);
-          border-radius: 3px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          background: transparent;
-          font-size: 10px;
-          transition: all 0.2s ease;
-        }
-
-        .subtask-checkbox.checked {
-          background: ${theme.primary};
-          border-color: ${theme.primary};
-          color: ${primaryBrand.warmCream};
-        }
-
-        .subtask-text {
-          flex: 1;
-          transition: all 0.2s ease;
-        }
-
-        .subtask-text.completed {
-          text-decoration: line-through;
-          opacity: 0.6;
-        }
-
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 1rem;
-        }
-
-        .modal-content {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 16px;
-          padding: 2rem;
-          width: 100%;
-          max-width: 500px;
-          color: ${primaryBrand.warmCream};
-          max-height: 80vh;
-          overflow-y: auto;
-        }
-
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-        }
-
-        .modal-header h3 {
-          margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
-        }
-
-        .close-btn {
-          background: none;
-          border: none;
-          color: ${primaryBrand.warmCream};
-          cursor: pointer;
-          padding: 0.25rem;
-          border-radius: 4px;
-          transition: background 0.2s;
-        }
-
-        .close-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .form-group {
-          margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 500;
-          font-size: 0.9rem;
-        }
-
-        .form-input {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          color: ${primaryBrand.warmCream};
-          font-size: 0.9rem;
-          backdrop-filter: blur(10px);
-          box-sizing: border-box;
-        }
-
-        .form-input::placeholder {
-          color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-input:focus {
-          outline: none;
-          border-color: rgba(255, 255, 255, 0.5);
-          background: rgba(255, 255, 255, 0.15);
-        }
-
-        .form-select {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          color: ${primaryBrand.warmCream};
-          font-size: 0.9rem;
-          backdrop-filter: blur(10px);
-          box-sizing: border-box;
-        }
-
-        .form-select option {
-          background: #2d3748;
-          color: ${primaryBrand.warmCream};
-        }
-
-        .theme-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .theme-option {
-          padding: 1rem;
-          border-radius: 8px;
-          cursor: pointer;
-          border: 2px solid transparent;
-          transition: all 0.2s ease;
-          text-align: center;
-        }
-
-        .theme-option:hover {
-          border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .theme-option.active {
-          border-color: ${primaryBrand.warmCream};
-        }
-
-        .background-upload {
-          margin-bottom: 1.5rem;
-        }
-
-        .upload-area {
-          border: 2px dashed rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          padding: 2rem;
-          text-align: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .upload-area:hover {
-          border-color: rgba(255, 255, 255, 0.5);
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        .modal-actions {
-          display: flex;
-          gap: 1rem;
-          justify-content: flex-end;
-        }
-
-        .btn-secondary {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: ${primaryBrand.warmCream};
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 500;
-          transition: all 0.2s ease;
-        }
-
-        .btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.15);
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 2rem;
-          opacity: 0.7;
-        }
-
-        .empty-state p {
-          margin: 0;
-          font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-          .teen-dashboard {
-            padding: 0.5rem;
-          }
-          
-          .header-top {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-          }
-          
-          .stats {
-            justify-content: center;
-          }
-          
-          .actions-bar {
-            flex-direction: column;
-          }
-
-          .task-meta {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-          }
-
-          .theme-grid {
-            grid-template-columns: 1fr;
-          }
-        }
       `}</style>
 
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="header-left">
           <div className="header-logo-card">
-            <h1>Hey {teenMember.name}! 👋</h1>
-            <p className="level-points">Level {teenMember.level} • {teenMember.points_balance} points</p>
+            <h1>Hey {independentMember.name}! 👋</h1>
+            <p className="level-points">Level {independentMember.level} • {independentMember.points_balance} points</p>
           </div>
         </div>
         <div className="mobile-controls">
-          <select 
+          <select
             className="theme-dropdown"
             value={currentTheme}
             onChange={(e) => setCurrentTheme(e.target.value as keyof typeof personalThemes)}
@@ -1610,19 +1013,19 @@ const TeenDashboard: React.FC = () => {
                 {theme.name}
               </option>
             ))}
-            
+
             {seasonal.map(({ key, theme }) => (
               <option key={key} value={key}>
                 {theme.name}
               </option>
             ))}
-            
+
             {childFriendly.map(({ key, theme }) => (
               <option key={key} value={key}>
                 {theme.name}
               </option>
             ))}
-            
+
             {holiday.map(({ key, theme }) => (
               <option key={key} value={key}>
                 {theme.name}
@@ -1634,10 +1037,10 @@ const TeenDashboard: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Dashboard Content */}
       <div className="dashboard-content">
-        
+
         {/* Stats - Mobile Grid */}
         <div className="stats-mobile">
           <div className="stat-card">
@@ -1653,7 +1056,7 @@ const TeenDashboard: React.FC = () => {
             <span className="stat-label">Completed</span>
           </div>
           <div className="stat-card">
-            <span className="stat-value">{teenMember.points_balance}</span>
+            <span className="stat-value">{independentMember.points_balance}</span>
             <span className="stat-label">Points</span>
           </div>
         </div>
@@ -1682,7 +1085,7 @@ const TeenDashboard: React.FC = () => {
               <h3 className="section-title">Daily Tasks</h3>
               <span className="task-count">{regularTasks.length}</span>
             </div>
-            
+
             <div className="task-list">
               {regularTasks.map((task) => (
                 <div key={task.id} className="task-item">
@@ -1692,14 +1095,14 @@ const TeenDashboard: React.FC = () => {
                       {task.description && <p>{task.description}</p>}
                     </div>
                     <div className="task-buttons">
-                      <button 
+                      <button
                         className="task-btn breakdown"
                         onClick={() => handleTaskBreakdown(task.id)}
                         title="Break this task into smaller steps"
                       >
                         🧩 Break Down
                       </button>
-                      <button 
+                      <button
                         className="task-btn complete"
                         onClick={() => handleTaskComplete(task.id)}
                       >
@@ -1707,14 +1110,14 @@ const TeenDashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className="task-meta">
                     <span className="points-badge">
                       <Target />
                       {task.points_value} points
                     </span>
                     <span className="task-assignor">
-                      {task.assignee.includes(teenMember.name) ? 'Personal task' : 'From Mom'}
+                      {task.assignee.includes(independentMember.name) ? 'Personal task' : 'From Mom'}
                     </span>
                     <span className="task-assignor">
                       {task.reward_type === 'points' ? 'Point reward' : task.reward_type}
@@ -1727,7 +1130,7 @@ const TeenDashboard: React.FC = () => {
                       <div className="subtask-list">
                         {sortSubtasks(task.ai_subtasks).map((subtask) => (
                           <div key={subtask.id} className={`subtask-item ${subtask.completed ? 'completed' : ''}`}>
-                            <div 
+                            <div
                               className={`subtask-checkbox ${subtask.completed ? 'checked' : ''}`}
                               onClick={() => handleSubtaskToggle(task.id, subtask.id)}
                             >
@@ -1741,301 +1144,6 @@ const TeenDashboard: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Weekly Tasks */}
-        {weeklyTasks.length > 0 && (
-          <div className="task-section">
-            <div className="section-header">
-              <Calendar />
-              <h3 className="section-title">Weekly Tasks</h3>
-              <span className="task-count">{weeklyTasks.length}</span>
-            </div>
-            
-            <div className="task-list">
-              {weeklyTasks.map((task) => (
-                <div key={task.id} className="task-item">
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                      {task.due_date && (
-                        <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: '0.25rem 0 0 0' }}>
-                          Due: {new Date(task.due_date).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                    <div className="task-buttons">
-                      <button 
-                        className="task-btn breakdown"
-                        onClick={() => handleTaskBreakdown(task.id)}
-                        title="Break this task into smaller steps"
-                      >
-                        🧩 Break Down
-                      </button>
-                      <button 
-                        className="task-btn complete"
-                        onClick={() => handleTaskComplete(task.id)}
-                      >
-                        ✓ Done
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span className="points-badge">
-                      <Target />
-                      {task.points_value} points
-                    </span>
-                    <span className="task-assignor">
-                      Weekly • {task.assignee.includes(teenMember.name) ? 'Personal' : 'From Mom'}
-                    </span>
-                    <span className="task-assignor">
-                      {task.reward_type === 'points' ? 'Point reward' : task.reward_type}
-                    </span>
-                  </div>
-
-                  {task.ai_subtasks && (
-                    <div className="subtasks">
-                      <h5>Steps to complete:</h5>
-                      <div className="subtask-list">
-                        {sortSubtasks(task.ai_subtasks).map((subtask) => (
-                          <div key={subtask.id} className={`subtask-item ${subtask.completed ? 'completed' : ''}`}>
-                            <div 
-                              className={`subtask-checkbox ${subtask.completed ? 'checked' : ''}`}
-                              onClick={() => handleSubtaskToggle(task.id, subtask.id)}
-                            >
-                              {subtask.completed && '✓'}
-                            </div>
-                            <span className={`subtask-text ${subtask.completed ? 'completed' : ''}`}>
-                              {subtask.title}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Monthly Tasks */}
-        {monthlyTasks.length > 0 && (
-          <div className="task-section">
-            <div className="section-header">
-              <Calendar />
-              <h3 className="section-title">Monthly Goals</h3>
-              <span className="task-count">{monthlyTasks.length}</span>
-            </div>
-            
-            <div className="task-list">
-              {monthlyTasks.map((task) => (
-                <div key={task.id} className="task-item">
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                      {task.due_date && (
-                        <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: '0.25rem 0 0 0' }}>
-                          Due: {new Date(task.due_date).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                    <div className="task-buttons">
-                      <button 
-                        className="task-btn breakdown"
-                        onClick={() => handleTaskBreakdown(task.id)}
-                        title="Break this task into smaller steps"
-                      >
-                        🧩 Break Down
-                      </button>
-                      <button 
-                        className="task-btn complete"
-                        onClick={() => handleTaskComplete(task.id)}
-                      >
-                        ✓ Done
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span className="points-badge">
-                      <Target />
-                      {task.points_value} points
-                    </span>
-                    <span className="task-assignor">
-                      Monthly • {task.assignee.includes(teenMember.name) ? 'Personal' : 'From Mom'}
-                    </span>
-                    <span className="task-assignor">
-                      {task.reward_type === 'points' ? 'Point reward' : task.reward_type}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Personal Opportunities */}
-        {personalOpportunities.length > 0 && (
-          <div className="task-section">
-            <div className="section-header">
-              <Target />
-              <h3 className="section-title">My Opportunities</h3>
-              <span className="task-count">{personalOpportunities.length}</span>
-            </div>
-            
-            <div className="task-list">
-              {personalOpportunities.map((task) => (
-                <div key={task.id} className="task-item" style={{ border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                    </div>
-                    <button 
-                      className="complete-btn"
-                      onClick={() => handleTaskComplete(task.id)}
-                    >
-                      Take It!
-                    </button>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span style={{ background: 'rgba(34, 197, 94, 0.3)', color: '#86efac', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem' }}>
-                      Personal
-                    </span>
-                    <span className="points-badge">
-                      <Target />
-                      {task.points_value} points
-                    </span>
-                    <span className="task-assignor">
-                      Optional • Self-improvement
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Family & Bonus Opportunities */}
-        {(familyOpportunities.length > 0 || bonusOpportunities.length > 0) && (
-          <div className="task-section">
-            <div className="section-header">
-              <Target />
-              <h3 className="section-title">Family Opportunities</h3>
-              <span className="task-count">{familyOpportunities.length + bonusOpportunities.length}</span>
-            </div>
-            
-            <div className="task-list">
-              {familyOpportunities.map((task) => (
-                <div key={task.id} className="task-item" style={{ border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                    </div>
-                    <button 
-                      className="complete-btn"
-                      onClick={() => handleTaskComplete(task.id)}
-                    >
-                      Claim It!
-                    </button>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span style={{ background: 'rgba(245, 158, 11, 0.3)', color: '#fcd34d', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem' }}>
-                      Family
-                    </span>
-                    <span className="points-badge">
-                      <Target />
-                      {task.points_value} points
-                    </span>
-                    <span className="task-assignor">
-                      Open to anyone • {task.reward_type}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              
-              {bonusOpportunities.map((task) => (
-                <div key={task.id} className="task-item" style={{ border: '1px solid rgba(168, 85, 247, 0.3)' }}>
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                    </div>
-                    <button 
-                      className="complete-btn"
-                      onClick={() => handleTaskComplete(task.id)}
-                    >
-                      Go for It!
-                    </button>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span style={{ background: 'rgba(168, 85, 247, 0.3)', color: '#c4b5fd', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem' }}>
-                      Bonus
-                    </span>
-                    <span className="points-badge">
-                      <Target />
-                      {task.points_value} points
-                    </span>
-                    <span className="task-assignor">
-                      Extra credit • Optional
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Completed Tasks */}
-        {completedTasks.length > 0 && (
-          <div className="task-section">
-            <div className="section-header">
-              <CheckCircle />
-              <h3 className="section-title">Completed Today</h3>
-              <span className="task-count">{completedTasks.length}</span>
-            </div>
-            
-            <div className="task-list">
-              {completedTasks.map((task) => (
-                <div key={task.id} className="task-item completed">
-                  <div className="task-header">
-                    <div className="task-info">
-                      <h4>{task.task_name}</h4>
-                      {task.description && <p>{task.description}</p>}
-                    </div>
-                    <button 
-                      className="complete-btn completed"
-                      onClick={() => handleTaskComplete(task.id)}
-                    >
-                      ✓ Done
-                    </button>
-                  </div>
-                  
-                  <div className="task-meta">
-                    <span className="points-badge">
-                      <Target />
-                      +{task.points_value} points earned
-                    </span>
-                    <span className="task-assignor">
-                      <Clock />
-                      Completed {new Date(task.completed_at || '').toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                    <span className="task-assignor">
-                      {task.reward_type === 'points' ? 'Point reward' : task.reward_type}
-                    </span>
-                  </div>
                 </div>
               ))}
             </div>
@@ -2051,17 +1159,17 @@ const TeenDashboard: React.FC = () => {
           </div>
         )}
           </div>
-          
+
           {/* SmartNotepad Area */}
           <div className="notepad-area">
             <div className="task-section" style={{ height: '600px' }}>
               <div className="section-header">
                 <h3>Smart Notepad</h3>
               </div>
-              <div style={{ 
-                background: primaryBrand.warmCream, 
-                borderRadius: '16px', 
-                padding: '1rem', 
+              <div style={{
+                background: primaryBrand.warmCream,
+                borderRadius: '16px',
+                padding: '1rem',
                 border: `1px solid ${theme.primary}40`,
                 height: 'calc(100% - 60px)',
                 overflow: 'hidden'
@@ -2083,7 +1191,7 @@ const TeenDashboard: React.FC = () => {
                 <X />
               </button>
             </div>
-            
+
             <div className="form-group">
               <label>Task Title</label>
               <input
@@ -2094,7 +1202,7 @@ const TeenDashboard: React.FC = () => {
                 onChange={(e) => setNewTask({...newTask, title: e.target.value})}
               />
             </div>
-            
+
             <div className="form-group">
               <label>Description (optional)</label>
               <input
@@ -2105,7 +1213,7 @@ const TeenDashboard: React.FC = () => {
                 onChange={(e) => setNewTask({...newTask, description: e.target.value})}
               />
             </div>
-            
+
             <div className="form-group">
               <label>Priority</label>
               <select
@@ -2118,7 +1226,7 @@ const TeenDashboard: React.FC = () => {
                 <option value="high">High (20 points)</option>
               </select>
             </div>
-            
+
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setShowTaskCreator(false)}>
                 Cancel
@@ -2142,17 +1250,13 @@ const TeenDashboard: React.FC = () => {
                 <X />
               </button>
             </div>
-            
+
             <div className="form-group">
               <label>Theme</label>
               <select
                 className="form-select"
                 value={currentTheme}
-                onClick={(e) => {
-                  console.log('Theme dropdown clicked');
-                }}
                 onChange={(e) => {
-                  console.log('Teen dashboard theme changing to:', e.target.value);
                   setCurrentTheme(e.target.value as keyof typeof personalThemes);
                 }}
               >
@@ -2180,8 +1284,8 @@ const TeenDashboard: React.FC = () => {
                 </label>
               </div>
               {backgroundImage && (
-                <button 
-                  className="btn-secondary" 
+                <button
+                  className="btn-secondary"
                   onClick={() => setBackgroundImage(null)}
                   style={{ marginTop: '0.5rem' }}
                 >
@@ -2189,7 +1293,7 @@ const TeenDashboard: React.FC = () => {
                 </button>
               )}
             </div>
-            
+
             <div className="modal-actions">
               <button className="btn-primary" onClick={() => setShowSettings(false)}>
                 Save Settings
@@ -2209,7 +1313,7 @@ const TeenDashboard: React.FC = () => {
                 <X />
               </button>
             </div>
-            
+
             <div style={{ padding: '2rem', textAlign: 'center' }}>
               <div style={{ width: '48px', height: '48px', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <VideoCamera />
@@ -2218,7 +1322,7 @@ const TeenDashboard: React.FC = () => {
               <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
                 Record your wins, celebrate achievements, and share your progress!
               </p>
-              
+
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'center' }}>
                 <button className="btn-primary">
                   <VideoCamera />
@@ -2237,4 +1341,4 @@ const TeenDashboard: React.FC = () => {
   )
 }
 
-export default TeenDashboard;
+export default IndependentModeDashboard;

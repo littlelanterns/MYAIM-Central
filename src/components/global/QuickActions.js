@@ -27,6 +27,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   const getInitialActions = () => {
     const baseActions = [
       { name: "Command Center", usageCount: 0, id: 'command-center', type: 'navigation' },
+      { name: "Personal Dashboard", usageCount: 0, id: 'personal-dashboard', type: 'navigation' },
       { name: "Family Setup", usageCount: 0, id: 'family-setup', type: 'navigation' },
       // ARCHIVED: AIM-Admin moved to direct URL access only (/aim-admin)
       // { name: "AIM-Admin", usageCount: 0, id: 'aim-admin', type: 'navigation' },
@@ -167,6 +168,9 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
     switch (actionId) {
       case 'command-center':
         navigate('/command-center');
+        break;
+      case 'personal-dashboard':
+        navigate('/dashboard/personal');
         break;
       case 'family-setup':
         navigate('/family-setup');

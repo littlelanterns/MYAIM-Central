@@ -121,6 +121,21 @@ export const archivesService = {
   },
 
   /**
+   * Update folder color
+   */
+  async updateFolderColor(folderId: string, colorHex: string): Promise<void> {
+    const { error } = await supabase
+      .from('archive_folders')
+      .update({
+        color_hex: colorHex,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', folderId);
+
+    if (error) throw error;
+  },
+
+  /**
    * Soft delete a folder (set is_active = false)
    */
   async deleteFolder(folderId: string): Promise<void> {

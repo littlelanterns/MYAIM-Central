@@ -223,28 +223,12 @@ const Library = () => {
       // Open tutorial through proxy to hide Gamma URL
       const proxyUrl = `/tutorial-proxy/${tutorial.id}`;
       window.open(proxyUrl, '_blank');
-      
+
       setSelectedTutorial(null);
     } catch (error) {
       console.error('Error starting tutorial:', error);
       alert('Unable to start tutorial. Please try again.');
     }
-  };
-
-  const handleUseWithLila = (tutorial) => {
-    // Integrate with your existing LiLa system
-    // This would send tutorial context to your AI assistant
-    const lilaContext = {
-      tutorialTitle: tutorial.title,
-      tutorialDescription: tutorial.description,
-      learningOutcomes: tutorial.learning_outcomes,
-      toolsMentioned: tutorial.tools_mentioned,
-      difficulty: tutorial.difficulty_level
-    };
-    
-    // You can dispatch this to your existing LiLa context or modal
-    console.log('Using tutorial with LiLa:', lilaContext);
-    alert('Tutorial context has been sent to LiLa for personalized assistance!');
   };
 
   const clearSearch = () => {
@@ -446,11 +430,6 @@ const Library = () => {
                 onSelectTutorial={handleSelectTutorial}
                 userBookmarks={userBookmarks}
                 onBookmark={handleBookmark}
-                onQuickAction={(tutorial, action) => {
-                  if (action === 'lila') {
-                    handleUseWithLila(tutorial);
-                  }
-                }}
               />
             </div>
           ) : (
@@ -513,11 +492,6 @@ const Library = () => {
           onSelectTutorial={handleSelectTutorial}
           userBookmarks={userBookmarks}
           onBookmark={handleBookmark}
-          onQuickAction={(tutorial, action) => {
-            if (action === 'lila') {
-              handleUseWithLila(tutorial);
-            }
-          }}
         />
       ))}
 
@@ -544,7 +518,6 @@ const Library = () => {
           onClose={() => setSelectedTutorial(null)}
           onStartTutorial={handleStartTutorial}
           onBookmark={handleBookmark}
-          onUseWithLila={handleUseWithLila}
           isBookmarked={userBookmarks.includes(selectedTutorial.id)}
           currentUser={currentUser}
         />

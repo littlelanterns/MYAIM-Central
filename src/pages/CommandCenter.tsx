@@ -1,7 +1,6 @@
 // src/pages/CommandCenter.tsx - Updated with new draggable modal system
 import React, { FC, CSSProperties, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useModal } from '../hooks/useModal';
+import { Link, useNavigate } from 'react-router-dom';
 import BestIntentionsModal from '../components/BestIntentions/BestIntentionsModal';
 
 // TypeScript interfaces
@@ -70,7 +69,7 @@ const commandCenterActions: CommandCenterAction[] = [
 ];
 
 const CommandCenter: FC = () => {
-  const { open } = useModal();
+  const navigate = useNavigate();
   const [bestIntentionsOpen, setBestIntentionsOpen] = useState(false);
 
   const handleCardClick = (action: CommandCenterAction): void => {
@@ -78,111 +77,9 @@ const CommandCenter: FC = () => {
       if (action.actionId === 'best_intentions') {
         setBestIntentionsOpen(true);
       } else if (action.actionId === 'inner_oracle') {
-        open('Inner Oracle', (
-          <div style={{
-            padding: '40px',
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, rgba(104, 163, 149, 0.1), rgba(255, 244, 236, 0.8))',
-            borderRadius: '12px',
-            margin: '20px'
-          }}>
-            <h2 style={{
-              fontSize: '2rem',
-              color: 'var(--primary-color, #68a395)',
-              marginBottom: '24px',
-              fontFamily: "'The Seasons', 'Playfair Display', serif"
-            }}>
-              ✨ Coming Soon ✨
-            </h2>
-            <p style={{
-              fontSize: '1.2rem',
-              marginBottom: '20px',
-              color: 'var(--text-color, #5a4033)',
-              fontWeight: '500'
-            }}>
-              Inner Oracle
-            </p>
-            <p style={{
-              fontSize: '1rem',
-              color: 'var(--text-color, #5a4033)',
-              opacity: 0.8,
-              lineHeight: '1.6',
-              maxWidth: '400px',
-              margin: '0 auto'
-            }}>
-              Connect with your intuition and inner wisdom through guided reflection tools, meditation prompts, and mindful decision-making aids.
-            </p>
-            <div style={{
-              marginTop: '30px',
-              padding: '16px',
-              background: 'rgba(104, 163, 149, 0.1)',
-              borderRadius: '8px',
-              border: '1px solid rgba(104, 163, 149, 0.2)'
-            }}>
-              <p style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-color, #5a4033)',
-                opacity: 0.7,
-                margin: 0
-              }}>
-                This feature is currently in development and will be available in a future update.
-              </p>
-            </div>
-          </div>
-        ), 'medium');
+        navigate('/inner-oracle');
       } else if (action.actionId === 'mindsweep') {
-        open('MindSweep', (
-          <div style={{
-            padding: '40px',
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, rgba(104, 163, 149, 0.1), rgba(255, 244, 236, 0.8))',
-            borderRadius: '12px',
-            margin: '20px'
-          }}>
-            <h2 style={{
-              fontSize: '2rem',
-              color: 'var(--primary-color, #68a395)',
-              marginBottom: '24px',
-              fontFamily: "'The Seasons', 'Playfair Display', serif"
-            }}>
-              ✨ Coming Soon ✨
-            </h2>
-            <p style={{
-              fontSize: '1.2rem',
-              marginBottom: '20px',
-              color: 'var(--text-color, #5a4033)',
-              fontWeight: '500'
-            }}>
-              MindSweep
-            </p>
-            <p style={{
-              fontSize: '1rem',
-              color: 'var(--text-color, #5a4033)',
-              opacity: 0.8,
-              lineHeight: '1.6',
-              maxWidth: '400px',
-              margin: '0 auto'
-            }}>
-              Quickly capture everything on your mind and automatically organize it into actionable categories. Perfect for brain dumps and mental clarity.
-            </p>
-            <div style={{
-              marginTop: '30px',
-              padding: '16px',
-              background: 'rgba(104, 163, 149, 0.1)',
-              borderRadius: '8px',
-              border: '1px solid rgba(104, 163, 149, 0.2)'
-            }}>
-              <p style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-color, #5a4033)',
-                opacity: 0.7,
-                margin: 0
-              }}>
-                This feature is currently in development and will be available in a future update.
-              </p>
-            </div>
-          </div>
-        ), 'medium');
+        navigate('/mindsweep');
       }
     }
   };

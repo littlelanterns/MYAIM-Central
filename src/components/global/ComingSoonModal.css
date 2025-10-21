@@ -1,0 +1,133 @@
+/* Coming Soon Modal Styles */
+
+.coming-soon-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.coming-soon-modal {
+  background: white;
+  border-radius: 1rem;
+  max-width: 28rem;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.3s ease-out;
+}
+
+.coming-soon-header {
+  background: linear-gradient(135deg, #68a395 0%, #5a9285 100%);
+  padding: 2rem;
+  text-align: center;
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.coming-soon-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin: 0 0 0.5rem 0;
+  font-family: 'The Seasons', 'Playfair Display', serif;
+}
+
+.coming-soon-feature {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.coming-soon-content {
+  padding: 2rem;
+  text-align: center;
+}
+
+.coming-soon-message {
+  font-size: 1.125rem;
+  color: #5a4033;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+.coming-soon-tip {
+  background: #f0f8f6;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.coming-soon-tip p {
+  font-size: 0.875rem;
+  color: rgba(90, 64, 51, 0.7);
+  margin: 0;
+}
+
+.coming-soon-tip strong {
+  color: #5a4033;
+}
+
+.coming-soon-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: #68a395;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 1.125rem;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(104, 163, 149, 0.3);
+  transition: all 0.3s ease;
+}
+
+.coming-soon-button:hover {
+  background: #5a9285;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 20px -3px rgba(104, 163, 149, 0.4);
+}
+
+.coming-soon-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

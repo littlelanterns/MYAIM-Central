@@ -1,7 +1,8 @@
 // Main Dashboard Components
 export { default as MomDashboard } from './mom/MomDashboard';
-export { default as TeenDashboard } from './teen/TeenDashboard';
-export { default as ChildDashboard } from './child/ChildDashboard';
+// Removed - use play/guided/independent mode dashboards instead
+// export { default as TeenDashboard } from './teen/TeenDashboard';
+// export { default as ChildDashboard } from './child/ChildDashboard';
 
 // Mom Dashboard Widgets
 export { default as FamilyOverviewWidget } from './mom/widgets/FamilyOverviewWidget';
@@ -48,8 +49,8 @@ export { default as SimpleTaskButton } from './child/components/SimpleTaskButton
 export { default as ChildDashboardGrid } from './child/layouts/ChildDashboardGrid';
 export { default as ChildWidgetContainer } from './child/layouts/ChildWidgetContainer';
 
-// Shared Dashboard Components
-export { default as DashboardProvider } from './shared/DashboardProvider';
-export { default as WidgetWrapper } from './shared/WidgetWrapper';
-export { default as WidgetSelector } from './shared/WidgetSelector';
-export { default as DragDropProvider } from './shared/DragDropProvider';
+// Shared Dashboard Components - REMOVED (old code)
+// export { default as DashboardProvider } from './shared/DashboardProvider';
+// export { default as WidgetWrapper } from './shared/WidgetWrapper';
+// export { default as WidgetSelector } from './shared/WidgetSelector';
+// export { default as DragDropProvider } from './shared/DragDropProvider';

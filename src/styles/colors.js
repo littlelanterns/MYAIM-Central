@@ -166,13 +166,13 @@ export const personalThemes = {
   
   forest: {
     name: "Forest Calm",
-    description: "Peaceful greens and earth tones",
-    primary: colorPalette.green.dark,
-    secondary: colorPalette.green.medium,
-    accent: colorPalette.brown.medium,
-    background: colorPalette.green.light,
+    description: "Deep peaceful greens and earth tones",
+    primary: colorPalette.green.deepest,    // Pine Shadow - darker forest
+    secondary: colorPalette.green.darker,   // Weathered Pine - darker
+    accent: colorPalette.brown.dark,        // Coffee Bean - richer
+    background: colorPalette.green.light,   // Misty Eucalyptus
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.green.dark, colorPalette.green.medium, colorPalette.brown.medium]
+    preview: [colorPalette.green.deepest, colorPalette.green.darker, colorPalette.brown.dark]
   },
   
   ocean: {
@@ -210,23 +210,23 @@ export const personalThemes = {
   
   earthy: {
     name: "Earthy Comfort",
-    description: "Warm browns and natural tones",
-    primary: colorPalette.brown.dark,
-    secondary: colorPalette.brown.medium,
-    accent: colorPalette.orange.medium,
-    background: colorPalette.brown.light,
+    description: "Warm browns with natural green tones",
+    primary: colorPalette.brown.dark,         // Coffee Bean
+    secondary: colorPalette.green.mediumDark, // Dusty Sage - adds green
+    accent: colorPalette.brown.medium,        // Cinnamon Milk
+    background: '#f3ebe0',                    // Warm linen
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.brown.dark, colorPalette.brown.medium, colorPalette.orange.medium]
+    preview: [colorPalette.brown.dark, colorPalette.green.mediumDark, colorPalette.brown.medium]
   },
   
   rosegold: {
     name: "Rose Gold",
-    description: "Luxurious rose gold jewelry tones",
-    primary: colorPalette.pink.medium,        // #d69a84 - Dusty Rose
-    secondary: primaryBrand.softGold,         // #f4dcb7 - Soft Gold  
-    accent: colorPalette.pink.light,          // #f0e0d8 - Blush Canvas
+    description: "Soft and subtle rose gold - like delicate jewelry",
+    primary: colorPalette.pink.medium,        // #f5c1ba - Rose Dust (soft rose)
+    secondary: primaryBrand.softGold,         // #f4dcb7 - Soft Gold (subtle gold)
+    accent: colorPalette.pink.light,          // #fce8e3 - Petal Blush
     background: primaryBrand.warmCream,       // #fff4ec - Warm Cream
-    text: primaryBrand.warmEarth,            // #5a4033 - Warm Earth
+    text: primaryBrand.warmEarth,             // #5a4033 - Warm Earth
     preview: [colorPalette.pink.medium, primaryBrand.softGold, colorPalette.pink.light]
   },
 
@@ -282,12 +282,12 @@ export const personalThemes = {
   christmas: {
     name: "Christmas Joy",
     description: "Classic red and green holiday spirit",
-    primary: colorPalette.red.dark,
-    secondary: colorPalette.green.dark,
-    accent: colorPalette.yellow.medium,
-    background: colorPalette.red.light,
+    primary: colorPalette.red.dark,         // Rustic Rose
+    secondary: colorPalette.green.dark,     // Forest Sage
+    accent: primaryBrand.softGold,          // Soft Gold - less yellow, more cream
+    background: colorPalette.red.light,     // Light Blush
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.red.dark, colorPalette.green.dark, colorPalette.yellow.medium],
+    preview: [colorPalette.red.dark, colorPalette.green.dark, primaryBrand.softGold],
     holiday: true
   },
   
@@ -392,25 +392,25 @@ export const personalThemes = {
   autumnLeaves: {
     name: "Autumn Leaves",
     description: "Warm colors like falling leaves",
-    primary: colorPalette.orange.medium,    // Peach Nectar
-    secondary: colorPalette.red.medium,     // Coral Pink
-    accent: colorPalette.yellow.medium,     // Sunbeam Gold
+    primary: colorPalette.orange.dark,      // Burnt Sienna - deeper orange
+    secondary: colorPalette.brown.medium,   // Cinnamon Milk - adds brown
+    accent: colorPalette.red.dark,          // Rustic Rose - richer red
     background: colorPalette.orange.light,  // Soft Apricot
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.orange.medium, colorPalette.red.medium, colorPalette.yellow.medium],
+    preview: [colorPalette.orange.dark, colorPalette.brown.medium, colorPalette.red.dark],
     childFriendly: true,
     seasonal: true
   },
 
   springBloom: {
     name: "Spring Bloom",
-    description: "Fresh colors like new flowers",
-    primary: colorPalette.green.light,      // Misty Eucalyptus
-    secondary: colorPalette.pink.light,     // Petal Blush
-    accent: colorPalette.yellow.lighter,    // Buttercream
-    background: colorPalette.green.lighter, // Misty Mint
+    description: "Fresh and bright like spring gardens",
+    primary: colorPalette.green.medium,     // Herb Garden - fresh green
+    secondary: colorPalette.pink.medium,    // Rose Dust - blooming pink
+    accent: colorPalette.yellow.light,      // Honey Butter - sunny yellow
+    background: '#faf9f5',                  // Soft cream
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.green.light, colorPalette.pink.light, colorPalette.yellow.lighter],
+    preview: [colorPalette.green.medium, colorPalette.pink.medium, colorPalette.yellow.light],
     childFriendly: true,
     seasonal: true
   },
@@ -443,13 +443,13 @@ export const personalThemes = {
 
   earthyBrown: {
     name: "Chocolate Fun",
-    description: "Warm and cozy like chocolate",
-    primary: colorPalette.brown.medium,     // Cinnamon Milk
-    secondary: colorPalette.orange.medium,  // Peach Nectar
-    accent: colorPalette.yellow.light,      // Honey Butter
-    background: colorPalette.brown.light,   // Pale Mocha
-    text: primaryBrand.warmEarth,
-    preview: [colorPalette.brown.medium, colorPalette.orange.medium, colorPalette.yellow.light],
+    description: "Rich and sweet like chocolate",
+    primary: colorPalette.brown.dark,       // Coffee Bean - rich dark chocolate
+    secondary: colorPalette.brown.medium,   // Cinnamon Milk - milk chocolate
+    accent: '#e8c4a0',                      // Caramel cream accent
+    background: '#f5ebe0',                  // Creamy vanilla background
+    text: colorPalette.brown.deepest,       // Dark Walnut - deep chocolate text
+    preview: [colorPalette.brown.dark, colorPalette.brown.medium, '#e8c4a0'],
     childFriendly: true
   },
 
@@ -498,11 +498,11 @@ export const gradients = {
   forestAdventure: createGradient(colorPalette.green.medium, colorPalette.green.light),
   prettyFlowers: createGradient(colorPalette.pink.medium, colorPalette.purple.light),
   winterWonderland: createGradient(colorPalette.blue.medium, colorPalette.purple.light),
-  autumnLeaves: createGradient(colorPalette.orange.medium, colorPalette.red.medium),
-  springBloom: createGradient(colorPalette.green.light, colorPalette.pink.light),
+  autumnLeaves: createGradient(colorPalette.orange.dark, colorPalette.brown.medium),
+  springBloom: createGradient(colorPalette.green.medium, colorPalette.pink.medium),
   summerFun: createGradient(colorPalette.yellow.dark, colorPalette.teal.medium),
   sweetCandy: createGradient(colorPalette.purple.medium, colorPalette.pink.medium),
-  earthyBrown: createGradient(colorPalette.brown.medium, colorPalette.orange.medium),
+  earthyBrown: createGradient(colorPalette.brown.dark, colorPalette.brown.medium),
   skyHigh: createGradient(colorPalette.blue.light, colorPalette.teal.light),
   gentleRain: createGradient(colorPalette.green.mediumDark, colorPalette.blue.light)
 };
