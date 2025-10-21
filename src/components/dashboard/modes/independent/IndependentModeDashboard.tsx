@@ -1260,11 +1260,52 @@ const IndependentModeDashboard: React.FC<IndependentModeDashboardProps> = ({ fam
                   setCurrentTheme(e.target.value as keyof typeof personalThemes);
                 }}
               >
-                {Object.entries(personalThemes).map(([key, themeOption]) => (
-                  <option key={key} value={key}>
-                    {themeOption.name}
-                  </option>
-                ))}
+                {(() => {
+                  // Group themes by category
+                  const general: Record<string, any> = {};
+                  const seasonal: Record<string, any> = {};
+                  const fun: Record<string, any> = {};
+
+                  Object.entries(personalThemes).forEach(([key, theme]) => {
+                    // Prioritize seasonal/holiday categorization over childFriendly
+                    // This way seasonal themes can be child-friendly but still show in Seasonal category
+                    if ((theme as any).seasonal || (theme as any).holiday) {
+                      seasonal[key] = theme;
+                    } else if ((theme as any).childFriendly) {
+                      fun[key] = theme;
+                    } else {
+                      general[key] = theme;
+                    }
+                  });
+
+                  return (
+                    <>
+                      <optgroup label="General">
+                        {Object.entries(general).map(([key, themeOption]) => (
+                          <option key={key} value={key}>
+                            {themeOption.name}
+                          </option>
+                        ))}
+                      </optgroup>
+
+                      <optgroup label="Seasonal">
+                        {Object.entries(seasonal).map(([key, themeOption]) => (
+                          <option key={key} value={key}>
+                            {themeOption.name}
+                          </option>
+                        ))}
+                      </optgroup>
+
+                      <optgroup label="Fun">
+                        {Object.entries(fun).map(([key, themeOption]) => (
+                          <option key={key} value={key}>
+                            {themeOption.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </>
+                  );
+                })()}
               </select>
             </div>
 

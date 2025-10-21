@@ -39,27 +39,26 @@ const GlobalHeader = ({
   };
 
   const getThemeGroups = () => {
-    const standard = [];
-    const seasonal = [];
-    const holiday = [];
-    const childFriendly = [];
-    
+    const general = [];    // Standard adult/professional themes
+    const seasonal = [];   // Seasonal and holiday themes combined
+    const fun = [];        // Child-friendly themes
+
     Object.entries(personalThemes).forEach(([key, theme]) => {
-      if (theme.childFriendly) {
-        childFriendly.push({ key, theme });
-      } else if (theme.holiday) {
-        holiday.push({ key, theme });
-      } else if (theme.seasonal) {
+      // Prioritize seasonal/holiday categorization over childFriendly
+      // This way seasonal themes can be child-friendly but still show in Seasonal category
+      if (theme.seasonal || theme.holiday) {
         seasonal.push({ key, theme });
+      } else if (theme.childFriendly) {
+        fun.push({ key, theme });
       } else {
-        standard.push({ key, theme });
+        general.push({ key, theme });
       }
     });
-    
-    return { standard, seasonal, holiday, childFriendly };
+
+    return { general, seasonal, fun };
   };
 
-  const { standard, seasonal, holiday, childFriendly } = getThemeGroups();
+  const { general, seasonal, fun } = getThemeGroups();
 
   return (
     <>
@@ -85,35 +84,35 @@ const GlobalHeader = ({
         <div className="header-controls">
           {/* Theme Selector - Clean and prominent */}
           <div className="theme-section">
-            <select 
-              className="theme-selector" 
-              value={currentTheme} 
+            <select
+              className="theme-selector"
+              value={currentTheme}
               onChange={handleThemeChange}
               title="Choose your theme"
             >
-              {standard.map(({ key, theme }) => (
-                <option key={key} value={key}>
-                  {theme.name}
-                </option>
-              ))}
-              
-              {seasonal.map(({ key, theme }) => (
-                <option key={key} value={key}>
-                  {theme.name}
-                </option>
-              ))}
-              
-              {childFriendly.map(({ key, theme }) => (
-                <option key={key} value={key}>
-                  {theme.name}
-                </option>
-              ))}
-              
-              {holiday.map(({ key, theme }) => (
-                <option key={key} value={key}>
-                  {theme.name}
-                </option>
-              ))}
+              <optgroup label="General">
+                {general.map(({ key, theme }) => (
+                  <option key={key} value={key}>
+                    {theme.name}
+                  </option>
+                ))}
+              </optgroup>
+
+              <optgroup label="Seasonal">
+                {seasonal.map(({ key, theme }) => (
+                  <option key={key} value={key}>
+                    {theme.name}
+                  </option>
+                ))}
+              </optgroup>
+
+              <optgroup label="Fun">
+                {fun.map(({ key, theme }) => (
+                  <option key={key} value={key}>
+                    {theme.name}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
         </div>

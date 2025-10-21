@@ -385,8 +385,8 @@ export const personalThemes = {
     background: '#f8faff',                  // Very Light Blue
     text: primaryBrand.warmEarth,
     preview: [colorPalette.blue.medium, colorPalette.purple.light, '#ffffff'],
-    childFriendly: true,
-    seasonal: true
+    seasonal: true,
+    childFriendly: true
   },
 
   autumnLeaves: {
@@ -398,8 +398,8 @@ export const personalThemes = {
     background: colorPalette.orange.light,  // Soft Apricot
     text: primaryBrand.warmEarth,
     preview: [colorPalette.orange.dark, colorPalette.brown.medium, colorPalette.red.dark],
-    childFriendly: true,
-    seasonal: true
+    seasonal: true,
+    childFriendly: true
   },
 
   springBloom: {
@@ -411,8 +411,8 @@ export const personalThemes = {
     background: '#faf9f5',                  // Soft cream
     text: primaryBrand.warmEarth,
     preview: [colorPalette.green.medium, colorPalette.pink.medium, colorPalette.yellow.light],
-    childFriendly: true,
-    seasonal: true
+    seasonal: true,
+    childFriendly: true
   },
 
   summerFun: {
@@ -424,8 +424,8 @@ export const personalThemes = {
     background: colorPalette.yellow.light,  // Honey Butter
     text: primaryBrand.warmEarth,
     preview: [colorPalette.yellow.dark, colorPalette.teal.medium, colorPalette.orange.light],
-    childFriendly: true,
-    seasonal: true
+    seasonal: true,
+    childFriendly: true
   },
 
   // MORE CHILD THEMES
@@ -475,6 +475,42 @@ export const personalThemes = {
     text: primaryBrand.warmEarth,
     preview: [colorPalette.green.mediumDark, colorPalette.blue.light, colorPalette.green.lighter],
     childFriendly: true
+  },
+
+  spaceAdventure: {
+    name: "Space Adventure",
+    description: "Deep and mysterious like outer space",
+    primary: colorPalette.blue.deepest,     // Inkwell - deep space
+    secondary: colorPalette.purple.dark,    // Vintage Plum - nebula purple
+    accent: colorPalette.blue.light,        // Storm Cloud - starlight
+    background: '#f0f2f5',                  // Light gray space background
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.blue.deepest, colorPalette.purple.dark, colorPalette.blue.light],
+    childFriendly: true
+  },
+
+  dragonPower: {
+    name: "Dragon Power",
+    description: "Bold and strong like a mighty green dragon",
+    primary: colorPalette.green.deepest,    // Pine Shadow - deep dragon scales
+    secondary: colorPalette.green.dark,     // Forest Sage - dragon hide
+    accent: colorPalette.yellow.dark,       // Mustard Grove - golden treasure
+    background: colorPalette.green.lighter, // Misty Mint - soft background
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.green.deepest, colorPalette.green.dark, colorPalette.yellow.dark],
+    childFriendly: true
+  },
+
+  fireBlaze: {
+    name: "Fire Blaze",
+    description: "Hot and bright like dancing flames",
+    primary: colorPalette.orange.dark,      // Burnt Sienna - main flame
+    secondary: colorPalette.red.dark,       // Rustic Rose - hot embers
+    accent: colorPalette.yellow.medium,     // Sunbeam Gold - bright flame tips
+    background: colorPalette.orange.light,  // Soft Apricot - warm glow
+    text: primaryBrand.warmEarth,
+    preview: [colorPalette.orange.dark, colorPalette.red.dark, colorPalette.yellow.medium],
+    childFriendly: true
   }
 };
 
@@ -504,7 +540,10 @@ export const gradients = {
   sweetCandy: createGradient(colorPalette.purple.medium, colorPalette.pink.medium),
   earthyBrown: createGradient(colorPalette.brown.dark, colorPalette.brown.medium),
   skyHigh: createGradient(colorPalette.blue.light, colorPalette.teal.light),
-  gentleRain: createGradient(colorPalette.green.mediumDark, colorPalette.blue.light)
+  gentleRain: createGradient(colorPalette.green.mediumDark, colorPalette.blue.light),
+  spaceAdventure: createGradient(colorPalette.blue.deepest, colorPalette.purple.dark),
+  dragonPower: createGradient(colorPalette.green.deepest, colorPalette.green.dark),
+  fireBlaze: createGradient(colorPalette.orange.dark, colorPalette.red.dark)
 };
 
 // Status Colors (universal across themes)
@@ -557,26 +596,25 @@ export const getColorsGroupedByFamily = () => {
   return grouped;
 };
 
-// Get themes grouped by type
+// Get themes grouped by type (user-friendly categories)
 export const getThemesGroupedByType = () => {
-  const standard = {};
-  const seasonal = {};
-  const holiday = {};
-  const childFriendly = {};
-  
+  const general = {};      // Standard adult/professional themes
+  const seasonal = {};     // Seasonal and holiday themes combined
+  const fun = {};          // Child-friendly themes
+
   Object.entries(personalThemes).forEach(([key, theme]) => {
-    if (theme.childFriendly) {
-      childFriendly[key] = theme;
-    } else if (theme.holiday) {
-      holiday[key] = theme;
-    } else if (theme.seasonal) {
+    // Prioritize seasonal/holiday categorization over childFriendly
+    // This way seasonal themes can be child-friendly but still show in Seasonal category
+    if (theme.seasonal || theme.holiday) {
       seasonal[key] = theme;
+    } else if (theme.childFriendly) {
+      fun[key] = theme;
     } else {
-      standard[key] = theme;
+      general[key] = theme;
     }
   });
-  
-  return { standard, seasonal, holiday, childFriendly };
+
+  return { general, seasonal, fun };
 };
 
 // Get only child-friendly themes
