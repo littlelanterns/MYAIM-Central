@@ -161,7 +161,9 @@ export const personalThemes = {
     accent: primaryBrand.dustyRose,
     background: primaryBrand.warmCream,
     text: primaryBrand.warmEarth,
-    preview: [primaryBrand.sageTeal, primaryBrand.goldenHoney, primaryBrand.dustyRose]
+    preview: [primaryBrand.sageTeal, primaryBrand.goldenHoney, primaryBrand.dustyRose],
+    cardGradient: 'linear-gradient(135deg, #f4dcb7, #d4e3d9)', // Soft gold → soft sage for Command Center cards
+    lilaGradient: 'linear-gradient(135deg, #fff4ec, #d69a84)' // Warm cream → dusty rose to match Smart Notepad
   },
   
   forest: {
@@ -172,7 +174,9 @@ export const personalThemes = {
     accent: colorPalette.brown.dark,        // Coffee Bean - richer
     background: colorPalette.green.light,   // Misty Eucalyptus
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.green.deepest, colorPalette.green.darker, colorPalette.brown.dark]
+    preview: [colorPalette.green.deepest, colorPalette.green.darker, colorPalette.brown.dark],
+    cardGradient: 'linear-gradient(135deg, #d8e3da, #889a8d)', // Silver Sage → Dusty Sage for better contrast
+    lilaGradient: 'linear-gradient(135deg, #d8e3da, #889a8d)' // Same as cardGradient for LiLa panel
   },
   
   ocean: {
@@ -183,7 +187,9 @@ export const personalThemes = {
     accent: colorPalette.green.medium,
     background: colorPalette.teal.light,
     text: primaryBrand.warmEarth,
-    preview: [colorPalette.teal.dark, colorPalette.teal.medium, colorPalette.green.medium]
+    preview: [colorPalette.teal.dark, colorPalette.teal.medium, colorPalette.green.medium],
+    cardGradient: 'linear-gradient(135deg, #d7eae2, #a8cfc8)', // Seafoam → Cool Sage for better contrast
+    lilaGradient: 'linear-gradient(135deg, #d7eae2, #a8cfc8)' // Same as cardGradient for LiLa panel
   },
   
   sunset: {
@@ -581,7 +587,11 @@ export const createThemeVariables = (theme) => ({
   '--background-color': theme.background,
   '--text-color': theme.text,
   '--gradient-primary': createGradient(theme.primary, theme.secondary),
-  '--gradient-background': createGradient(theme.background, theme.accent + '20')
+  '--gradient-background': theme.cardGradient || createGradient(theme.background, theme.accent + '20'),
+  '--lila-gradient': theme.lilaGradient || createGradient(theme.background, theme.accent),
+  // Calendar event type colors from approved palette
+  '--event-deadline-color': colorPalette.red.dark,      // Rustic Rose #b25a58
+  '--event-reminder-color': colorPalette.blue.medium    // Coastal Blue #7d98a5
 });
 
 // Get colors grouped by family for color picker

@@ -1,12 +1,14 @@
 /**
  * DashboardSwitcher Component
- * Allows parents/organizers to switch between family member dashboards
+ * Allows mom to switch between her views and view/edit as family members
+ * Family Tablet Hub: Everyone can switch to their view from one device
  * Each member has an assigned dashboard mode (play/guided/independent)
+ * CRITICAL: CSS variables only - theme compatible
  */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, User, Users, Settings } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import './DashboardSwitcher.css';
 
@@ -26,7 +28,11 @@ interface DashboardOption {
   dashboardMode?: string;
 }
 
-const DashboardSwitcher: React.FC = () => {
+interface DashboardSwitcherProps {
+  onManageDashboards?: () => void;
+}
+
+const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboards }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -153,6 +159,13 @@ const DashboardSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
+  const handleManageDashboards = () => {
+    setIsOpen(false);
+    if (onManageDashboards) {
+      onManageDashboards();
+    }
+  };
+
   // Only show for organizers and parents
   if (!['primary_organizer', 'parent'].includes(userRole || '')) {
     return null;
@@ -213,6 +226,13 @@ const DashboardSwitcher: React.FC = () => {
             </div>
 
             <div className="dropdown-footer">
+              <button
+                className="manage-dashboards-button"
+                onClick={handleManageDashboards}
+              >
+                <Settings size={18} />
+                <span>Manage Dashboards</span>
+              </button>
               <small>
                 Switch between family members to view and manage their dashboards
               </small>

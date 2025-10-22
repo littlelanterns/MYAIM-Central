@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%));
+  background: var(--lila-gradient, linear-gradient(135deg, var(--background-color, #fff4ec), var(--accent-color, #d4e3d9)));
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -286,8 +286,8 @@
 
 /* Theme integration */
 .lila-panel-container {
-  background: var(--gradient-background, linear-gradient(135deg, var(--background-color, white) 0%, var(--accent-color, #d4e3d9) 100%));
-  border-color: var(--accent-color, #d4e3d9);
+  background: var(--lila-gradient);
+  border-color: var(--accent-color);
 }
 
 /* Focus states for accessibility */

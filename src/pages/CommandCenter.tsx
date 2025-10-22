@@ -2,6 +2,7 @@
 import React, { FC, CSSProperties, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BestIntentionsModal from '../components/BestIntentions/BestIntentionsModal';
+import TrackerGallery from '../components/trackers/gallery/TrackerGallery';
 
 // TypeScript interfaces
 interface PageAction {
@@ -86,29 +87,33 @@ const CommandCenter: FC = () => {
 
   // Theme-compatible styled components
   const styles: Record<string, CSSProperties> = {
+    pageWrapper: {
+      background: 'var(--gradient-primary)',
+      minHeight: '100vh',
+      padding: '20px'
+    },
     commandCenter: {
-      padding: '20px',
       maxWidth: '1200px',
       margin: '0 auto'
     },
     pageTitle: {
       textAlign: 'center',
-      color: 'var(--primary-color, #68a395)',
+      color: 'rgba(255,255,255,0.9)',
       marginBottom: '2rem',
       fontFamily: "'The Seasons', 'Playfair Display', serif",
       fontSize: '2.5rem',
       fontWeight: '600',
-      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      textShadow: '0 2px 4px rgba(0,0,0,0.3)'
     },
     gridContainer: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '2rem',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+      gap: '1.5rem',
       marginBottom: '2rem'
     },
     card: {
-      background: 'var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%))',
-      border: '1px solid var(--accent-color, #d4e3d9)',
+      background: 'var(--gradient-background)',
+      border: '1px solid var(--accent-color)',
       borderRadius: '16px',
       padding: '1.5rem',
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -119,7 +124,7 @@ const CommandCenter: FC = () => {
       transition: 'transform 0.3s ease, box-shadow 0.3s ease'
     },
     cardTitle: {
-      color: 'var(--primary-color, #68a395)',
+      color: 'var(--primary-color)',
       fontSize: '0.8rem',
       letterSpacing: '1px',
       margin: '0 0 0.25rem 0',
@@ -129,14 +134,14 @@ const CommandCenter: FC = () => {
     cardSubtitle: {
       fontSize: '1.5rem',
       margin: '0 0 1rem 0',
-      color: 'var(--text-color, #333)',
+      color: 'var(--text-color)',
       fontFamily: "'The Seasons', 'Playfair Display', serif",
       fontWeight: '600'
     },
     cardDescription: {
       fontSize: '0.9rem',
       lineHeight: '1.6',
-      color: 'var(--text-color, #5a4033)',
+      color: 'var(--text-color)',
       opacity: '0.8',
       margin: '0'
     }
@@ -145,9 +150,10 @@ const CommandCenter: FC = () => {
   const handleMouseOver = (e: React.MouseEvent<HTMLElement>): void => {
     const target = e.currentTarget as HTMLElement;
     target.style.transform = 'translateY(-8px) scale(1.02)';
-    target.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
-    target.style.background = 'var(--gradient-primary, linear-gradient(135deg, var(--primary-color, #68a395), var(--secondary-color, #d6a461)))';
-    // Change text color on hover
+    target.style.boxShadow = '0 12px 24px rgba(0,0,0,0.25)';
+    target.style.background = 'var(--gradient-primary)';
+
+    // Change text to white on hover
     const title = target.querySelector('h2') as HTMLElement;
     const subtitle = target.querySelector('h3') as HTMLElement;
     const description = target.querySelector('p') as HTMLElement;
@@ -160,23 +166,25 @@ const CommandCenter: FC = () => {
     const target = e.currentTarget as HTMLElement;
     target.style.transform = 'translateY(0) scale(1)';
     target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-    target.style.background = 'var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%))';
+    target.style.background = 'var(--gradient-background)';
+
     // Reset text colors
     const title = target.querySelector('h2') as HTMLElement;
     const subtitle = target.querySelector('h3') as HTMLElement;
     const description = target.querySelector('p') as HTMLElement;
-    if (title) title.style.color = 'var(--primary-color, #68a395)';
-    if (subtitle) subtitle.style.color = 'var(--text-color, #333)';
-    if (description) description.style.color = 'var(--text-color, #5a4033)';
+    if (title) title.style.color = 'var(--primary-color)';
+    if (subtitle) subtitle.style.color = 'var(--text-color)';
+    if (description) description.style.color = 'var(--text-color)';
   };
 
   return (
-    <div style={styles.commandCenter}>
-      <h1 style={styles.pageTitle}>
-        Command Center
-      </h1>
-      
-      <div style={styles.gridContainer}>
+    <div style={styles.pageWrapper}>
+      <div style={styles.commandCenter}>
+        <h1 style={styles.pageTitle}>
+          Command Center
+        </h1>
+
+        <div style={styles.gridContainer}>
         {commandCenterActions.map(action => (
           action.type === 'page' ? (
             <Link 
@@ -206,10 +214,11 @@ const CommandCenter: FC = () => {
         ))}
       </div>
 
-      <BestIntentionsModal 
-        isOpen={bestIntentionsOpen}
-        onClose={() => setBestIntentionsOpen(false)}
-      />
+        <BestIntentionsModal
+          isOpen={bestIntentionsOpen}
+          onClose={() => setBestIntentionsOpen(false)}
+        />
+      </div>
     </div>
   );
 };

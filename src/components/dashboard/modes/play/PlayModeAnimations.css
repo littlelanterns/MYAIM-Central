@@ -1,0 +1,346 @@
+/* PlayMode Animations - Theme-Aware */
+
+/* ========================================
+   CONFETTI ANIMATIONS
+   ======================================== */
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-particle {
+  position: absolute;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
+
+/* Theme-aware confetti colors using CSS variables */
+.confetti-primary {
+  background: var(--primary-color);
+}
+
+.confetti-secondary {
+  background: var(--secondary-color);
+}
+
+.confetti-accent {
+  background: var(--accent-color);
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateZ(720deg);
+    opacity: 0.5;
+  }
+}
+
+/* ========================================
+   STAR BURST ANIMATION
+   ======================================== */
+
+.star-burst-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.star-burst-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 2rem;
+  animation: star-burst 1s ease-out forwards;
+  filter: drop-shadow(0 0 10px var(--primary-color));
+}
+
+@keyframes star-burst {
+  0% {
+    transform: translate(-50%, -50%) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(100px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   PULSE ANIMATION
+   ======================================== */
+
+.pulse-wrapper {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.pulse-wrapper.pulse-active {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px var(--secondary-color));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px var(--primary-color));
+  }
+}
+
+/* ========================================
+   BALLOON CELEBRATION
+   ======================================== */
+
+.balloon-celebration-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.balloon {
+  position: absolute;
+  bottom: -50px;
+  font-size: 3rem;
+  animation: balloon-float 4s ease-out forwards;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes balloon-float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   SPARKLE EFFECT
+   ======================================== */
+
+.sparkle-effect {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.sparkle-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 1.5rem;
+  animation: sparkle 0.8s ease-out forwards;
+  filter: drop-shadow(0 0 5px var(--primary-color));
+}
+
+@keyframes sparkle {
+  0% {
+    transform: translate(-50%, -50%) translateX(0) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(50px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   BOUNCE ANIMATION (for buttons)
+   ======================================== */
+
+.bounce-enter {
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   WIGGLE ANIMATION (for attention)
+   ======================================== */
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+/* ========================================
+   GLOW ANIMATION (theme-aware)
+   ======================================== */
+
+.glow-active {
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--primary-color),
+                0 0 20px var(--primary-color),
+                0 0 30px var(--secondary-color);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--secondary-color),
+                0 0 30px var(--secondary-color),
+                0 0 40px var(--accent-color);
+  }
+}
+
+/* ========================================
+   SHAKE ANIMATION (for errors/excitement)
+   ======================================== */
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+/* ========================================
+   RAINBOW SHIMMER (theme colors cycle)
+   ======================================== */
+
+.rainbow-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.rainbow-shimmer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    var(--primary-color) 0%,
+    var(--secondary-color) 25%,
+    var(--accent-color) 50%,
+    var(--primary-color) 75%,
+    var(--secondary-color) 100%
+  );
+  animation: rainbow-rotate 3s linear infinite;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+@keyframes rainbow-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   FADE IN/OUT UTILITIES
+   ======================================== */
+
+.fade-in {
+  animation: fade-in 0.5s ease-in;
+}
+
+.fade-out {
+  animation: fade-out 0.5s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ========================================
+   SLIDE UP ANIMATION
+   ======================================== */
+
+.slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION SUPPORT
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-particle,
+  .star-burst-particle,
+  .balloon,
+  .sparkle-particle,
+  .pulse-wrapper,
+  .bounce-enter,
+  .wiggle,
+  .glow-active,
+  .shake,
+  .rainbow-shimmer::before,
+  .fade-in,
+  .fade-out,
+  .slide-up {
+    animation: none !important;
+    transition: none !important;
+  }
+}

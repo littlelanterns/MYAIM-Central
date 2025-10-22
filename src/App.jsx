@@ -28,6 +28,7 @@ import ForcedFamilySetup from './components/auth/ForcedFamilySetup.jsx';
 import PersonalDashboard from './components/dashboard/personal/PersonalDashboard.tsx';
 import MemberDashboard from './pages/MemberDashboard.tsx';
 import AdditionalAdultDashboard from './components/dashboard/additional-adult/AdditionalAdultDashboard.tsx';
+import DashboardPreview from './pages/DashboardPreview.tsx';
 import './styles/global.css';
 
 function App() {
@@ -46,7 +47,10 @@ function App() {
               {/* Beta Routes */}
               <Route path="/beta/login" element={<BetaLogin />} />
               <Route path="/beta/family-setup" element={<ForcedFamilySetup />} />
-              
+
+              {/* Dashboard Preview - Standalone */}
+              <Route path="/dashboard-preview" element={<DashboardPreview />} />
+
               {/* Standalone Dashboards - No MainLayout */}
               {/* Use play/guided/independent modes instead */}
               {/* <Route path="/teen-dashboard" element={<TeenDashboard />} /> */}

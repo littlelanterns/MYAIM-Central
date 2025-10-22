@@ -6,10 +6,12 @@
  */
 
 import React, { useState } from 'react';
-import { Users, Calendar, ListTodo, Settings, BarChart3 } from 'lucide-react';
+import { Users, Calendar, ListTodo, Settings, BarChart3, LayoutDashboard, Calendar as CalendarIcon } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import PermissionIndicator from './PermissionIndicator';
 import PermissionGate from './PermissionGate';
+import FamilyModeDashboard from '../modes/family/FamilyModeDashboard';
+import { IndependentModeCalendar } from '../modes/independent/IndependentModeCalendar';
 import './AdditionalAdultDashboard.css';
 
 interface AdditionalAdultDashboardProps {
@@ -20,7 +22,8 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
   familyMemberId
 }) => {
   const { checkPermission, loading } = usePermissions(familyMemberId);
-  const [activeView, setActiveView] = useState<'overview' | 'tasks' | 'calendar' | 'family'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'tasks' | 'calendar' | 'family' | 'familyDashboard'>('overview');
+  const [showMonthModal, setShowMonthModal] = useState(false);
 
   if (loading) {
     return (
@@ -32,11 +35,16 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
     );
   }
 
+  // If viewing Family Dashboard and has permission
+  if (activeView === 'familyDashboard' && checkPermission('view_family_dashboard')) {
+    return <FamilyModeDashboard familyId={familyMemberId} />;
+  }
+
   return (
     <div className="additional-adult-dashboard">
       {/* Header */}
       <header className="additional-adult-header">
-        <h1>Family Assistant Dashboard</h1>
+        <h1>Additional Adult Dashboard</h1>
         <p className="role-description">
           Supporting family management with granted permissions
         </p>
@@ -52,6 +60,30 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
         <div className="additional-adult-card">
           <h3>Quick Actions</h3>
           <div className="quick-actions-grid">
+
+            <PermissionGate
+              action="view_family_dashboard"
+              familyMemberId={familyMemberId}
+              fallback={
+                <button className="additional-adult-button" disabled>
+                  Family Dashboard
+                </button>
+              }
+            >
+              <button
+                className="additional-adult-button"
+                onClick={() => setActiveView('familyDashboard')}
+                style={{
+                  background: 'var(--gradient-primary)',
+                  color: 'white',
+                  borderColor: 'var(--primary-color)',
+                  fontWeight: 600
+                }}
+              >
+                <LayoutDashboard size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+                Family Dashboard
+              </button>
+            </PermissionGate>
 
             <PermissionGate
               action="view_family_data"
@@ -194,21 +226,41 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.75rem',
+              justifyContent: 'space-between',
               marginBottom: '1rem',
               borderBottom: '1px solid var(--accent-color)',
               paddingBottom: '0.75rem',
+              flexWrap: 'wrap',
+              gap: '1rem'
             }}>
-              <Calendar size={24} color="var(--primary-color)" />
-              <h3 style={{ margin: 0 }}>Family Calendar</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Calendar size={24} color="var(--primary-color)" />
+                <h3 style={{ margin: 0 }}>Family Calendar</h3>
+              </div>
+              <button
+                className="additional-adult-button"
+                onClick={() => setShowMonthModal(true)}
+                style={{
+                  background: 'var(--primary-color)',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <CalendarIcon size={14} />
+                View Month
+              </button>
             </div>
             <div style={{
-              padding: '2rem',
+              padding: '1rem',
               textAlign: 'center',
               color: 'var(--text-color)',
-              opacity: 0.7,
+              opacity: 0.7
             }}>
-              <p style={{ margin: 0 }}>Calendar view coming soon</p>
+              <p style={{ margin: 0 }}>Calendar week view coming soon</p>
             </div>
           </div>
         </PermissionGate>
@@ -270,6 +322,100 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
         </div>
 
       </div>
+
+      {/* Full Month Calendar Modal - Permission Gated */}
+      {showMonthModal && checkPermission('view_calendar') && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+          }}
+          onClick={() => setShowMonthModal(false)}
+        >
+          <div
+            style={{
+              background: 'var(--background-color)',
+              borderRadius: '12px',
+              width: '95%',
+              height: '90%',
+              maxWidth: '1200px',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              background: 'var(--gradient-primary)',
+              padding: '1.5rem 2rem',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '3px solid var(--accent-color)'
+            }}>
+              <h2 style={{
+                margin: 0,
+                fontSize: '1.5rem',
+                fontWeight: 600
+              }}>
+                Family Calendar
+              </h2>
+              <button
+                onClick={() => setShowMonthModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: '2px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  color: 'white',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Content - Calendar */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              padding: '1.5rem'
+            }}>
+              <IndependentModeCalendar
+                familyMemberId={familyMemberId}
+                viewMode="parent"
+                initialExpanded={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

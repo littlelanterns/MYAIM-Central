@@ -1,0 +1,549 @@
+/* PlayMode Reward Widget - Theme-Aware Gamification Visuals */
+
+/* ========================================
+   REWARD WIDGET CONTAINER
+   ======================================== */
+
+.play-reward-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================================
+   THEME VISUAL CONTAINER
+   ======================================== */
+
+.reward-visual-container {
+  flex: 1;
+  min-height: 200px;
+  background: var(--gradient-background);
+  border: 2px solid var(--accent-color);
+  border-radius: 16px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.theme-visual {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ========================================
+   FLOWER GARDEN THEME
+   ======================================== */
+
+.flower-garden .garden-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.garden-item {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  border: 2px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+.garden-item.flower-item {
+  animation: flower-grow 0.6s ease-out;
+  cursor: pointer;
+}
+
+.garden-item.flower-item:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes flower-grow {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.garden-item.empty {
+  background: rgba(255, 255, 255, 0.1);
+  border-style: dashed;
+  color: var(--accent-color);
+  opacity: 0.5;
+}
+
+.empty-spot {
+  font-size: 1rem;
+  color: var(--accent-color);
+}
+
+/* ========================================
+   PET COLLECTION THEME
+   ======================================== */
+
+.pet-collection .pet-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.pet-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 0.5rem;
+}
+
+.pet-item {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  border: 2px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+.pet-item .pet-emoji {
+  font-size: 2rem;
+  animation: pet-bounce 0.6s ease-out;
+}
+
+.pet-item:not(.empty):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+@keyframes pet-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.pet-item.empty {
+  background: rgba(255, 255, 255, 0.1);
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+.empty-cage {
+  font-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.pet-count {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ========================================
+   OCEAN AQUARIUM THEME
+   ======================================== */
+
+.ocean-aquarium .ocean-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.aquarium-tank {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(to bottom,
+    rgba(var(--primary-color-rgb, 104, 163, 149), 0.1) 0%,
+    rgba(var(--primary-color-rgb, 104, 163, 149), 0.3) 100%
+  );
+  border: 3px solid var(--primary-color);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.ocean-creature {
+  position: absolute;
+  font-size: 2rem;
+  animation: swim 8s linear infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes swim {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  45% {
+    transform: translateX(calc(100% - 2rem)) scaleX(1);
+  }
+  50% {
+    transform: translateX(calc(100% - 2rem)) scaleX(-1);
+  }
+  95% {
+    transform: translateX(0) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+.empty-tank {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.ocean-floor {
+  font-size: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+}
+
+/* ========================================
+   DRAGON ACADEMY THEME
+   ======================================== */
+
+.dragon-academy .dragon-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dragon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.main-dragon {
+  font-size: 4rem;
+  animation: dragon-fly 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes dragon-fly {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+.dragon-level-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.dragon-stats {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.dragon-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* ========================================
+   STAR COUNTER THEME
+   ======================================== */
+
+.star-counter {
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.star-count-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.star-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  max-width: 300px;
+  margin-bottom: 0.5rem;
+}
+
+.star-item {
+  font-size: 1.5rem;
+  animation: star-twinkle 2s ease-in-out infinite;
+}
+
+.star-item:nth-child(odd) {
+  animation-delay: 0.5s;
+}
+
+@keyframes star-twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.star-message {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* ========================================
+   PROGRESS SECTION
+   ======================================== */
+
+.reward-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+}
+
+.reward-level-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  align-self: flex-start;
+}
+
+.reward-progress-bar {
+  width: 100%;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.reward-progress-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  transition: width 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+}
+
+.reward-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progress-shimmer 2s infinite;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.reward-progress-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* ========================================
+   RECENT ACHIEVEMENT
+   ======================================== */
+
+.reward-recent-achievement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--gradient-primary);
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: achievement-appear 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes achievement-appear {
+  0% {
+    transform: translateY(20px) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.achievement-text {
+  flex: 1;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+  .garden-grid,
+  .pet-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .garden-item,
+  .pet-item {
+    font-size: 1.5rem;
+  }
+
+  .main-dragon {
+    font-size: 3rem;
+  }
+
+  .aquarium-tank {
+    height: 150px;
+  }
+
+  .star-count-number {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reward-visual-container {
+    min-height: 180px;
+    padding: 0.75rem;
+  }
+
+  .garden-grid,
+  .pet-grid {
+    gap: 0.375rem;
+  }
+
+  .main-dragon {
+    font-size: 2.5rem;
+  }
+
+  .dragon-stats {
+    gap: 0.5rem;
+  }
+
+  .aquarium-tank {
+    height: 120px;
+  }
+
+  .star-count-number {
+    font-size: 2rem;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .flower-grow,
+  .pet-bounce,
+  .swim,
+  .dragon-fly,
+  .star-twinkle,
+  .progress-shimmer,
+  .achievement-appear {
+    animation: none !important;
+  }
+
+  .reward-progress-fill {
+    transition: none !important;
+  }
+}

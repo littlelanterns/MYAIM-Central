@@ -1,0 +1,111 @@
+/**
+ * useMemberDashboard Hook
+ * Hook for managing a specific family member's dashboard
+ */
+
+import { useState, useEffect } from 'react';
+import { DashboardService } from '../../services/dashboardService';
+import {
+  DashboardConfig,
+  WidgetType,
+  WidgetPosition
+} from '../../types/dashboard.types';
+
+export function useMemberDashboard(familyMemberId: string | null) {
+  const [config, setConfig] = useState<DashboardConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!familyMemberId) {
+      setLoading(false);
+      return;
+    }
+
+    loadDashboardConfig();
+  }, [familyMemberId]);
+
+  const loadDashboardConfig = async () => {
+    if (!familyMemberId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Try to get existing config
+      let dashboardConfig = await DashboardService.getDashboardConfig(
+        familyMemberId,
+        'member'
+      );
+
+      // Create if doesn't exist
+      if (!dashboardConfig) {
+        dashboardConfig = await DashboardService.createDashboardConfig(
+          familyMemberId,
+          'member',
+          false
+        );
+      }
+
+      setConfig(dashboardConfig);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addWidget = async (widgetType: WidgetType, position: WidgetPosition) => {
+    if (!config) return false;
+
+    const success = await DashboardService.addWidget(
+      config.id,
+      widgetType,
+      position
+    );
+
+    if (success) {
+      await loadDashboardConfig();
+    }
+
+    return success;
+  };
+
+  const removeWidget = async (widgetId: string) => {
+    if (!config) return false;
+
+    const success = await DashboardService.removeWidget(config.id, widgetId);
+
+    if (success) {
+      await loadDashboardConfig();
+    }
+
+    return success;
+  };
+
+  const updateWidgetPosition = async (widgetId: string, position: WidgetPosition) => {
+    if (!config) return false;
+
+    const success = await DashboardService.updateWidgetPosition(
+      config.id,
+      widgetId,
+      position
+    );
+
+    if (success) {
+      await loadDashboardConfig();
+    }
+
+    return success;
+  };
+
+  return {
+    config,
+    loading,
+    error,
+    addWidget,
+    removeWidget,
+    updateWidgetPosition,
+    refresh: loadDashboardConfig
+  };
+}

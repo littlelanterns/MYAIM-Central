@@ -157,6 +157,107 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         </div>
       )}
 
+      {/* Dashboard Type Selection (only for household members with guided/independent/full access) */}
+      {member.inHousehold &&
+       (member.accessLevel === 'guided' || member.accessLevel === 'independent' || member.accessLevel === 'full') && (
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontWeight: '600',
+            marginBottom: '0.5rem'
+          }}>
+            Dashboard Type
+            <div
+              style={{
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center'
+              }}
+              title="Preview different dashboard styles"
+            >
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                background: 'var(--primary-color, #68a395)',
+                color: 'white',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                cursor: 'help'
+              }}>
+                ?
+              </span>
+            </div>
+          </label>
+
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <select
+              value={member.dashboard_type || 'guided'}
+              onChange={(e) => onUpdate(member.id, 'dashboard_type', e.target.value)}
+              style={{ flex: 1, padding: '0.75rem' }}
+              disabled={isSaving}
+            >
+              <option value="play">Play Mode (Ages 5-9) - Fun & Gamified</option>
+              <option value="guided">Guided Mode (Ages 10-12) - Balanced Structure</option>
+              <option value="independent">Independent Mode (Ages 13-18) - Full Features</option>
+            </select>
+
+            <a
+              href="/dashboard-preview"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '0.75rem 1rem',
+                background: 'var(--secondary-color, #d6a461)',
+                color: 'white',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              👀 Preview
+            </a>
+          </div>
+
+          <div style={{
+            marginTop: '0.5rem',
+            padding: '0.75rem',
+            background: 'rgba(104, 163, 149, 0.1)',
+            borderRadius: '6px',
+            fontSize: '0.875rem',
+            lineHeight: '1.4'
+          }}>
+            {member.dashboard_type === 'play' && (
+              <span>
+                <strong>Play Mode:</strong> Bright colors, animations, and gamification. Perfect for young children who love fun visuals and star rewards.
+              </span>
+            )}
+            {(member.dashboard_type === 'guided' || !member.dashboard_type) && (
+              <span>
+                <strong>Guided Mode:</strong> Balanced approach with some gamification but more structure. Great for pre-teens learning responsibility.
+              </span>
+            )}
+            {member.dashboard_type === 'independent' && (
+              <span>
+                <strong>Independent Mode:</strong> Sophisticated, professional dashboard with advanced tools. For teens who want full productivity features.
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Birthday */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>

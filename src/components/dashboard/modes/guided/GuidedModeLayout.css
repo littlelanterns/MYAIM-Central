@@ -1,0 +1,115 @@
+/**
+ * GuidedModeLayout Styles
+ * CRITICAL: Uses CSS variables ONLY - NO hard-coded colors!
+ * Theme-aware layout for Guided Mode
+ */
+
+/* Grid Layout Container */
+.guided-layout-grid {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Standard Layout - 2 columns, task widget emphasized */
+.guided-layout-grid.standard-layout {
+  grid-template-columns: 1.2fr 1fr;
+  grid-template-rows: auto auto auto;
+}
+
+/* Full Layout - More flexible */
+.guided-layout-grid.full-layout {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-auto-rows: minmax(200px, auto);
+}
+
+/* Widget Card - Theme-aware */
+.guided-widget-card {
+  background: var(--gradient-background);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.guided-widget-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Widget Header */
+.guided-widget-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.guided-widget-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.guided-widget-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Widget Content */
+.guided-widget-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .guided-layout-grid.standard-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .guided-layout-grid.standard-layout > div {
+    grid-column: 1 / 2 !important;
+    grid-row: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .guided-layout-grid {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .guided-widget-card {
+    padding: 1.25rem;
+  }
+
+  .guided-widget-title {
+    font-size: 1.1rem;
+  }
+
+  .guided-widget-icon {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .guided-layout-grid {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .guided-widget-card {
+    padding: 1rem;
+  }
+}

@@ -177,12 +177,43 @@
   background: var(--background-color, #fff4ec);
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.manage-dashboards-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--primary-color, #68a395);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.manage-dashboards-button:hover {
+  background: var(--secondary-color, #d6a461);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(104, 163, 149, 0.3);
+}
+
+.manage-dashboards-button:active {
+  transform: translateY(0);
 }
 
 .dropdown-footer small {
   color: var(--secondary-text-color, #8b7355);
   font-size: 0.75rem;
   line-height: 1.4;
+  text-align: center;
 }
 
 /* Scrollbar styling for dashboard options */

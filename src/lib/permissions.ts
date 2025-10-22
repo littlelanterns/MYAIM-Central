@@ -17,6 +17,9 @@ export class PermissionEngine {
    */
   can(action: PermissionAction, targetMemberId?: string): boolean {
     switch (action) {
+      case 'view_family_dashboard':
+        return this.permissions.canViewFamilyDashboard;
+
       case 'view_family_data':
         return this.permissions.canViewFamilyData;
 
@@ -80,6 +83,7 @@ export class PermissionEngine {
   getGrantedPermissions(): string[] {
     const granted: string[] = [];
     const permissionMap: Record<keyof AdditionalAdultPermissions, string> = {
+      canViewFamilyDashboard: 'View Family Dashboard',
       canViewFamilyData: 'View Family Data',
       canViewSpecificMembers: 'View Specific Members',
       canViewTasks: 'View Tasks',

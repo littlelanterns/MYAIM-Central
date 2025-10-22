@@ -13,7 +13,16 @@
       "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
       "Read(c:\\Users\\tenis\\OneDrive\\Pictures\\Screenshots/**)",
       "Read(c:\\Users\\tenis\\Downloads/**)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm start)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nPermission System: Add Additional Adult Dashboard with granular access control\n\nAdd comprehensive permission-based dashboard for additional adults (dads, grandparents, babysitters, tutors) with professional interface and theme compatibility.\n\nKey Features:\n- Additional Adult Dashboard with 16 granular permissions (view/edit tasks, calendar, family data, reports, etc.)\n- PermissionGate component for permission-based rendering with fallback UI\n- PermissionIndicator showing current access level (Extensive/Moderate/Limited/None)\n- usePermissions hook with PermissionEngine for centralized permission logic\n- CSS variables ONLY - no hard-coded colors, works with all 26+ themes\n- Lucide icons throughout (NO emojis for professional appearance)\n- Permission request system for users to request additional access\n\nTechnical Implementation:\n- Permission types and interfaces (src/types/permissions.ts)\n- PermissionEngine class for permission checking logic (src/lib/permissions.ts)\n- usePermissions hook with Supabase integration (src/hooks/usePermissions.ts)\n- Permission-gated widgets for tasks, calendar, family overview, reports\n- Visual permission indicators with category grouping\n\nAdditional Changes:\n- Fix FamilyMemberLogin routing from old teen/child dashboard routes to new member route\n- Add Family Mode Dashboard components (widgets for family overview, tasks, rewards, analytics)\n- Update FamilyDashboard to use new Family Mode architecture\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

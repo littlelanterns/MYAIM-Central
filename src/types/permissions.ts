@@ -4,6 +4,9 @@
  */
 
 export interface AdditionalAdultPermissions {
+  // Dashboard permissions
+  canViewFamilyDashboard: boolean; // Grant access to Family Mode Dashboard
+
   // View permissions
   canViewFamilyData: boolean;
   canViewSpecificMembers: string[]; // Array of member IDs
@@ -32,6 +35,7 @@ export interface AdditionalAdultPermissions {
 }
 
 export type PermissionAction =
+  | 'view_family_dashboard'
   | 'view_family_data'
   | 'view_member'
   | 'view_tasks'
@@ -55,6 +59,7 @@ export interface PermissionCheck {
 }
 
 export const DEFAULT_PERMISSIONS: AdditionalAdultPermissions = {
+  canViewFamilyDashboard: false,
   canViewFamilyData: false,
   canViewSpecificMembers: [],
   canViewTasks: false,

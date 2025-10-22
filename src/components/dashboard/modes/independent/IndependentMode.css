@@ -1,0 +1,2164 @@
+/**
+ * Independent Mode Dashboard CSS
+ * For teens and preteens (13-18 years)
+ *
+ * CRITICAL: ALL colors MUST use CSS variables from global.css
+ * Theme-agnostic styling that works with all 26+ themes
+ *
+ * Design Philosophy:
+ * - Sophisticated, not childish
+ * - Clean, modern, professional
+ * - Information-dense but organized
+ * - Subtle animations, not playful
+ * - Power-user features (keyboard shortcuts, drag-drop)
+ */
+
+/* ========================================
+   CONTAINER & LAYOUT
+   ======================================== */
+
+.independent-dashboard-container {
+  background: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  font-family: 'HK Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.independent-dashboard-header {
+  background: var(--gradient-background);
+  border-bottom: 2px solid var(--accent-color);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.independent-dashboard-content {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Grid Layout for Widgets */
+.independent-widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Two-column layout for specific sections */
+.independent-two-column {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 968px) {
+  .independent-two-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   CARDS & CONTAINERS
+   ======================================== */
+
+.independent-card {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.independent-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.independent-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.independent-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.independent-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ========================================
+   BUTTONS & CONTROLS
+   ======================================== */
+
+.independent-button {
+  background: var(--primary-color);
+  color: var(--background-color);
+  border: none;
+  padding: 0.625rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.independent-button:hover:not(:disabled) {
+  background: var(--secondary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.independent-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.independent-button-secondary {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--accent-color);
+}
+
+.independent-button-secondary:hover:not(:disabled) {
+  background: var(--accent-color);
+  border-color: var(--primary-color);
+}
+
+.independent-icon-button {
+  background: transparent;
+  border: 1px solid var(--accent-color);
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.independent-icon-button:hover {
+  background: var(--accent-color);
+  border-color: var(--primary-color);
+}
+
+/* ========================================
+   TASK ITEMS
+   ======================================== */
+
+.independent-task-item {
+  background: var(--background-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.independent-task-item:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateX(4px);
+}
+
+.independent-task-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-color);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.independent-task-checkbox:hover {
+  border-color: var(--primary-color);
+}
+
+.independent-task-checkbox.checked {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.independent-task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.independent-task-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
+}
+
+.independent-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.independent-task-tag {
+  background: var(--accent-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.independent-task-priority-high {
+  border-left: 3px solid #ef4444;
+}
+
+.independent-task-priority-medium {
+  border-left: 3px solid #f59e0b;
+}
+
+.independent-task-priority-low {
+  border-left: 3px solid var(--primary-color);
+}
+
+/* ========================================
+   STATS & METRICS
+   ======================================== */
+
+.independent-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.independent-stat-card {
+  background: var(--background-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.independent-stat-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.independent-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.independent-stat-label {
+  font-size: 0.8125rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   PROGRESS BARS
+   ======================================== */
+
+.independent-progress-bar {
+  background: var(--accent-color);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.independent-progress-fill {
+  background: var(--gradient-primary);
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.independent-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ========================================
+   LISTS & SCROLLING
+   ======================================== */
+
+.independent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.independent-list-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--accent-color);
+  transition: background 0.2s ease;
+}
+
+.independent-list-item:last-child {
+  border-bottom: none;
+}
+
+.independent-list-item:hover {
+  background: var(--accent-color);
+}
+
+/* ========================================
+   FORMS & INPUTS
+   ======================================== */
+
+.independent-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.independent-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.independent-input,
+.independent-textarea,
+.independent-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 6px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.independent-input:focus,
+.independent-textarea:focus,
+.independent-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--accent-color);
+}
+
+.independent-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ========================================
+   MODALS & OVERLAYS
+   ======================================== */
+
+.independent-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.independent-modal {
+  background: var(--background-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.independent-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.independent-modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.independent-modal-close:hover {
+  background: var(--accent-color);
+}
+
+.independent-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--accent-color);
+}
+
+/* ========================================
+   BADGES & PILLS
+   ======================================== */
+
+.independent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-badge-primary {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+.independent-badge-secondary {
+  background: var(--accent-color);
+  color: var(--text-color);
+}
+
+.independent-badge-success {
+  background: #10b981;
+  color: white;
+}
+
+.independent-badge-warning {
+  background: #f59e0b;
+  color: white;
+}
+
+/* ========================================
+   CALENDAR STYLES
+   ======================================== */
+
+.independent-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.independent-calendar-day {
+  aspect-ratio: 1;
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  background: var(--background-color);
+}
+
+.independent-calendar-day:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.independent-calendar-day.today {
+  border-color: var(--primary-color);
+  border-width: 2px;
+}
+
+.independent-calendar-day.has-events::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--secondary-color);
+}
+
+/* ========================================
+   ANIMATIONS (Subtle & Professional)
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes completionPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--primary-color);
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--accent-color);
+  }
+}
+
+@keyframes achievementGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--primary-color);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--secondary-color);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.completion-pulse {
+  animation: completionPulse 0.6s ease;
+}
+
+.achievement-glow {
+  animation: achievementGlow 2s ease infinite;
+}
+
+/* ========================================
+   EMPTY STATES
+   ======================================== */
+
+.independent-empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.independent-empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.independent-empty-state-message {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.independent-empty-state-hint {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.independent-skeleton {
+  background: linear-gradient(90deg, var(--accent-color) 25%, var(--background-color) 50%, var(--accent-color) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 4px;
+  height: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ========================================
+   DRAG & DROP STATES
+   ======================================== */
+
+.independent-dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.independent-drop-zone {
+  border: 2px dashed var(--primary-color);
+  background: var(--accent-color);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.independent-drop-zone-active {
+  border-color: var(--secondary-color);
+  background: var(--gradient-background);
+}
+
+/* ========================================
+   KEYBOARD SHORTCUT HINTS
+   ======================================== */
+
+.independent-kbd {
+  display: inline-block;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.75rem;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  background: var(--accent-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+  .independent-dashboard-content {
+    padding: 1rem;
+  }
+
+  .independent-widget-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .independent-card {
+    padding: 1rem;
+  }
+
+  .independent-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .independent-modal {
+    padding: 1.5rem;
+  }
+}
+
+/* ========================================
+   THEME-SPECIFIC ENHANCEMENTS
+   ======================================== */
+
+/* These styles automatically adapt based on theme variables */
+.independent-card-highlight {
+  border-top: 3px solid var(--primary-color);
+}
+
+.independent-accent-bg {
+  background: var(--accent-color);
+}
+
+.independent-gradient-bg {
+  background: var(--gradient-background);
+}
+
+.independent-gradient-border {
+  border-image: var(--gradient-primary) 1;
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.independent-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.independent-focus-visible:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   ANALYTICS WIDGET
+   ======================================== */
+
+.independent-analytics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.independent-analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.independent-analytics-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-analytics-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Stats Grid */
+.independent-analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.independent-stat-card {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.independent-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.independent-stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.independent-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.independent-stat-sublabel {
+  font-size: 0.875rem;
+  opacity: 0.6;
+  color: var(--text-color);
+}
+
+/* Chart Container */
+.independent-analytics-chart-container {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.independent-analytics-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.independent-analytics-chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-analytics-chart-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.independent-tab-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.independent-tab-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.independent-tab-button.active {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* Chart */
+.independent-chart {
+  width: 100%;
+  min-height: 250px;
+  position: relative;
+}
+
+.independent-chart-grid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 250px;
+  padding: 1rem 0;
+}
+
+.independent-chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 0.5rem;
+}
+
+.independent-chart-bar {
+  position: relative;
+  width: 100%;
+  background: var(--gradient-primary);
+  border-radius: 4px 4px 0 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.25rem;
+}
+
+.independent-chart-bar:hover {
+  opacity: 0.8;
+  transform: scaleY(1.05);
+}
+
+.independent-chart-bar-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--background-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.independent-chart-bar:hover .independent-chart-bar-value {
+  opacity: 1;
+}
+
+.independent-chart-bar-label {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  margin-top: auto;
+}
+
+/* Analytics Sections */
+.independent-analytics-section {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.independent-analytics-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.independent-analytics-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0 0 1rem 0;
+}
+
+/* Category Breakdown */
+.independent-category-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.independent-category-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.independent-category-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.independent-category-bar-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.independent-category-bar-count {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.independent-category-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.independent-category-bar-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Goal Progress */
+.independent-goal-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.independent-goal-progress-card {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.independent-goal-progress-card:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.independent-goal-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.independent-goal-progress-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+}
+
+.independent-goal-progress-percentage {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-left: 0.5rem;
+}
+
+.independent-goal-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.independent-goal-progress-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.independent-goal-progress-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+.independent-goal-deadline {
+  font-size: 0.8125rem;
+  opacity: 0.6;
+}
+
+/* Insights */
+.independent-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.independent-insight-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.independent-insight-card:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateX(4px);
+}
+
+.independent-insight-card.independent-insight-positive {
+  border-left-color: var(--primary-color);
+}
+
+.independent-insight-card.independent-insight-neutral {
+  border-left-color: var(--secondary-color);
+}
+
+.independent-insight-card.independent-insight-info {
+  border-left-color: var(--accent-color);
+}
+
+.independent-insight-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.independent-insight-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ========================================
+   CALENDAR WIDGET
+   ======================================== */
+
+.independent-calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.independent-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.independent-calendar-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.independent-calendar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-calendar-today-btn {
+  padding: 0.5rem 1rem;
+  background: var(--secondary-color);
+  color: var(--background-color);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-calendar-today-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.independent-calendar-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* View Switcher */
+.independent-calendar-view-switcher {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.independent-view-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-view-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.independent-view-btn.active {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* Navigation */
+.independent-calendar-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.independent-nav-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-nav-btn:hover {
+  background: var(--primary-color);
+  color: var(--background-color);
+  transform: translateY(-2px);
+}
+
+/* Month View */
+.independent-calendar-month-view {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.independent-calendar-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.independent-calendar-day-header {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.7;
+  padding: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.independent-calendar-day {
+  min-height: 90px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.independent-calendar-day:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.independent-calendar-day.is-today {
+  background: var(--primary-color);
+  color: var(--background-color);
+  border-color: var(--primary-color);
+}
+
+.independent-calendar-day.is-today .independent-calendar-day-number {
+  color: var(--background-color);
+}
+
+.independent-calendar-day.other-month {
+  opacity: 0.4;
+}
+
+.independent-calendar-day-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.independent-calendar-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.independent-calendar-event-dot {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.independent-calendar-event-dot.event-deadline {
+  background: color-mix(in srgb, var(--event-deadline-color) 20%, transparent);
+  color: var(--event-deadline-color);
+  border-left: 3px solid var(--event-deadline-color);
+}
+
+.independent-calendar-event-dot.event-task {
+  background: color-mix(in srgb, var(--primary-color) 20%, transparent);
+  color: var(--primary-color);
+  border-left: 3px solid var(--primary-color);
+}
+
+.independent-calendar-event-dot.event-general {
+  background: color-mix(in srgb, var(--secondary-color) 20%, transparent);
+  color: var(--secondary-color);
+  border-left: 3px solid var(--secondary-color);
+}
+
+.independent-calendar-event-dot.event-reminder {
+  background: color-mix(in srgb, var(--event-reminder-color) 20%, transparent);
+  color: var(--event-reminder-color);
+  border-left: 3px solid var(--event-reminder-color);
+}
+
+.independent-event-dot-label {
+  display: block;
+}
+
+.independent-calendar-event-more {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  padding: 0.25rem;
+  font-weight: 500;
+}
+
+/* Week & Day View Placeholders */
+.independent-calendar-week-view,
+.independent-calendar-day-view {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 2rem;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.independent-calendar-week-placeholder,
+.independent-calendar-day-placeholder {
+  text-align: center;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-size: 1rem;
+}
+
+/* Sidebar for Selected Date */
+.independent-calendar-sidebar {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.independent-calendar-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--accent-color);
+}
+
+.independent-calendar-sidebar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-close-btn:hover {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.independent-calendar-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Event List in Sidebar */
+.independent-calendar-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.independent-calendar-event-item {
+  background: rgba(0, 0, 0, 0.02);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.independent-calendar-event-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateX(4px);
+}
+
+.independent-calendar-event-item.event-deadline {
+  border-left-color: var(--event-deadline-color);
+}
+
+.independent-calendar-event-item.event-task {
+  border-left-color: var(--primary-color);
+}
+
+.independent-calendar-event-item.event-general {
+  border-left-color: var(--secondary-color);
+}
+
+.independent-calendar-event-item.event-reminder {
+  border-left-color: var(--event-reminder-color);
+}
+
+.independent-event-time {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.7;
+  margin-bottom: 0.25rem;
+}
+
+.independent-event-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+}
+
+.independent-event-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.independent-event-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.independent-event-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.independent-event-priority {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-event-priority.priority-high {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.independent-event-priority.priority-medium {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.independent-event-priority.priority-low {
+  background: rgba(104, 163, 149, 0.2);
+  color: var(--primary-color);
+}
+
+.independent-calendar-no-events {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color);
+  opacity: 0.6;
+  font-size: 0.9375rem;
+}
+
+.independent-add-event-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Legend */
+.independent-calendar-legend {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+}
+
+.independent-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.independent-legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.independent-legend-dot.event-deadline {
+  background: var(--event-deadline-color);
+}
+
+.independent-legend-dot.event-task {
+  background: var(--primary-color);
+}
+
+.independent-legend-dot.event-general {
+  background: var(--secondary-color);
+}
+
+.independent-legend-dot.event-reminder {
+  background: var(--event-reminder-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .independent-calendar-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .independent-calendar-controls {
+    justify-content: space-between;
+  }
+
+  .independent-calendar-day {
+    min-height: 80px;
+    padding: 0.25rem;
+  }
+
+  .independent-calendar-day-number {
+    font-size: 0.75rem;
+  }
+
+  .independent-calendar-event-dot {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.25rem;
+  }
+}
+
+/* ========================================
+   BEST INTENTIONS WIDGET
+   ======================================== */
+
+.independent-best-intentions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.independent-best-intentions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.independent-best-intentions-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.independent-best-intentions-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.independent-tab-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-tab-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.independent-tab-btn.active {
+  background: var(--primary-color);
+  color: var(--background-color);
+}
+
+/* Common Intro */
+.independent-intentions-intro,
+.independent-goals-intro,
+.independent-habits-intro {
+  background: var(--gradient-background);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.independent-intro-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--text-color);
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Intentions */
+.independent-intentions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.independent-intention-card {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+
+.independent-intention-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.independent-intention-card.category-personal {
+  border-left-color: var(--primary-color);
+}
+
+.independent-intention-card.category-academic {
+  border-left-color: #0d6efd;
+}
+
+.independent-intention-card.category-health {
+  border-left-color: #198754;
+}
+
+.independent-intention-card.category-relationships {
+  border-left-color: #dc3545;
+}
+
+.independent-intention-card.category-creative {
+  border-left-color: #ffc107;
+}
+
+.independent-intention-content {
+  flex: 1;
+}
+
+.independent-intention-text {
+  font-size: 0.9375rem;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+
+.independent-intention-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.independent-intention-type,
+.independent-intention-category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+.independent-intention-complete-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  color: var(--background-color);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-intention-complete-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Add Intention Form */
+.independent-add-intention-form {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.independent-intention-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.independent-intention-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(104, 163, 149, 0.1);
+}
+
+.independent-form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.independent-button-secondary {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-button-secondary:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.independent-add-intention-btn,
+.independent-add-goal-btn,
+.independent-add-habit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--gradient-background);
+  color: var(--primary-color);
+  border: 2px dashed var(--accent-color);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-add-intention-btn:hover,
+.independent-add-goal-btn:hover,
+.independent-add-habit-btn:hover {
+  background: var(--primary-color);
+  color: var(--background-color);
+  border-style: solid;
+}
+
+/* Goals */
+.independent-goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.independent-goal-card {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.independent-goal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.independent-goal-card.category-academic {
+  border-left-color: #0d6efd;
+}
+
+.independent-goal-card.category-personal-growth {
+  border-left-color: var(--primary-color);
+}
+
+.independent-goal-card.category-health {
+  border-left-color: #198754;
+}
+
+.independent-goal-card.category-creative {
+  border-left-color: #ffc107;
+}
+
+.independent-goal-card.category-relationships {
+  border-left-color: #dc3545;
+}
+
+.independent-goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.independent-goal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+}
+
+.independent-goal-deadline {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-goal-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.independent-goal-progress-section {
+  margin-bottom: 1rem;
+}
+
+.independent-goal-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.independent-goal-progress-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-goal-progress-percentage {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.independent-goal-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.independent-goal-progress-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Milestones */
+.independent-goal-milestones {
+  border-top: 1px solid var(--accent-color);
+  padding-top: 1rem;
+}
+
+.independent-milestones-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+.independent-milestone {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+}
+
+.independent-milestone.completed {
+  opacity: 0.6;
+}
+
+.independent-milestone.completed .independent-milestone-text {
+  text-decoration: line-through;
+}
+
+.independent-milestone-checkbox {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.independent-milestone.completed .independent-milestone-checkbox {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.independent-milestone-text {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  flex: 1;
+}
+
+/* Habits */
+.independent-habits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.independent-habit-card {
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.independent-habit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.independent-habit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.independent-habit-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+}
+
+.independent-habit-frequency {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-habit-description {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.independent-habit-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+}
+
+.independent-habit-stat {
+  text-align: center;
+}
+
+.independent-habit-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.independent-habit-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.independent-habit-check-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary-color);
+  color: var(--background-color);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.independent-habit-check-btn:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .independent-dashboard-header,
+  .independent-card-actions,
+  .independent-button,
+  .independent-icon-button {
+    display: none;
+  }
+
+  .independent-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}

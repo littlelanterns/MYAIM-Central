@@ -1,5 +1,27 @@
 /* src/components/global/GlobalHeader.css - Clean header with focus on theme selector */
 
+/* Header Grid Layout */
+.header-grid {
+  display: grid;
+  grid-template-areas: "logo quick-actions global-controls";
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  min-height: 70px;
+}
+
+@media (max-width: 768px) {
+  .header-grid {
+    grid-template-areas:
+      "logo"
+      "quick-actions"
+      "global-controls";
+    grid-template-columns: 1fr;
+    padding: 0.75rem 0;
+    min-height: auto;
+  }
+}
+
 /* Logo Area Styling */
 .logo-area {
   grid-area: logo;
@@ -91,9 +113,9 @@
 
 .theme-selector {
   padding: 12px 16px;
-  border: 2px solid rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.15);
-  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.9);
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
@@ -105,20 +127,43 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   height: 44px;
   text-align: center;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.6) rgba(0,0,0,0.2);
+}
+
+/* Scrollbar styling for theme selector dropdown (Webkit browsers) */
+.theme-selector::-webkit-scrollbar {
+  width: 12px;
+}
+
+.theme-selector::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 6px;
+}
+
+.theme-selector::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  border: 2px solid rgba(0,0,0,0.2);
+}
+
+.theme-selector::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.8);
 }
 
 .theme-selector:hover {
-  background: rgba(255,255,255,0.25);
-  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.45);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
 .theme-selector:focus {
   outline: none;
-  background: rgba(255,255,255,0.3);
-  border-color: rgba(255,255,255,0.8);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
 }
 
 .theme-selector option {

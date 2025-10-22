@@ -1,56 +1,149 @@
+/* PlayMode Dashboard - Main Container (Theme-Aware) */
+
+/* ========================================
+   DASHBOARD CONTAINER
+   ======================================== */
+
 .play-mode-dashboard {
-  padding: 2rem;
-  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+  padding: 1.5rem;
+  background: var(--gradient-background);
   min-height: 100vh;
+  width: 100%;
 }
+
+/* ========================================
+   HEADER SECTION
+   ======================================== */
 
 .play-header {
   text-align: center;
   margin-bottom: 2rem;
-  background: white;
+  background: var(--gradient-primary);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 3px solid var(--primary-color);
 }
 
-.play-header h1 {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  color: #fd79a8;
-}
-
-.play-subtitle {
-  font-size: 1.2rem;
-  color: #636e72;
-  margin: 0;
-}
-
-.play-widgets-container {
-  display: grid;
-  gap: 2rem;
-  max-width: 1200px;
+.play-header-content {
+  max-width: 800px;
   margin: 0 auto;
 }
 
-.placeholder-message {
-  background: white;
-  border-radius: 20px;
-  padding: 4rem 2rem;
-  text-align: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+.play-title {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 700;
 }
 
-.placeholder-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.play-subtitle {
+  font-size: 1.25rem;
+  color: white;
+  margin: 0;
+  font-weight: 500;
+  opacity: 0.95;
 }
 
-.placeholder-message h2 {
-  color: #fd79a8;
-  margin-bottom: 0.5rem;
+/* ========================================
+   DASHBOARD CONTENT
+   ======================================== */
+
+.play-dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.placeholder-message p {
-  color: #636e72;
-  font-size: 1.1rem;
+/* ========================================
+   WIDGET CARD CUSTOMIZATION
+   ======================================== */
+
+.task-widget-card {
+  /* Tasks take full width at top */
+  grid-area: task;
+}
+
+.reward-widget-card {
+  /* Reward widget styling */
+  grid-area: reward;
+}
+
+.calendar-widget-card {
+  /* Calendar widget styling */
+  grid-area: calendar;
+}
+
+.victory-widget-card {
+  /* Victory recorder spans full width */
+  grid-area: victory;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .play-mode-dashboard {
+    padding: 1rem;
+  }
+
+  .play-header {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .play-title {
+    font-size: 2rem;
+  }
+
+  .play-subtitle {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .play-mode-dashboard {
+    padding: 0.75rem;
+  }
+
+  .play-header {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 16px;
+  }
+
+  .play-title {
+    font-size: 1.75rem;
+  }
+
+  .play-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Focus states */
+.play-mode-dashboard:focus-within {
+  outline: none;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .play-header {
+    border-width: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .play-mode-dashboard,
+  .play-header {
+    transition: none !important;
+  }
 }

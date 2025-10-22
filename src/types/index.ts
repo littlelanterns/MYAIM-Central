@@ -21,6 +21,7 @@ export interface FamilyMember {
   relationship: string;
   customRole: string;
   accessLevel: string;
+  dashboard_type?: 'play' | 'guided' | 'independent'; // Dashboard mode for household members
   inHousehold: boolean;
   permissions: Record<string, boolean>;
   notes: string;

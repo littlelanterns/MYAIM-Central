@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TaskCreationModal from '../tasks/TaskCreationModal.tsx';
+import TrackerGallery from '../trackers/gallery/TrackerGallery';
 import { supabase } from '../../lib/supabase';
 import './QuickActions.css';
 
@@ -16,6 +17,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
 
   // Modal states
   const [showTaskCreator, setShowTaskCreator] = useState(false);
+  const [showTrackerGallery, setShowTrackerGallery] = useState(false);
   const [showMealPlanner, setShowMealPlanner] = useState(false);
   const [showTaskBreaker, setShowTaskBreaker] = useState(false);
   const [showMediator, setShowMediator] = useState(false);
@@ -32,6 +34,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       // ARCHIVED: AIM-Admin moved to direct URL access only (/aim-admin)
       // { name: "AIM-Admin", usageCount: 0, id: 'aim-admin', type: 'navigation' },
       { name: "Create Task", usageCount: 0, id: 'create-task', type: 'modal' },
+      { name: "Browse Widgets", usageCount: 0, id: 'browse-trackers', type: 'modal' },
       { name: "Me with Manners", usageCount: 0, id: 'manners', type: 'modal' },
       { name: "Task Breaker", usageCount: 0, id: 'task-breaker', type: 'modal' },
       { name: "Mediator", usageCount: 0, id: 'mediator', type: 'modal' },
@@ -186,6 +189,9 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       case 'create-task':
         setShowTaskCreator(true);
         break;
+      case 'browse-trackers':
+        setShowTrackerGallery(true);
+        break;
       case 'meal-planner':
         setShowMealPlanner(true);
         break;
@@ -286,6 +292,17 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
         onClose={() => setShowTaskCreator(false)}
         onSave={handleTaskSave}
         familyMembers={[]} // TODO: Pass real family members from context/props
+      />
+
+      {/* Tracker Gallery */}
+      <TrackerGallery
+        isOpen={showTrackerGallery}
+        onClose={() => setShowTrackerGallery(false)}
+        onAddTracker={(template) => {
+          console.log('Adding tracker:', template);
+          // TODO: Open customization modal
+          setShowTrackerGallery(false);
+        }}
       />
 
       {/* Placeholder Modals with Portal and Close buttons */}

@@ -1,0 +1,18 @@
+/**
+ * GuidedModeVictoryRecorder CSS
+ * CRITICAL: All colors use CSS variables - theme compatible
+ */
+
+.guided-victory-recorder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.victory-header {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+/* Buttons inherit from GuidedMode.css */
