@@ -64,6 +64,37 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
     }
   };
 
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(date);
+    newDate.setMonth(parseInt(e.target.value));
+    if (onDateChange) onDateChange(newDate);
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(date);
+    newDate.setDate(parseInt(e.target.value));
+    if (onDateChange) onDateChange(newDate);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(date);
+    newDate.setFullYear(parseInt(e.target.value));
+    if (onDateChange) onDateChange(newDate);
+  };
+
+  // Generate year options (current year ± 5 years)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+
+  // Get days in current month
+  const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -164,13 +195,46 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
               )}
             </div>
             {showDatePicker && onDateChange && (
-              <input
-                type="date"
-                className="date-picker-input"
-                value={date.toISOString().split('T')[0]}
-                onChange={handleDateInputChange}
-                onClick={(e) => e.stopPropagation()}
-              />
+              <div className="date-picker-dropdowns" onClick={(e) => e.stopPropagation()}>
+                <select
+                  className="date-picker-select month-select"
+                  value={date.getMonth()}
+                  onChange={handleMonthChange}
+                  aria-label="Select month"
+                >
+                  {months.map((month, index) => (
+                    <option key={index} value={index}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  className="date-picker-select day-select"
+                  value={date.getDate()}
+                  onChange={handleDayChange}
+                  aria-label="Select day"
+                >
+                  {days.map((day) => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  className="date-picker-select year-select"
+                  value={date.getFullYear()}
+                  onChange={handleYearChange}
+                  aria-label="Select year"
+                >
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
             )}
             <div className="date-detail-event-count">
               {events.length} {events.length === 1 ? 'item' : 'items'}

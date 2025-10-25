@@ -113,8 +113,20 @@
   transform: scale(0.95);
 }
 
-.date-picker-input {
+.date-picker-dropdowns {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
   padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  width: 100%;
+}
+
+.date-picker-select {
+  padding: 0.5rem 0.75rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.95);
@@ -122,14 +134,31 @@
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
-  width: 100%;
-  max-width: 200px;
+  transition: all 0.2s ease;
 }
 
-.date-picker-input:focus {
+.date-picker-select:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: white;
+}
+
+.date-picker-select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.6);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.month-select {
+  flex: 1;
+  min-width: 120px;
+}
+
+.day-select {
+  flex: 0 0 70px;
+}
+
+.year-select {
+  flex: 0 0 90px;
 }
 
 .date-detail-event-count {

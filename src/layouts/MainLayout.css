@@ -25,12 +25,12 @@ body {
   height: 100vh;
   width: 100vw;
   display: grid;
-  grid-template-columns: 240px 1fr 320px;
+  grid-template-columns: 240px 1fr 240px;
   grid-template-rows: 70px 1fr;
   gap: 16px;
   padding: 16px;
   grid-template-areas:
-    "logo quick-actions quick-actions"
+    "logo quick-actions global-controls"
     "lila-panel main-content smart-notepad";
 }
 
