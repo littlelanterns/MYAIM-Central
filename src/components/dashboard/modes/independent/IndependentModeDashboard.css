@@ -30,6 +30,7 @@
   gap: 1.5rem;
   max-width: 1600px;
   margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
 
 .placeholder-message {
@@ -53,4 +54,89 @@
 .placeholder-message p {
   color: #636e72;
   font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .independent-widgets-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .independent-mode-dashboard {
+    padding: 1rem;
+  }
+
+  .independent-header {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .independent-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .independent-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .independent-widgets-container {
+    gap: 1rem;
+  }
+
+  .placeholder-message {
+    padding: 3rem 1.5rem;
+  }
+
+  .placeholder-icon {
+    font-size: 3rem;
+  }
+
+  .placeholder-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .placeholder-message p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .independent-mode-dashboard {
+    padding: 0.75rem;
+  }
+
+  .independent-header {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .independent-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .independent-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .independent-widgets-container {
+    gap: 0.75rem;
+  }
+
+  .placeholder-message {
+    padding: 2rem 1rem;
+  }
+
+  .placeholder-icon {
+    font-size: 2.5rem;
+  }
+
+  .placeholder-message h2 {
+    font-size: 1.25rem;
+  }
+
+  .placeholder-message p {
+    font-size: 0.9rem;
+  }
 }
