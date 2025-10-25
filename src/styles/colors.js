@@ -580,19 +580,28 @@ export const getContrastColor = (hexColor) => {
   return brightness > 128 ? primaryBrand.warmEarth : primaryBrand.warmCream;
 };
 
-export const createThemeVariables = (theme) => ({
-  '--primary-color': theme.primary,
-  '--secondary-color': theme.secondary,
-  '--accent-color': theme.accent,
-  '--background-color': theme.background,
-  '--text-color': theme.text,
-  '--gradient-primary': createGradient(theme.primary, theme.secondary),
-  '--gradient-background': theme.cardGradient || createGradient(theme.background, theme.accent + '20'),
-  '--lila-gradient': theme.lilaGradient || createGradient(theme.background, theme.accent),
-  // Calendar event type colors from approved palette
-  '--event-deadline-color': colorPalette.red.dark,      // Rustic Rose #b25a58
-  '--event-reminder-color': colorPalette.blue.medium    // Coastal Blue #7d98a5
-});
+export const createThemeVariables = (theme) => {
+  const isClassic = theme === personalThemes.classic;
+
+  return {
+    '--primary-color': theme.primary,
+    '--secondary-color': theme.secondary,
+    '--accent-color': theme.accent,
+    '--background-color': theme.background,
+    '--text-color': theme.text,
+    '--gradient-primary': createGradient(theme.primary, theme.secondary),
+    '--gradient-background': theme.cardGradient || createGradient(theme.background, theme.accent + '20'),
+    '--lila-gradient': theme.lilaGradient || createGradient(theme.background, theme.accent),
+    // Quick action button styling - Classic theme keeps original look, others use FAB gradient
+    '--quick-action-gradient': isClassic
+      ? (theme.cardGradient || 'linear-gradient(135deg, #f4dcb7, #d4e3d9)')
+      : createGradient(theme.primary, theme.secondary),
+    '--quick-action-text': isClassic ? primaryBrand.warmEarth : '#ffffff',
+    // Calendar event type colors from approved palette
+    '--event-deadline-color': colorPalette.red.dark,      // Rustic Rose #b25a58
+    '--event-reminder-color': colorPalette.blue.medium    // Coastal Blue #7d98a5
+  };
+};
 
 // Get colors grouped by family for color picker
 export const getColorsGroupedByFamily = () => {

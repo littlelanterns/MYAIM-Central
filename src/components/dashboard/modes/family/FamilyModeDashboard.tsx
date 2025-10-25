@@ -211,7 +211,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
 
   // Event handlers
   const handleViewMember = (memberId: string) => {
-    navigate(`/member-dashboard/${memberId}`);
+    navigate(`/member/${memberId}`);
   };
 
   const handleManageFamily = () => {

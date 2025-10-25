@@ -26,12 +26,12 @@
 .quick-action-card {
   flex: 0 0 auto; /* Allow buttons to size to their content */
   padding: 8px 16px;
-  color: #5a4033;
+  color: var(--quick-action-text, #5a4033);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  background: linear-gradient(135deg, #f4dcb7, #d4e3d9);
+  background: var(--quick-action-gradient, linear-gradient(135deg, #f4dcb7, #d4e3d9));
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   clip-path: polygon(0 5%, 3% 0, 97% 0, 100% 4%, 100% 95%, 98% 100%, 2% 100%, 0 96%);
