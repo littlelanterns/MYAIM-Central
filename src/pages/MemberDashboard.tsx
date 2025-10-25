@@ -29,6 +29,21 @@ const MemberDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      // Handle demo/sample family members (Emma and Noah from Family Dashboard)
+      const demoMembers: Record<string, { name: string; mode: string }> = {
+        '1': { name: 'Emma', mode: 'independent' },
+        '2': { name: 'Noah', mode: 'guided' }
+      };
+
+      if (memberId && demoMembers[memberId]) {
+        // This is a demo member, use mock data
+        setDashboardMode(demoMembers[memberId].mode);
+        setMemberName(demoMembers[memberId].name);
+        setLoading(false);
+        return;
+      }
+
+      // Real family member - load from database
       const { data, error: fetchError } = await supabase
         .from('family_members')
         .select('dashboard_mode, name')

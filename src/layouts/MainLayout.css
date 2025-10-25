@@ -132,6 +132,11 @@ body {
     height: auto;
   }
 
+  /* Hide global controls on mobile - theme selector is in FAB instead */
+  .global-controls-area {
+    display: none;
+  }
+
   .main-content-area {
     min-height: 0;
     flex: 1;
