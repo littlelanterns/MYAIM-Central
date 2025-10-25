@@ -114,12 +114,8 @@ const MainLayout = () => {
       {/* 6-Cell Grid Layout */}
       <div className="layout-grid">
 
-        {/* Top Row: Logo | Quick Actions | Controls - All part of GlobalHeader */}
-        <GlobalHeader 
-          currentTheme={currentTheme}
-          onThemeChange={setCurrentTheme}
-          onSettingsClick={() => console.log('Settings clicked!')}
-        />
+        {/* Top Row: Logo | Quick Actions (spanning full width) */}
+        <GlobalHeader contextType="dashboard" />
         
         {/* Bottom Row: LiLa Panel | Main Content | Smart Notepad */}
         <div className={`grid-cell lila-panel-area ${lilaOpen ? 'drawer-open' : ''}`}>

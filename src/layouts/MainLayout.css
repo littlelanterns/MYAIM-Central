@@ -30,7 +30,7 @@ body {
   gap: 16px;
   padding: 16px;
   grid-template-areas:
-    "logo quick-actions global-controls"
+    "logo quick-actions quick-actions"
     "lila-panel main-content smart-notepad";
 }
 
@@ -114,8 +114,9 @@ body {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     grid-template-areas:
-      "logo quick-actions global-controls"
-      "main-content main-content main-content";
+      "logo"
+      "quick-actions"
+      "main-content";
     gap: 8px;
     padding: 8px;
     height: 100vh;
