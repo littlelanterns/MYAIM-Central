@@ -109,14 +109,11 @@ const GlobalHeader = ({
               <Palette size={20} strokeWidth={2} />
             </button>
 
-            {/* Theme Selector Dropdown */}
+            {/* Desktop: Theme Selector Dropdown */}
             <select
-              className={`theme-selector ${showThemeDropdown ? 'mobile-visible' : ''}`}
+              className="theme-selector desktop-only"
               value={currentTheme}
-              onChange={(e) => {
-                handleThemeChange(e);
-                setShowThemeDropdown(false);
-              }}
+              onChange={handleThemeChange}
               title="Choose your theme"
             >
               <optgroup label="General">
@@ -143,6 +140,59 @@ const GlobalHeader = ({
                 ))}
               </optgroup>
             </select>
+
+            {/* Mobile: Custom Theme Dropdown */}
+            {showThemeDropdown && (
+              <div className="theme-dropdown-mobile">
+                <div className="theme-dropdown-section">
+                  <div className="theme-dropdown-label">General</div>
+                  {general.map(({ key, theme }) => (
+                    <button
+                      key={key}
+                      className={`theme-option ${currentTheme === key ? 'active' : ''}`}
+                      onClick={() => {
+                        handleThemeChange({ target: { value: key } });
+                        setShowThemeDropdown(false);
+                      }}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="theme-dropdown-section">
+                  <div className="theme-dropdown-label">Seasonal</div>
+                  {seasonal.map(({ key, theme }) => (
+                    <button
+                      key={key}
+                      className={`theme-option ${currentTheme === key ? 'active' : ''}`}
+                      onClick={() => {
+                        handleThemeChange({ target: { value: key } });
+                        setShowThemeDropdown(false);
+                      }}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="theme-dropdown-section">
+                  <div className="theme-dropdown-label">Fun</div>
+                  {fun.map(({ key, theme }) => (
+                    <button
+                      key={key}
+                      className={`theme-option ${currentTheme === key ? 'active' : ''}`}
+                      onClick={() => {
+                        handleThemeChange({ target: { value: key } });
+                        setShowThemeDropdown(false);
+                      }}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

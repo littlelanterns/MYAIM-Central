@@ -226,6 +226,15 @@
   }
 }
 
+/* Custom Mobile Theme Dropdown */
+.theme-dropdown-mobile {
+  display: none;
+}
+
+.theme-selector.desktop-only {
+  display: block;
+}
+
 @media (max-width: 768px) {
   .logo-area {
     grid-area: logo;
@@ -250,28 +259,91 @@
     max-height: 32px;
   }
 
-  /* Mobile: Show palette button, hide theme selector by default */
+  /* Mobile: Show palette button, hide desktop selector */
   .theme-palette-button {
     display: flex;
   }
 
-  .theme-selector {
+  .theme-selector.desktop-only {
     display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 1000;
-    min-width: 200px;
-    max-width: 280px;
-    padding: 8px 12px;
-    font-size: 14px;
-    height: auto;
-    max-height: 60vh;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   }
 
-  .theme-selector.mobile-visible {
+  /* Mobile Custom Dropdown */
+  .theme-dropdown-mobile {
     display: block;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 1000;
+    min-width: 240px;
+    max-width: 90vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .theme-dropdown-section {
+    margin-bottom: 1rem;
+  }
+
+  .theme-dropdown-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .theme-dropdown-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--primary-color, #68a395);
+    margin-bottom: 0.5rem;
+    padding: 0 0.5rem;
+    opacity: 0.8;
+  }
+
+  .theme-option {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color, #333);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+  }
+
+  .theme-option:hover {
+    background: var(--accent-color, #d4e3d9);
+  }
+
+  .theme-option.active {
+    background: var(--gradient-primary, linear-gradient(135deg, #68a395, #2c5d60));
+    color: white;
+    font-weight: 600;
+  }
+
+  .theme-option:active {
+    transform: scale(0.98);
   }
 }
 
