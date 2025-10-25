@@ -1189,6 +1189,15 @@
   align-items: center;
 }
 
+/* Month/Year Title - Shown when view selector is hidden */
+.independent-calendar-month-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  font-family: 'The Seasons', 'Playfair Display', serif;
+}
+
 /* View Switcher */
 .independent-calendar-view-switcher {
   display: flex;

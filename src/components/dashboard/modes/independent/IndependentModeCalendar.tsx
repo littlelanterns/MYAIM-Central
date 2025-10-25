@@ -7,6 +7,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import '../independent/IndependentMode.css';
+import DateDetailModal from '../../../modals/DateDetailModal';
 
 interface CalendarProps {
   familyMemberId: string;
@@ -299,7 +300,7 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
         {/* View Controls on Left */}
         <div className="independent-calendar-controls">
           {/* View Switcher - Hidden when hideViewSelector is true */}
-          {!hideViewSelector && (
+          {!hideViewSelector ? (
             <>
               <div className="independent-calendar-view-switcher">
                 <button
@@ -340,6 +341,11 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
                 </button>
               </div>
             </>
+          ) : (
+            /* Month/Year Display when view selector is hidden */
+            <h2 className="independent-calendar-month-title">
+              {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </h2>
           )}
         </div>
 
@@ -426,65 +432,21 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
         </div>
       )}
 
-      {/* Selected Date Details */}
-      {selectedDate && (
-        <div className="independent-calendar-sidebar">
-          <div className="independent-calendar-sidebar-header">
-            <h3 className="independent-calendar-sidebar-title">
-              {selectedDate.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </h3>
-            <button
-              className="independent-close-btn"
-              onClick={() => setSelectedDate(null)}
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="independent-calendar-sidebar-content">
-            {getEventsForDate(selectedDate).length > 0 ? (
-              <div className="independent-calendar-event-list">
-                {getEventsForDate(selectedDate).map(event => (
-                  <div key={event.id} className={`independent-calendar-event-item ${getEventTypeClass(event.type)}`}>
-                    <div className="independent-event-time">
-                      {event.isAllDay ? 'All Day' :
-                       `${event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} -
-                        ${event.end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`}
-                    </div>
-                    <div className="independent-event-title">{event.title}</div>
-                    {event.description && (
-                      <div className="independent-event-description">{event.description}</div>
-                    )}
-                    <div className="independent-event-meta">
-                      <span className="independent-event-type">{event.type}</span>
-                      {event.priority && (
-                        <span className={`independent-event-priority priority-${event.priority}`}>
-                          {event.priority}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="independent-calendar-no-events">
-                No events scheduled for this day
-              </div>
-            )}
-
-            <button
-              className="independent-button independent-add-event-btn"
-              onClick={() => setShowEventForm(true)}
-            >
-              Add Event
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Date Detail Modal - Replaces sidebar with full-screen modal */}
+      <DateDetailModal
+        date={selectedDate}
+        events={selectedDate ? getEventsForDate(selectedDate) : []}
+        onClose={() => setSelectedDate(null)}
+        onAddEvent={() => setShowEventForm(true)}
+        onEditEvent={(eventId) => {
+          console.log('Edit event:', eventId);
+          // TODO: Implement event editing
+        }}
+        onDeleteEvent={(eventId) => {
+          console.log('Delete event:', eventId);
+          // TODO: Implement event deletion
+        }}
+      />
 
       {/* Legend */}
       <div className="independent-calendar-legend">

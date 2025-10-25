@@ -104,10 +104,7 @@ export const DashboardPreview: React.FC = () => {
         padding: '0.75rem 1.5rem'
       }}>
         <GlobalHeader
-          currentTheme={currentTheme}
-          onThemeChange={setCurrentTheme}
           contextType="preview"
-          onSettingsClick={() => {}}
         />
       </div>
 
