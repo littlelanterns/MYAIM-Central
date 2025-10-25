@@ -10,13 +10,9 @@
  */
 const AI_CONFIG = {
   openrouter: {
-    baseUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    apiKey: process.env.REACT_APP_OPENROUTER_API_KEY,
-    defaultModel: 'anthropic/claude-3.5-sonnet',
-    headers: {
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'AIMfM Family Intelligence System'
-    }
+    // Use serverless endpoint for security (API key stays server-side)
+    serverlessEndpoint: '/api/openrouter',
+    defaultModel: 'anthropic/claude-3.5-sonnet'
   },
   n8n: {
     familyProcessing: process.env.REACT_APP_N8N_FAMILY_WEBHOOK,
@@ -44,38 +40,33 @@ class AIServiceError extends Error {
 
 /**
  * Generic OpenRouter request handler
- * Used by simple AI operations that don't need complex workflows
+ * Calls our secure serverless endpoint instead of OpenRouter directly
+ * This keeps the API key server-side for security
  */
 async function makeOpenRouterRequest(systemPrompt, userPrompt, options = {}) {
-  if (!AI_CONFIG.openrouter.apiKey) {
-    throw new AIServiceError('OpenRouter API key not configured', 'openrouter');
-  }
-
   try {
-    const response = await fetch(AI_CONFIG.openrouter.baseUrl, {
+    const response = await fetch(AI_CONFIG.openrouter.serverlessEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${AI_CONFIG.openrouter.apiKey}`,
-        'Content-Type': 'application/json',
-        ...AI_CONFIG.openrouter.headers
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: options.model || AI_CONFIG.openrouter.defaultModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: options.maxTokens || 1000,
-        temperature: options.temperature || 0.1,
-        ...options.extraParams
+        systemPrompt,
+        userPrompt,
+        options: {
+          model: options.model || AI_CONFIG.openrouter.defaultModel,
+          maxTokens: options.maxTokens || 1000,
+          temperature: options.temperature || 0.1,
+          extraParams: options.extraParams
+        }
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new AIServiceError(
-        `OpenRouter API error: ${response.status} - ${errorData}`,
-        'openrouter'
+        `API error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`,
+        'openrouter-serverless'
       );
     }
 
@@ -84,7 +75,7 @@ async function makeOpenRouterRequest(systemPrompt, userPrompt, options = {}) {
 
   } catch (error) {
     if (error instanceof AIServiceError) throw error;
-    throw new AIServiceError('Failed to connect to OpenRouter', 'openrouter', error);
+    throw new AIServiceError('Failed to connect to AI service', 'openrouter-serverless', error);
   }
 }
 
@@ -408,35 +399,36 @@ When intention is clear, return structured data in this JSON format:
 
 Continue conversation until you have enough clarity for all fields. Only set intentionReady to true when you have complete information.`;
 
-    // Convert conversation history to OpenRouter format
+    // Convert conversation history to messages format
     const messages = conversationHistory.map(msg => ({
       role: msg.role === 'assistant' ? 'assistant' : 'user',
       content: msg.content
     }));
 
-    const response = await fetch(AI_CONFIG.openrouter.baseUrl, {
+    // Call our secure serverless endpoint
+    const response = await fetch(AI_CONFIG.openrouter.serverlessEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${AI_CONFIG.openrouter.apiKey}`,
-        'Content-Type': 'application/json',
-        ...AI_CONFIG.openrouter.headers
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: AI_CONFIG.openrouter.defaultModel,
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
         ],
-        max_tokens: 1500,
-        temperature: 0.7
+        options: {
+          model: AI_CONFIG.openrouter.defaultModel,
+          maxTokens: 1500,
+          temperature: 0.7
+        }
       })
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new AIServiceError(
-        `OpenRouter API error: ${response.status} - ${errorData}`,
-        'openrouter'
+        `API error: ${response.status} - ${errorData.error || 'Unknown error'}`,
+        'openrouter-serverless'
       );
     }
 
@@ -471,7 +463,7 @@ Continue conversation until you have enough clarity for all fields. Only set int
       response: parsedResponse.response,
       intentionReady: parsedResponse.intentionReady || false,
       intention: parsedResponse.intention || null,
-      service: 'openrouter-direct'
+      service: 'openrouter-serverless'
     };
 
   } catch (error) {
@@ -482,7 +474,7 @@ Continue conversation until you have enough clarity for all fields. Only set int
       response: "I'm sorry, I'm having trouble processing that right now. Could you try rephrasing your thoughts?",
       intentionReady: false,
       intention: null,
-      service: 'openrouter-direct'
+      service: 'openrouter-serverless'
     };
   }
 }
