@@ -89,12 +89,18 @@ const CommandCenter: FC = () => {
   const styles: Record<string, CSSProperties> = {
     pageWrapper: {
       background: 'var(--gradient-primary)',
-      minHeight: '100vh',
-      padding: '20px'
+      minHeight: '100%',
+      height: '100%',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column' as const
     },
     commandCenter: {
       maxWidth: '1200px',
-      margin: '0 auto'
+      margin: '0 auto',
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column' as const
     },
     pageTitle: {
       textAlign: 'center',
@@ -109,7 +115,8 @@ const CommandCenter: FC = () => {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
       gap: '1.5rem',
-      marginBottom: '2rem'
+      marginBottom: '2rem',
+      flex: 1
     },
     card: {
       background: 'var(--gradient-background)',
