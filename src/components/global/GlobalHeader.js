@@ -1,17 +1,32 @@
 // src/components/global/GlobalHeader.js - Clean header with theme persistence
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Palette } from 'lucide-react';
 import QuickActions from './QuickActions';
 import { personalThemes } from '../../styles/colors';
 import { supabase } from '../../lib/supabase';
 import './GlobalHeader.css';
 
-const GlobalHeader = ({ 
+const GlobalHeader = ({
   currentTheme = 'classic',
   onThemeChange,
   contextType = 'dashboard',
   onSettingsClick,
   className = ''
 }) => {
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowThemeDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const handleThemeChange = async (e) => {
     const newTheme = e.target.value;
 
@@ -83,11 +98,25 @@ const GlobalHeader = ({
       <div className="grid-cell global-controls-area">
         <div className="header-controls">
           {/* Theme Selector - Clean and prominent */}
-          <div className="theme-section">
+          <div className="theme-section" ref={dropdownRef}>
+            {/* Mobile: Paint Palette Icon Button */}
+            <button
+              className="theme-palette-button"
+              onClick={() => setShowThemeDropdown(!showThemeDropdown)}
+              aria-label="Change theme"
+              title="Change theme"
+            >
+              <Palette size={20} strokeWidth={2} />
+            </button>
+
+            {/* Theme Selector Dropdown */}
             <select
-              className="theme-selector"
+              className={`theme-selector ${showThemeDropdown ? 'mobile-visible' : ''}`}
               value={currentTheme}
-              onChange={handleThemeChange}
+              onChange={(e) => {
+                handleThemeChange(e);
+                setShowThemeDropdown(false);
+              }}
               title="Choose your theme"
             >
               <optgroup label="General">
