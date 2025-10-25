@@ -1,6 +1,7 @@
 // src/layouts/MainLayout.tsx - FIXED Default Theme with Database Persistence
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { Palette } from 'lucide-react';
 import GlobalHeader from '../components/global/GlobalHeader';
 import SmartNotepad from '../components/ui/SmartNotepad.jsx';
 import LiLaPanel from '../components/global/LiLaPanel';
@@ -16,6 +17,7 @@ const MainLayout = () => {
   const { modals } = useModalContext();
   const [lilaOpen, setLilaOpen] = useState(false);
   const [notepadOpen, setNotepadOpen] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   useEffect(() => {
     // Load user's saved theme preference from Supabase
@@ -63,6 +65,46 @@ const MainLayout = () => {
     root.style.setProperty('--scrollbar-thumb', `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`);
     root.style.setProperty('--scrollbar-thumb-hover', `linear-gradient(135deg, ${theme.secondary}, ${theme.primary})`);
   }, [currentTheme]);
+
+  const handleThemeChange = async (newTheme: string) => {
+    setCurrentTheme(newTheme);
+    setShowThemeModal(false);
+
+    // Save to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('family_members')
+          .update({ theme_preference: newTheme })
+          .eq('auth_user_id', user.id);
+
+        if (error) {
+          console.error('Error saving theme preference:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating theme:', error);
+    }
+  };
+
+  const getThemeGroups = () => {
+    const general: any[] = [];
+    const seasonal: any[] = [];
+    const fun: any[] = [];
+
+    Object.entries(personalThemes).forEach(([key, theme]: [string, any]) => {
+      if (theme.seasonal || theme.holiday) {
+        seasonal.push({ key, theme });
+      } else if (theme.childFriendly) {
+        fun.push({ key, theme });
+      } else {
+        general.push({ key, theme });
+      }
+    });
+
+    return { general, seasonal, fun };
+  };
 
   return (
     <div className="main-layout-container">
@@ -120,15 +162,82 @@ const MainLayout = () => {
         </svg>
       </button>
 
+      {/* Mobile Theme Selector FAB */}
+      <button
+        className="mobile-drawer-toggle theme-toggle"
+        onClick={() => setShowThemeModal(!showThemeModal)}
+        aria-label="Change theme"
+      >
+        <Palette size={24} />
+      </button>
+
       {/* Mobile overlay backdrop */}
-      {(lilaOpen || notepadOpen) && (
+      {(lilaOpen || notepadOpen || showThemeModal) && (
         <div
           className="mobile-drawer-backdrop"
           onClick={() => {
             setLilaOpen(false);
             setNotepadOpen(false);
+            setShowThemeModal(false);
           }}
         />
+      )}
+
+      {/* Mobile Theme Selection Modal */}
+      {showThemeModal && (
+        <div className="mobile-theme-modal">
+          <div className="mobile-theme-modal-header">
+            <h3>Choose Theme</h3>
+            <button onClick={() => setShowThemeModal(false)} className="mobile-theme-modal-close">×</button>
+          </div>
+          <div className="mobile-theme-modal-content">
+            {(() => {
+              const { general, seasonal, fun } = getThemeGroups();
+              return (
+                <>
+                  <div className="mobile-theme-section">
+                    <div className="mobile-theme-section-label">General</div>
+                    {general.map(({ key, theme }) => (
+                      <button
+                        key={key}
+                        className={`mobile-theme-option ${currentTheme === key ? 'active' : ''}`}
+                        onClick={() => handleThemeChange(key)}
+                      >
+                        {theme.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mobile-theme-section">
+                    <div className="mobile-theme-section-label">Seasonal</div>
+                    {seasonal.map(({ key, theme }) => (
+                      <button
+                        key={key}
+                        className={`mobile-theme-option ${currentTheme === key ? 'active' : ''}`}
+                        onClick={() => handleThemeChange(key)}
+                      >
+                        {theme.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mobile-theme-section">
+                    <div className="mobile-theme-section-label">Fun</div>
+                    {fun.map(({ key, theme }) => (
+                      <button
+                        key={key}
+                        className={`mobile-theme-option ${currentTheme === key ? 'active' : ''}`}
+                        onClick={() => handleThemeChange(key)}
+                      >
+                        {theme.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
       )}
 
       {/* Render all draggable modals on top of everything */}

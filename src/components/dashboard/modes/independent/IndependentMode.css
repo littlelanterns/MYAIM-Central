@@ -1260,6 +1260,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 0.4rem;
   margin-bottom: 0.5rem;
+  padding: 0; /* Ensure no extra padding */
 }
 
 .independent-calendar-day-header {
@@ -1268,9 +1269,10 @@
   font-weight: 600;
   color: var(--text-color);
   opacity: 0.7;
-  padding: 0.5rem;
+  padding: 0.5rem 0.4rem; /* Match the horizontal padding with day cell padding */
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-sizing: border-box;
 }
 
 .independent-calendar-grid {
@@ -1278,6 +1280,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 0.4rem;
   width: 100%;
+  padding: 0; /* Ensure no extra padding */
 }
 
 .independent-calendar-day {
@@ -1609,6 +1612,17 @@
 
   .independent-calendar-controls {
     justify-content: space-between;
+  }
+
+  /* Ensure perfect alignment on mobile */
+  .independent-calendar-day-headers,
+  .independent-calendar-grid {
+    gap: 0.25rem; /* Reduce gap on mobile for tighter layout */
+  }
+
+  .independent-calendar-day-header {
+    padding: 0.4rem 0.25rem; /* Match reduced padding */
+    font-size: 0.75rem;
   }
 
   .independent-calendar-day {
