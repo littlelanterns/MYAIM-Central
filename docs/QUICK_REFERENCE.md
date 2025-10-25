@@ -979,7 +979,7 @@ REACT_APP_OPENROUTER_API_KEY=your_openrouter_key
 ### Access in Code
 
 ```typescript
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 ```
 
 ---
