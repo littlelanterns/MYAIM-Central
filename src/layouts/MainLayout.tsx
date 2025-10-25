@@ -14,6 +14,8 @@ const MainLayout = () => {
   // FIXED: Default to 'classic' instead of 'rosegold'
   const [currentTheme, setCurrentTheme] = useState('classic');
   const { modals } = useModalContext();
+  const [lilaOpen, setLilaOpen] = useState(false);
+  const [notepadOpen, setNotepadOpen] = useState(false);
 
   useEffect(() => {
     // Load user's saved theme preference from Supabase
@@ -78,7 +80,7 @@ const MainLayout = () => {
         />
         
         {/* Bottom Row: LiLa Panel | Main Content | Smart Notepad */}
-        <div className="grid-cell lila-panel-area">
+        <div className={`grid-cell lila-panel-area ${lilaOpen ? 'drawer-open' : ''}`}>
           <LiLaPanel />
         </div>
 
@@ -86,11 +88,48 @@ const MainLayout = () => {
           <Outlet />
         </div>
 
-        <div className="grid-cell smart-notepad-area">
+        <div className={`grid-cell smart-notepad-area ${notepadOpen ? 'drawer-open' : ''}`}>
           <SmartNotepad />
         </div>
 
       </div>
+
+      {/* Mobile Drawer Toggle Buttons */}
+      <button
+        className="mobile-drawer-toggle lila-toggle"
+        onClick={() => setLilaOpen(!lilaOpen)}
+        aria-label="Toggle AI Helpers"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </button>
+
+      <button
+        className="mobile-drawer-toggle notepad-toggle"
+        onClick={() => setNotepadOpen(!notepadOpen)}
+        aria-label="Toggle Smart Notepad"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </button>
+
+      {/* Mobile overlay backdrop */}
+      {(lilaOpen || notepadOpen) && (
+        <div
+          className="mobile-drawer-backdrop"
+          onClick={() => {
+            setLilaOpen(false);
+            setNotepadOpen(false);
+          }}
+        />
+      )}
 
       {/* Render all draggable modals on top of everything */}
       {modals.map(modal => (

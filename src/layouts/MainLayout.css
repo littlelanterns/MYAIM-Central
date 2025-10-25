@@ -93,6 +93,15 @@ body {
   opacity: 1;
 }
 
+/* Mobile Drawer Toggle Buttons - Hidden on desktop */
+.mobile-drawer-toggle {
+  display: none;
+}
+
+.mobile-drawer-backdrop {
+  display: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .layout-grid {
@@ -103,34 +112,120 @@ body {
 @media (max-width: 768px) {
   .layout-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto 1fr auto;
+    grid-template-rows: auto 1fr;
     grid-template-areas:
-      "logo"
-      "quick-actions"
-      "global-controls"
-      "main-content"
-      "lila-panel"
-      "smart-notepad";
-    gap: 12px;
-    padding: 12px;
+      "logo quick-actions global-controls"
+      "main-content main-content main-content";
+    gap: 8px;
+    padding: 8px;
     height: 100vh;
   }
-  
+
   .header-background {
-    display: none; /* Hide header bar on mobile */
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    height: auto;
   }
-  
+
   .main-content-area {
     min-height: 0;
     flex: 1;
+    grid-column: 1 / -1;
   }
-  
-  .smart-notepad-area {
-    max-height: 200px;
-  }
-  
+
+  /* Hide sidebars by default on mobile - they become drawers */
   .lila-panel-area {
-    max-height: 120px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 320px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    background: var(--background-color, #fff4ec);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .lila-panel-area.drawer-open {
+    transform: translateX(0);
+  }
+
+  .smart-notepad-area {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 320px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    background: var(--background-color, #fff4ec);
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .smart-notepad-area.drawer-open {
+    transform: translateX(0);
+  }
+
+  /* Mobile drawer toggle buttons */
+  .mobile-drawer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-primary, linear-gradient(135deg, #68a395, #2c5d60));
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 900;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .mobile-drawer-toggle:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-drawer-toggle:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-drawer-toggle.lila-toggle {
+    left: 16px;
+  }
+
+  .mobile-drawer-toggle.notepad-toggle {
+    right: 16px;
+  }
+
+  /* Mobile drawer backdrop */
+  .mobile-drawer-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
 
