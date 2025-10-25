@@ -18,6 +18,7 @@ import TaskCreationModal from '../../../tasks/TaskCreationModal';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import DashboardSwitcher from '../../DashboardSwitcher';
 import ManageDashboardsModal from '../../ManageDashboardsModal';
+import './FamilyModeDashboard.css';
 
 interface FamilyModeDashboardProps {
   familyId?: string;
@@ -325,49 +326,16 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   }
 
   return (
-    <div style={{
-      background: 'var(--gradient-primary)',
-      minHeight: '100vh',
-      color: 'var(--text-color)',
-      fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '1.5rem'
-    }}>
-      <div style={{
-        maxWidth: '1600px',
-        margin: '0 auto'
-      }}>
+    <div className="family-mode-dashboard">
+      <div className="family-dashboard-content">
         {/* Header with Dashboard Switcher */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '20px',
-          padding: '2rem',
-          marginBottom: '1.5rem',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          border: '1px solid var(--accent-color)'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}>
+        <div className="family-dashboard-header">
+          <div className="family-header-content">
             <div>
-              <h1 style={{
-                margin: '0 0 0.5rem 0',
-                fontSize: '2rem',
-                fontWeight: 600,
-                color: 'var(--primary-color)',
-                fontFamily: '"The Seasons", "Playfair Display", serif'
-              }}>
+              <h1 className="family-dashboard-title">
                 Family Dashboard
               </h1>
-              <p style={{
-                margin: 0,
-                fontSize: '0.95rem',
-                color: 'var(--text-color)',
-                opacity: 0.7
-              }}>
+              <p className="family-dashboard-subtitle">
                 Mission control for your entire family
               </p>
             </div>
@@ -378,94 +346,31 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
         </div>
 
         {/* Widgets Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(12, 1fr)',
-          gap: '1.5rem'
-        }}>
+        <div className="family-widgets-grid">
           {/* This Week - Combined Family Calendar - Full width - AT TOP */}
           <div style={{ gridColumn: 'span 12' }}>
-            <div style={{
-              background: 'var(--background-color)',
-              border: '1px solid var(--accent-color)',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-                flexWrap: 'wrap',
-                gap: '1rem'
-              }}>
-                <h3 style={{
-                  color: 'var(--primary-color)',
-                  margin: 0,
-                  fontSize: '1.25rem',
-                  fontWeight: 600
-                }}>
+            <div className="family-calendar-container">
+              <div className="family-calendar-header">
+                <h3 className="family-calendar-title">
                   This Week
                 </h3>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div className="family-calendar-controls">
                   {/* Month/Year Navigation */}
-                  <div style={{
-                    display: 'flex',
-                    gap: '0.375rem',
-                    alignItems: 'center',
-                    background: 'var(--gradient-background)',
-                    padding: '0.25rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--accent-color)'
-                  }}>
+                  <div className="calendar-month-nav">
                     <button
                       onClick={handlePreviousMonth}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        borderRadius: '4px',
-                        padding: '0.375rem 0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'var(--text-color)',
-                        transition: 'all 0.2s',
-                        fontSize: '0.75rem',
-                        fontWeight: 500
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                      className="calendar-month-nav-button"
                       title="Previous Month"
                     >
                       <ChevronLeft size={12} />
                       Month
                     </button>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--text-color)',
-                      fontWeight: 600,
-                      padding: '0 0.5rem'
-                    }}>
+                    <span className="calendar-month-year-display">
                       {currentWeek.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </span>
                     <button
                       onClick={handleNextMonth}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        borderRadius: '4px',
-                        padding: '0.375rem 0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'var(--text-color)',
-                        transition: 'all 0.2s',
-                        fontSize: '0.75rem',
-                        fontWeight: 500
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                      className="calendar-month-nav-button"
                       title="Next Month"
                     >
                       Month
@@ -474,50 +379,21 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   </div>
 
                   {/* Week Navigation */}
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div className="calendar-week-nav">
                     <button
                       onClick={handlePreviousWeek}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid var(--accent-color)',
-                        borderRadius: '6px',
-                        padding: '0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'var(--text-color)',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                      className="calendar-week-nav-button"
                       title="Previous Week"
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      color: 'var(--text-color)',
-                      minWidth: '120px',
-                      textAlign: 'center'
-                    }}>
+                    <span className="calendar-week-range">
                       {weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} -{' '}
                       {weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                     <button
                       onClick={handleNextWeek}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid var(--accent-color)',
-                        borderRadius: '6px',
-                        padding: '0.5rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        color: 'var(--text-color)',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                      className="calendar-week-nav-button"
                       title="Next Week"
                     >
                       <ChevronRight size={16} />
@@ -527,19 +403,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   {/* Today Button */}
                   <button
                     onClick={handleToday}
-                    style={{
-                      background: 'var(--gradient-background)',
-                      border: '1px solid var(--accent-color)',
-                      borderRadius: '6px',
-                      padding: '0.5rem 0.75rem',
-                      cursor: 'pointer',
-                      color: 'var(--text-color)',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                    onMouseOut={(e) => e.currentTarget.style.background = 'var(--gradient-background)'}
+                    className="calendar-today-button"
                   >
                     Today
                   </button>
@@ -547,19 +411,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   {/* Settings Button */}
                   <button
                     onClick={() => setShowCalendarSettings(!showCalendarSettings)}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--accent-color)',
-                      borderRadius: '6px',
-                      padding: '0.5rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: 'var(--text-color)',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-color)'}
-                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                    className="calendar-settings-button"
                     title="Calendar Settings"
                   >
                     <Settings size={16} />
@@ -568,22 +420,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   {/* View Month Button */}
                   <button
                     onClick={() => setShowMonthModal(true)}
-                    style={{
-                      background: 'var(--primary-color)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      color: 'white',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
-                    onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    className="calendar-view-month-button"
                   >
                     <CalendarIcon size={14} />
                     View Month
@@ -593,29 +430,11 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
 
               {/* Calendar Settings Dropdown */}
               {showCalendarSettings && (
-                <div style={{
-                  background: 'var(--gradient-background)',
-                  border: '1px solid var(--accent-color)',
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  marginBottom: '1rem'
-                }}>
-                  <h4 style={{
-                    margin: '0 0 0.75rem 0',
-                    color: 'var(--primary-color)',
-                    fontSize: '0.9375rem',
-                    fontWeight: 600
-                  }}>
+                <div className="calendar-settings-panel">
+                  <h4 className="calendar-settings-title">
                     Calendar Settings
                   </h4>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    color: 'var(--text-color)'
-                  }}>
+                  <label className="calendar-settings-option">
                     <input
                       type="checkbox"
                       checked={weekStartsOnMonday}
@@ -632,11 +451,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
               )}
 
               {/* Calendar Grid - Aggregates all family members' events */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: '0.5rem'
-              }}>
+              <div className="family-calendar-week-grid">
                 {daysOfWeek.map((day, index) => {
                   const isToday = new Date().toDateString() === weekDates[index].toDateString();
                   const dayEvents = getEventsForDay(index);
@@ -644,90 +459,35 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   return (
                     <div
                       key={day}
-                      style={{
-                        minHeight: '120px',
-                        display: 'flex',
-                        flexDirection: 'column'
-                      }}
+                      className="family-calendar-day-column"
                     >
-                      <div style={{
-                        background: isToday ? 'var(--gradient-primary)' : 'var(--accent-color)',
-                        color: isToday ? 'white' : 'var(--text-color)',
-                        padding: '0.5rem',
-                        borderRadius: '6px 6px 0 0',
-                        textAlign: 'center',
-                        fontSize: '0.75rem',
-                        fontWeight: 600
-                      }}>
-                        <div>{day}</div>
-                        <div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                      <div className={`family-calendar-day-header ${isToday ? 'today' : 'regular'}`}>
+                        <div className="family-calendar-day-name">{day}</div>
+                        <div className="family-calendar-day-number">
                           {weekDates[index].getDate()}
                         </div>
                       </div>
-                      <div style={{
-                        flex: 1,
-                        background: 'var(--background-color)',
-                        border: '1px solid var(--accent-color)',
-                        borderTop: 'none',
-                        borderRadius: '0 0 6px 6px',
-                        padding: '0.5rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.375rem',
-                        overflow: 'auto'
-                      }}>
+                      <div className="family-calendar-day-content">
                         {dayEvents.length === 0 ? (
-                          <div style={{
-                            color: 'var(--text-color)',
-                            opacity: 0.3,
-                            fontSize: '0.75rem',
-                            textAlign: 'center',
-                            padding: '0.5rem 0'
-                          }}>
+                          <div className="family-calendar-no-events">
                             No events
                           </div>
                         ) : (
                           dayEvents.map((event) => (
                             <div
                               key={event.id}
+                              className="family-calendar-event"
                               style={{
-                                background: getMemberColor(event.memberColor),
-                                color: 'white',
-                                borderRadius: '4px',
-                                padding: '0.375rem 0.5rem',
-                                fontSize: '0.75rem',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseOver={(e) => {
-                                e.currentTarget.style.opacity = '0.8';
-                                e.currentTarget.style.transform = 'scale(1.02)';
-                              }}
-                              onMouseOut={(e) => {
-                                e.currentTarget.style.opacity = '1';
-                                e.currentTarget.style.transform = 'scale(1)';
+                                background: getMemberColor(event.memberColor)
                               }}
                             >
-                              <div style={{
-                                fontWeight: 600,
-                                marginBottom: '0.125rem',
-                                lineHeight: 1.2
-                              }}>
+                              <div className="family-calendar-event-time">
                                 {event.time}
                               </div>
-                              <div style={{
-                                marginBottom: '0.25rem',
-                                lineHeight: 1.3,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
+                              <div className="family-calendar-event-title">
                                 {event.title}
                               </div>
-                              <div style={{
-                                fontSize: '0.625rem',
-                                opacity: 0.9
-                              }}>
+                              <div className="family-calendar-event-member">
                                 {event.memberName}
                               </div>
                             </div>
@@ -795,87 +555,28 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
       {/* Full Month Calendar Modal */}
       {showMonthModal && ReactDOM.createPortal(
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem'
-          }}
+          className="calendar-modal-overlay"
           onClick={() => setShowMonthModal(false)}
         >
           <div
-            style={{
-              background: 'var(--background-color)',
-              borderRadius: '12px',
-              width: '95%',
-              height: '90%',
-              maxWidth: '1200px',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
-            }}
+            className="calendar-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div style={{
-              background: 'var(--gradient-primary)',
-              padding: '1.5rem 2rem',
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottom: '3px solid var(--accent-color)'
-            }}>
-              <h2 style={{
-                margin: 0,
-                fontSize: '1.5rem',
-                fontWeight: 600
-              }}>
+            <div className="calendar-modal-header">
+              <h2 className="calendar-modal-title">
                 Family Calendar
               </h2>
               <button
                 onClick={() => setShowMonthModal(false)}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: '2px solid rgba(255, 255, 255, 0.4)',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  color: 'white',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-                  e.currentTarget.style.transform = 'scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
+                className="calendar-modal-close"
               >
                 ×
               </button>
             </div>
 
             {/* Modal Content - Calendar */}
-            <div style={{
-              flex: 1,
-              overflow: 'auto',
-              padding: '1.5rem'
-            }}>
+            <div className="calendar-modal-body">
               <IndependentModeCalendar
                 familyMemberId={familyId || ''}
                 viewMode="parent"
