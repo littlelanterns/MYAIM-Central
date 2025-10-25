@@ -4,8 +4,8 @@
  * Shows all tasks, events, deadlines, and reminders for a selected date
  */
 
-import React from 'react';
-import { X, Plus, Edit2, Trash2, Clock, Tag, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Plus, Edit2, Trash2, Clock, Tag, AlertCircle, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import './DateDetailModal.css';
 
 interface CalendarEvent {
@@ -28,6 +28,7 @@ interface DateDetailModalProps {
   onAddEvent?: () => void;
   onEditEvent?: (eventId: string) => void;
   onDeleteEvent?: (eventId: string) => void;
+  onDateChange?: (newDate: Date) => void;
 }
 
 export const DateDetailModal: React.FC<DateDetailModalProps> = ({
@@ -36,9 +37,32 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
   onClose,
   onAddEvent,
   onEditEvent,
-  onDeleteEvent
+  onDeleteEvent,
+  onDateChange
 }) => {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   if (!date) return null;
+
+  const handlePreviousDay = () => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() - 1);
+    if (onDateChange) onDateChange(newDate);
+  };
+
+  const handleNextDay = () => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + 1);
+    if (onDateChange) onDateChange(newDate);
+  };
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = new Date(e.target.value);
+    if (!isNaN(newDate.getTime()) && onDateChange) {
+      onDateChange(newDate);
+      setShowDatePicker(false);
+    }
+  };
 
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString('en-US', {
@@ -113,19 +137,64 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
       <div className="date-detail-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="date-detail-modal-header">
+          <div className="date-detail-header-left">
+            {onDateChange && (
+              <button
+                className="date-nav-btn"
+                onClick={handlePreviousDay}
+                aria-label="Previous day"
+              >
+                <ChevronLeft size={20} />
+              </button>
+            )}
+          </div>
+
           <div className="date-detail-header-content">
-            <h2 className="date-detail-modal-title">{formatDate(date)}</h2>
+            <div className="date-detail-header-title-row">
+              <h2 className="date-detail-modal-title">{formatDate(date)}</h2>
+              {onDateChange && (
+                <button
+                  className="date-picker-btn"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                  aria-label="Pick date"
+                  title="Jump to date"
+                >
+                  <Calendar size={18} />
+                </button>
+              )}
+            </div>
+            {showDatePicker && onDateChange && (
+              <input
+                type="date"
+                className="date-picker-input"
+                value={date.toISOString().split('T')[0]}
+                onChange={handleDateInputChange}
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
             <div className="date-detail-event-count">
               {events.length} {events.length === 1 ? 'item' : 'items'}
             </div>
           </div>
-          <button
-            className="date-detail-close-btn"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={24} />
-          </button>
+
+          <div className="date-detail-header-right">
+            {onDateChange && (
+              <button
+                className="date-nav-btn"
+                onClick={handleNextDay}
+                aria-label="Next day"
+              >
+                <ChevronRight size={20} />
+              </button>
+            )}
+            <button
+              className="date-detail-close-btn"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}

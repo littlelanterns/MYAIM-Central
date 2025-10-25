@@ -411,6 +411,7 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
                 familyMemberId={familyMemberId}
                 viewMode="parent"
                 initialExpanded={true}
+                hideViewSelector={true}
               />
             </div>
           </div>

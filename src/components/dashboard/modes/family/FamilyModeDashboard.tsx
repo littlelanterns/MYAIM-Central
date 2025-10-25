@@ -581,6 +581,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                 familyMemberId={familyId || ''}
                 viewMode="parent"
                 initialExpanded={true}
+                hideViewSelector={true}
               />
             </div>
           </div>

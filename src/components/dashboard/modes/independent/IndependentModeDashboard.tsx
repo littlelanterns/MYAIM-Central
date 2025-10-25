@@ -492,6 +492,7 @@ export const IndependentModeDashboard: React.FC<IndependentModeDashboardProps> =
                 familyMemberId={familyMemberId}
                 viewMode="self"
                 initialExpanded={true}
+                hideViewSelector={true}
               />
             </div>
           </div>

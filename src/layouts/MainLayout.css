@@ -115,7 +115,7 @@ body {
 @media (max-width: 768px) {
   .layout-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
       "logo"
       "quick-actions"

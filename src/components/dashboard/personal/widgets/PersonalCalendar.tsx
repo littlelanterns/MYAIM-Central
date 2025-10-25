@@ -140,6 +140,7 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
                 familyMemberId={familyMemberId}
                 viewMode="self"
                 initialExpanded={true}
+                hideViewSelector={true}
               />
             </div>
           </div>

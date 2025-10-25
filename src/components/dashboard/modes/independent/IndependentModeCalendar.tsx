@@ -8,6 +8,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import '../independent/IndependentMode.css';
 import DateDetailModal from '../../../modals/DateDetailModal';
+import { supabase } from '../../../../lib/supabase';
 
 interface CalendarProps {
   familyMemberId: string;
@@ -60,6 +61,34 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
       setCurrentDate(initialDate);
     }
   }, [initialDate]);
+
+  // Load user's week start preference from database
+  useEffect(() => {
+    const loadWeekStartPreference = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('family_members')
+          .select('week_start_preference')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (error) {
+          console.log('No week start preference found, using default');
+          return;
+        }
+
+        if (data?.week_start_preference !== undefined && data?.week_start_preference !== null) {
+          setWeekStartsOnMonday(data.week_start_preference === 'monday');
+        }
+      } catch (error) {
+        console.error('Error loading week start preference:', error);
+      }
+    };
+    loadWeekStartPreference();
+  }, []);
 
   // Update weekStartsOnMonday when prop changes
   useEffect(() => {
@@ -173,6 +202,28 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
 
     return days;
   }, [currentDate, weekStartsOnMonday]);
+
+  // Handle week start preference change and save to database
+  const handleWeekStartChange = async (startsOnMonday: boolean) => {
+    setWeekStartsOnMonday(startsOnMonday);
+
+    // Save to database
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('family_members')
+          .update({ week_start_preference: startsOnMonday ? 'monday' : 'sunday' })
+          .eq('auth_user_id', user.id);
+
+        if (error) {
+          console.error('Error saving week start preference:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating week start preference:', error);
+    }
+  };
 
   // Get events for a specific date
   const getEventsForDate = (date: Date): CalendarEvent[] => {
@@ -327,14 +378,14 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
               <div className="independent-calendar-view-switcher">
                 <button
                   className={`independent-view-btn ${!weekStartsOnMonday ? 'active' : ''}`}
-                  onClick={() => setWeekStartsOnMonday(false)}
+                  onClick={() => handleWeekStartChange(false)}
                   title="Week starts on Sunday"
                 >
                   Sun
                 </button>
                 <button
                   className={`independent-view-btn ${weekStartsOnMonday ? 'active' : ''}`}
-                  onClick={() => setWeekStartsOnMonday(true)}
+                  onClick={() => handleWeekStartChange(true)}
                   title="Week starts on Monday"
                 >
                   Mon
@@ -414,29 +465,13 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
         </div>
       )}
 
-      {/* Week View */}
-      {view === 'week' && (
-        <div className="independent-calendar-week-view">
-          <div className="independent-calendar-week-placeholder">
-            Week view - Coming soon! This will show a detailed weekly schedule with hourly slots.
-          </div>
-        </div>
-      )}
-
-      {/* Day View */}
-      {view === 'day' && (
-        <div className="independent-calendar-day-view">
-          <div className="independent-calendar-day-placeholder">
-            Day view - Coming soon! This will show a detailed daily schedule with tasks and events.
-          </div>
-        </div>
-      )}
 
       {/* Date Detail Modal - Replaces sidebar with full-screen modal */}
       <DateDetailModal
         date={selectedDate}
         events={selectedDate ? getEventsForDate(selectedDate) : []}
         onClose={() => setSelectedDate(null)}
+        onDateChange={(newDate) => setSelectedDate(newDate)}
         onAddEvent={() => setShowEventForm(true)}
         onEditEvent={(eventId) => {
           console.log('Edit event:', eventId);
