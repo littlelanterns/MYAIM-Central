@@ -11,7 +11,7 @@
 const AI_CONFIG = {
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1/chat/completions',
-    apiKey: process.env.REACT_APP_OPENROUTER_API_KEY,
+    apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
     defaultModel: 'anthropic/claude-3.5-sonnet',
     headers: {
       'HTTP-Referer': window.location.origin,
@@ -19,13 +19,13 @@ const AI_CONFIG = {
     }
   },
   n8n: {
-    familyProcessing: process.env.REACT_APP_N8N_FAMILY_WEBHOOK,
-    mindsweepProcessing: process.env.REACT_APP_N8N_MINDSWEEP_WEBHOOK,
-    taskProcessing: process.env.REACT_APP_N8N_TASK_WEBHOOK
+    familyProcessing: import.meta.env.VITE_N8N_FAMILY_WEBHOOK,
+    mindsweepProcessing: import.meta.env.VITE_N8N_MINDSWEEP_WEBHOOK,
+    taskProcessing: import.meta.env.VITE_N8N_TASK_WEBHOOK
   },
   pipedream: {
-    subtaskGeneration: process.env.REACT_APP_PIPEDREAM_SUBTASK_WEBHOOK,
-    mealPlanning: process.env.REACT_APP_PIPEDREAM_MEAL_WEBHOOK
+    subtaskGeneration: import.meta.env.VITE_PIPEDREAM_SUBTASK_WEBHOOK,
+    mealPlanning: import.meta.env.VITE_PIPEDREAM_MEAL_WEBHOOK
   }
 };
 
