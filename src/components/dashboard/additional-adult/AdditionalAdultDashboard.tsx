@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Users, Calendar, ListTodo, Settings, BarChart3, LayoutDashboard, Calendar as CalendarIcon } from 'lucide-react';
 import { usePermissions } from '../../../hooks/usePermissions';
 import PermissionIndicator from './PermissionIndicator';
@@ -324,7 +325,7 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
       </div>
 
       {/* Full Month Calendar Modal - Permission Gated */}
-      {showMonthModal && checkPermission('view_calendar') && (
+      {showMonthModal && checkPermission('view_calendar') && ReactDOM.createPortal(
         <div
           style={{
             position: 'fixed',
@@ -415,7 +416,8 @@ const AdditionalAdultDashboard: React.FC<AdditionalAdultDashboardProps> = ({
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-root') as HTMLElement
       )}
     </div>
   );

@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom';
 import { Calendar } from 'lucide-react';
 import '../independent/IndependentMode.css';
 import DateDetailModal from '../../../modals/DateDetailModal';
+import EventCreationModal from '../../../modals/EventCreationModal';
 import { supabase } from '../../../../lib/supabase';
 
 interface CalendarProps {
@@ -57,6 +58,8 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(defaultWeekStartsOnMonday);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
 
   // Update currentDate when initialDate changes (for date picker navigation)
   useEffect(() => {
@@ -555,7 +558,11 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
         events={selectedDate ? getEventsForDate(selectedDate) : []}
         onClose={() => setSelectedDate(null)}
         onDateChange={(newDate) => setSelectedDate(newDate)}
-        onAddEvent={() => setShowEventForm(true)}
+        onAddEvent={() => {
+          setEventPreselectedDate(selectedDate);
+          setShowEventModal(true);
+          setSelectedDate(null); // Close date detail modal
+        }}
         onEditEvent={(eventId) => {
           console.log('Edit event:', eventId);
           // TODO: Implement event editing
@@ -585,6 +592,23 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
           <span>Reminder</span>
         </div>
       </div>
+
+      {/* Event Creation Modal */}
+      <EventCreationModal
+        isOpen={showEventModal}
+        onClose={() => {
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+        }}
+        onSave={(eventData) => {
+          console.log('Event saved:', eventData);
+          // TODO: Save event to database
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+        }}
+        preselectedDate={eventPreselectedDate}
+        familyMembers={[]} // TODO: Load actual family members
+      />
     </div>
   );
 
