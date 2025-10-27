@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
+import DateDetailModal from '../../../modals/DateDetailModal';
 import './GuidedModeCalendarWidget.css';
 
 export interface CalendarEvent {
@@ -38,6 +39,7 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMonthModal, setShowMonthModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Get current week dates
   const getWeekDates = () => {
@@ -251,7 +253,12 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
 
               return (
                 <div key={index} className={`day-column ${isToday ? 'today' : ''}`}>
-                  <div className="day-header">
+                  <div
+                    className="day-header"
+                    onClick={() => setSelectedDate(date)}
+                    style={{ cursor: 'pointer' }}
+                    title="Click to view day details"
+                  >
                     <div className="day-name">{daysOfWeek[index]}</div>
                     <div className="day-number">{date.getDate()}</div>
                   </div>
@@ -335,6 +342,17 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
         </div>,
         document.getElementById('modal-root') as HTMLElement
       )}
+
+      {/* Date Detail Modal */}
+      <DateDetailModal
+        date={selectedDate}
+        events={selectedDate ? getEventsForDate(selectedDate) : []}
+        onClose={() => setSelectedDate(null)}
+        onAddEvent={() => {
+          console.log('Add event clicked');
+          // TODO: Open event creation modal
+        }}
+      />
     </div>
   );
 };
