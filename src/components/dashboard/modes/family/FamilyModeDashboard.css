@@ -225,6 +225,56 @@
   color: var(--text-color);
 }
 
+/* Date Picker Dropdowns */
+.family-calendar-date-picker {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.family-date-select {
+  padding: 0.625rem 0.875rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 6px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.family-date-select:hover {
+  border-color: var(--primary-color);
+}
+
+.family-date-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(104, 163, 149, 0.2);
+}
+
+.family-month-select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.family-day-select {
+  flex: 0 0 80px;
+}
+
+.family-year-select {
+  flex: 0 0 100px;
+}
+
 /* Calendar Week Grid */
 .family-calendar-week-grid {
   display: grid;
@@ -391,6 +441,29 @@
   .calendar-view-month-button {
     width: 100%;
     justify-content: center;
+  }
+
+  /* Date picker mobile adjustments */
+  .family-calendar-date-picker {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .family-date-select {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .family-month-select {
+    min-width: 120px;
+  }
+
+  .family-day-select {
+    flex: 0 0 70px;
+  }
+
+  .family-year-select {
+    flex: 0 0 90px;
   }
 
   /* Make calendar horizontally scrollable on mobile */

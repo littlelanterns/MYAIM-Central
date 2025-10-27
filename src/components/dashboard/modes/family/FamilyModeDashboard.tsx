@@ -34,6 +34,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   const [showManageDashboards, setShowManageDashboards] = useState(false);
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(false);
   const [showCalendarSettings, setShowCalendarSettings] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Mock data for development - will be replaced with real data from overview
   const mockFamilyMembers = [
@@ -267,6 +268,35 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
     // TODO: Adjust member balance in database
   };
 
+  // Date picker handlers
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setMonth(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setDate(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setFullYear(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  // Generate options for date picker
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const daysInMonth = new Date(currentWeek.getFullYear(), currentWeek.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
   // Note: Quick actions are now handled by global QuickActions in header
   // Task creation is triggered from there via the "Create Task" button
 
@@ -355,31 +385,15 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                   This Week
                 </h3>
                 <div className="family-calendar-controls">
-                  {/* Month/Year Navigation */}
-                  <div className="calendar-month-nav">
-                    <button
-                      onClick={handlePreviousMonth}
-                      className="calendar-month-nav-button"
-                      title="Previous Month"
-                    >
-                      <ChevronLeft size={12} />
-                      Month
-                    </button>
-                    <span className="calendar-month-year-display">
-                      {currentWeek.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                    </span>
-                    <button
-                      onClick={handleNextMonth}
-                      className="calendar-month-nav-button"
-                      title="Next Month"
-                    >
-                      Month
-                      <ChevronRight size={12} />
-                    </button>
-                  </div>
-
                   {/* Week Navigation */}
                   <div className="calendar-week-nav">
+                    <button
+                      onClick={() => setShowDatePicker(!showDatePicker)}
+                      className="calendar-week-nav-button"
+                      title="Jump to date"
+                    >
+                      <CalendarIcon size={16} />
+                    </button>
                     <button
                       onClick={handlePreviousWeek}
                       className="calendar-week-nav-button"
@@ -387,10 +401,12 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <span className="calendar-week-range">
-                      {weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} -{' '}
-                      {weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
+                    <button
+                      onClick={handleToday}
+                      className="calendar-today-button"
+                    >
+                      Today
+                    </button>
                     <button
                       onClick={handleNextWeek}
                       className="calendar-week-nav-button"
@@ -399,14 +415,6 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                       <ChevronRight size={16} />
                     </button>
                   </div>
-
-                  {/* Today Button */}
-                  <button
-                    onClick={handleToday}
-                    className="calendar-today-button"
-                  >
-                    Today
-                  </button>
 
                   {/* Settings Button */}
                   <button
@@ -447,6 +455,50 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                     />
                     <span>Week starts on Monday</span>
                   </label>
+                </div>
+              )}
+
+              {/* Date Picker Dropdowns */}
+              {showDatePicker && (
+                <div className="family-calendar-date-picker">
+                  <select
+                    className="family-date-select family-month-select"
+                    value={currentWeek.getMonth()}
+                    onChange={handleMonthChange}
+                    aria-label="Select month"
+                  >
+                    {months.map((month, index) => (
+                      <option key={index} value={index}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    className="family-date-select family-day-select"
+                    value={currentWeek.getDate()}
+                    onChange={handleDayChange}
+                    aria-label="Select day"
+                  >
+                    {days.map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    className="family-date-select family-year-select"
+                    value={currentWeek.getFullYear()}
+                    onChange={handleYearChange}
+                    aria-label="Select year"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 

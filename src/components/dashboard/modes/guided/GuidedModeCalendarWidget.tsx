@@ -6,7 +6,9 @@
  */
 
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
+import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import './GuidedModeCalendarWidget.css';
 
 export interface CalendarEvent {
@@ -34,6 +36,8 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month'>('week');
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showMonthModal, setShowMonthModal] = useState(false);
 
   // Get current week dates
   const getWeekDates = () => {
@@ -115,6 +119,35 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
     setCurrentDate(new Date());
   };
 
+  // Date picker handlers
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setFullYear(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  // Generate options for date picker
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
   const weekDates = getWeekDates();
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const today = new Date();
@@ -124,6 +157,13 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
       {/* Calendar Header */}
       <div className="calendar-header">
         <div className="calendar-nav">
+          <button
+            className="nav-btn"
+            onClick={() => setShowDatePicker(!showDatePicker)}
+            title="Jump to date"
+          >
+            <Calendar size={20} />
+          </button>
           <button className="nav-btn" onClick={handlePrevious}>
             <ChevronLeft size={20} />
           </button>
@@ -136,7 +176,6 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
         </div>
 
         <div className="calendar-title">
-          <Calendar className="calendar-icon" size={18} />
           <span className="month-year">
             {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </span>
@@ -151,12 +190,56 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
           </button>
           <button
             className={`view-btn ${view === 'month' ? 'active' : ''}`}
-            onClick={() => setView('month')}
+            onClick={() => setShowMonthModal(true)}
           >
             Month
           </button>
         </div>
       </div>
+
+      {/* Date Picker Dropdowns */}
+      {showDatePicker && (
+        <div className="guided-calendar-date-picker">
+          <select
+            className="guided-date-select guided-month-select"
+            value={currentDate.getMonth()}
+            onChange={handleMonthChange}
+            aria-label="Select month"
+          >
+            {months.map((month, index) => (
+              <option key={index} value={index}>
+                {month}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="guided-date-select guided-day-select"
+            value={currentDate.getDate()}
+            onChange={handleDayChange}
+            aria-label="Select day"
+          >
+            {days.map((day) => (
+              <option key={day} value={day}>
+                {day}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="guided-date-select guided-year-select"
+            value={currentDate.getFullYear()}
+            onChange={handleYearChange}
+            aria-label="Select year"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Week View */}
       {view === 'week' && (
@@ -208,19 +291,6 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
         </div>
       )}
 
-      {/* Month View */}
-      {view === 'month' && (
-        <div className="month-view">
-          <div className="month-placeholder">
-            <Calendar size={48} className="placeholder-icon" />
-            <p className="placeholder-text">Month view coming soon!</p>
-            <p className="placeholder-subtext">
-              Will show full month calendar with all events
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Sync Status */}
       <div className="sync-status">
         <div className="sync-indicator">
@@ -228,6 +298,43 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
           <span className="sync-text">Calendar sync ready for Google Calendar integration</span>
         </div>
       </div>
+
+      {/* Full Month Modal */}
+      {showMonthModal && ReactDOM.createPortal(
+        <div
+          className="calendar-modal-overlay"
+          onClick={() => setShowMonthModal(false)}
+        >
+          <div
+            className="calendar-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="calendar-modal-header">
+              <h2 className="calendar-modal-title">
+                Calendar - {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h2>
+              <button
+                onClick={() => setShowMonthModal(false)}
+                className="calendar-modal-close"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Content - Calendar */}
+            <div className="calendar-modal-body">
+              <IndependentModeCalendar
+                familyMemberId={familyMemberId}
+                viewMode="self"
+                initialExpanded={true}
+                hideViewSelector={true}
+              />
+            </div>
+          </div>
+        </div>,
+        document.getElementById('modal-root') as HTMLElement
+      )}
     </div>
   );
 };
