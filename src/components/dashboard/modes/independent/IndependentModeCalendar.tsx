@@ -54,6 +54,7 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
   const [showEventForm, setShowEventForm] = useState(false);
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(defaultWeekStartsOnMonday);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Update currentDate when initialDate changes (for date picker navigation)
   useEffect(() => {
@@ -248,6 +249,35 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
     setCurrentDate(new Date());
   };
 
+  // Date picker handlers
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setFullYear(parseInt(e.target.value));
+    setCurrentDate(newDate);
+  };
+
+  // Generate options for date picker
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
   // Check if date is today
   const isToday = (date: Date): boolean => {
     const today = new Date();
@@ -402,6 +432,13 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
 
         {/* Navigation on Right */}
         <div className="independent-calendar-nav">
+          <button
+            onClick={() => setShowDatePicker(!showDatePicker)}
+            className="independent-nav-btn"
+            title="Jump to date"
+          >
+            📅
+          </button>
           <button onClick={goToPreviousMonth} className="independent-nav-btn">
             ←
           </button>
@@ -410,6 +447,50 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Date Picker Dropdowns - Shows below header when toggled */}
+      {showDatePicker && (
+        <div className="independent-calendar-date-picker">
+          <select
+            className="independent-date-select independent-month-select"
+            value={currentDate.getMonth()}
+            onChange={handleMonthChange}
+            aria-label="Select month"
+          >
+            {months.map((month, index) => (
+              <option key={index} value={index}>
+                {month}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="independent-date-select independent-day-select"
+            value={currentDate.getDate()}
+            onChange={handleDayChange}
+            aria-label="Select day"
+          >
+            {days.map((day) => (
+              <option key={day} value={day}>
+                {day}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="independent-date-select independent-year-select"
+            value={currentDate.getFullYear()}
+            onChange={handleYearChange}
+            aria-label="Select year"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Month View */}
       {view === 'month' && (

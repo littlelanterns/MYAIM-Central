@@ -1255,6 +1255,81 @@
   transform: translateY(-2px);
 }
 
+/* Date Picker Dropdowns */
+.independent-calendar-date-picker {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--gradient-background);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.independent-date-select {
+  padding: 0.625rem 0.875rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 6px;
+  background: var(--background-color);
+  color: var(--text-color);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.independent-date-select:hover {
+  border-color: var(--primary-color);
+}
+
+.independent-date-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(104, 163, 149, 0.2);
+}
+
+.independent-month-select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.independent-day-select {
+  flex: 0 0 80px;
+}
+
+.independent-year-select {
+  flex: 0 0 100px;
+}
+
+/* Mobile adjustments for date picker */
+@media (max-width: 768px) {
+  .independent-calendar-date-picker {
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .independent-date-select {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .independent-month-select {
+    min-width: 120px;
+  }
+
+  .independent-day-select {
+    flex: 0 0 70px;
+  }
+
+  .independent-year-select {
+    flex: 0 0 90px;
+  }
+}
+
 /* Month View */
 .independent-calendar-month-view {
   background: var(--gradient-background);
