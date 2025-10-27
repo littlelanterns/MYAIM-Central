@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { IndependentModeTaskWidget } from './IndependentModeTaskWidget';
 import { IndependentModeVictoryRecorder } from './IndependentModeVictoryRecorder';
@@ -405,7 +406,7 @@ export const IndependentModeDashboard: React.FC<IndependentModeDashboardProps> =
       </div>
 
       {/* Full Month Modal */}
-      {showMonthModal && (
+      {showMonthModal && ReactDOM.createPortal(
         <div
           style={{
             position: 'fixed',
@@ -496,7 +497,8 @@ export const IndependentModeDashboard: React.FC<IndependentModeDashboardProps> =
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-root') as HTMLElement
       )}
     </div>
   );

@@ -146,11 +146,24 @@
   padding: 0.5rem;
   text-align: center;
   border-bottom: 1px solid var(--accent-color);
+  transition: all 0.2s ease;
+}
+
+.day-header:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .day-column.today .day-header {
   background: var(--gradient-primary);
   color: white;
+}
+
+.day-column.today .day-header:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .day-name {

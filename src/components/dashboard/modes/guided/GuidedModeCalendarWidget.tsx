@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom';
 import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import DateDetailModal from '../../../modals/DateDetailModal';
+import EventCreationModal from '../../../modals/EventCreationModal';
 import './GuidedModeCalendarWidget.css';
 
 export interface CalendarEvent {
@@ -44,6 +45,8 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMonthModal, setShowMonthModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
 
   // Get current week dates (starts on Sunday for guided mode)
   const getWeekDates = () => {
@@ -323,9 +326,27 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
         events={selectedDate ? getEventsForDate(selectedDate) : []}
         onClose={() => setSelectedDate(null)}
         onAddEvent={() => {
-          console.log('Add event clicked');
-          // TODO: Open event creation modal
+          setEventPreselectedDate(selectedDate);
+          setShowEventModal(true);
+          setSelectedDate(null); // Close date detail modal
         }}
+      />
+
+      {/* Event Creation Modal */}
+      <EventCreationModal
+        isOpen={showEventModal}
+        onClose={() => {
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+        }}
+        onSave={(eventData) => {
+          console.log('Event saved:', eventData);
+          // TODO: Save event to database
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+        }}
+        preselectedDate={eventPreselectedDate}
+        familyMembers={[]} // TODO: Pass actual family members
       />
     </div>
   );

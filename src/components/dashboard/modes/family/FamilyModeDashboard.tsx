@@ -19,6 +19,7 @@ import { IndependentModeCalendar } from '../independent/IndependentModeCalendar'
 import DashboardSwitcher from '../../DashboardSwitcher';
 import ManageDashboardsModal from '../../ManageDashboardsModal';
 import DateDetailModal from '../../../modals/DateDetailModal';
+import EventCreationModal from '../../../modals/EventCreationModal';
 import './FamilyModeDashboard.css';
 
 interface FamilyModeDashboardProps {
@@ -37,6 +38,8 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   const [showCalendarSettings, setShowCalendarSettings] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
 
   // Mock data for development - will be replaced with real data from overview
   const mockFamilyMembers = [
@@ -661,9 +664,28 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
         events={[]} // TODO: Get actual events for the selected date
         onClose={() => setSelectedDate(null)}
         onAddEvent={() => {
-          console.log('Add event clicked');
-          // TODO: Open event creation modal
+          setEventPreselectedDate(selectedDate);
+          setShowEventModal(true);
+          setSelectedDate(null); // Close date detail modal
         }}
+      />
+
+      {/* Event Creation Modal */}
+      <EventCreationModal
+        isOpen={showEventModal}
+        onClose={() => {
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+        }}
+        onSave={(eventData) => {
+          console.log('Event saved:', eventData);
+          // TODO: Save event to database
+          setShowEventModal(false);
+          setEventPreselectedDate(null);
+          refresh(); // Refresh dashboard data
+        }}
+        preselectedDate={eventPreselectedDate}
+        familyMembers={mockFamilyMembers}
       />
     </div>
   );

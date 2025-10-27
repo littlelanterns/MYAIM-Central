@@ -297,6 +297,12 @@
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.family-calendar-day-header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .family-calendar-day-header.today {
@@ -304,9 +310,18 @@
   color: white;
 }
 
+.family-calendar-day-header.today:hover {
+  opacity: 0.9;
+}
+
 .family-calendar-day-header.regular {
   background: var(--accent-color);
   color: var(--text-color);
+}
+
+.family-calendar-day-header.regular:hover {
+  background: var(--primary-color);
+  color: white;
 }
 
 .family-calendar-day-name {
