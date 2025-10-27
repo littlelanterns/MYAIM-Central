@@ -4,7 +4,7 @@
  * NO EMOJIS - CSS VARIABLES ONLY - THEME AWARE
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
@@ -20,6 +20,10 @@ import DashboardSwitcher from '../../DashboardSwitcher';
 import ManageDashboardsModal from '../../ManageDashboardsModal';
 import DateDetailModal from '../../../modals/DateDetailModal';
 import EventCreationModal from '../../../modals/EventCreationModal';
+import { EventsService } from '../../../../services/eventsService';
+import { CalendarEvent } from '../../../../types/events.types';
+import { convertModalDataToEventInput } from '../../../../utils/eventHelpers';
+import { supabase } from '../../../../lib/supabase';
 import './FamilyModeDashboard.css';
 
 interface FamilyModeDashboardProps {
@@ -40,6 +44,72 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [currentFamilyId, setCurrentFamilyId] = useState<string | null>(null);
+
+  // Load family ID and events
+  useEffect(() => {
+    const loadFamilyEvents = async () => {
+      if (!familyId) {
+        // Get family ID from current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: memberData } = await supabase
+          .from('family_members')
+          .select('family_id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (memberData) {
+          setCurrentFamilyId(memberData.family_id);
+          const weekEvents = await EventsService.getEventsForFamily(
+            memberData.family_id,
+            getWeekStart(currentWeek),
+            getWeekEnd(currentWeek)
+          );
+          setEvents(weekEvents);
+        }
+      } else {
+        setCurrentFamilyId(familyId);
+        const weekEvents = await EventsService.getEventsForFamily(
+          familyId,
+          getWeekStart(currentWeek),
+          getWeekEnd(currentWeek)
+        );
+        setEvents(weekEvents);
+      }
+    };
+
+    loadFamilyEvents();
+  }, [familyId, currentWeek]);
+
+  const refreshEvents = async () => {
+    if (currentFamilyId) {
+      const weekEvents = await EventsService.getEventsForFamily(
+        currentFamilyId,
+        getWeekStart(currentWeek),
+        getWeekEnd(currentWeek)
+      );
+      setEvents(weekEvents);
+    }
+  };
+
+  // Helper functions for week calculation
+  const getWeekStart = (date: Date) => {
+    const start = new Date(date);
+    const day = start.getDay();
+    const diff = weekStartsOnMonday ? (day === 0 ? -6 : 1 - day) : -day;
+    start.setDate(start.getDate() + diff);
+    start.setHours(0, 0, 0, 0);
+    return start;
+  };
+
+  const getWeekEnd = (date: Date) => {
+    const end = getWeekStart(date);
+    end.setDate(end.getDate() + 7);
+    return end;
+  };
 
   // Mock data for development - will be replaced with real data from overview
   const mockFamilyMembers = [
@@ -189,7 +259,13 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
 
   // Get events for a specific day
   const getEventsForDay = (dayIndex: number) => {
-    return mockEvents.filter(event => event.dayIndex === dayIndex);
+    const targetDate = weekDates[dayIndex];
+    if (!targetDate) return [];
+
+    return events.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.toDateString() === targetDate.toDateString();
+    });
   };
 
   // Get member color
@@ -541,18 +617,27 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                               key={event.id}
                               className="family-calendar-event"
                               style={{
-                                background: getMemberColor(event.memberColor)
+                                background: 'var(--primary-color)',
+                                opacity: 0.9
                               }}
                             >
                               <div className="family-calendar-event-time">
-                                {event.time}
+                                {event.isAllDay
+                                  ? 'All Day'
+                                  : new Date(event.start).toLocaleTimeString('en-US', {
+                                      hour: 'numeric',
+                                      minute: '2-digit'
+                                    })
+                                }
                               </div>
                               <div className="family-calendar-event-title">
                                 {event.title}
                               </div>
-                              <div className="family-calendar-event-member">
-                                {event.memberName}
-                              </div>
+                              {event.location && (
+                                <div className="family-calendar-event-member">
+                                  📍 {event.location}
+                                </div>
+                              )}
                             </div>
                           ))
                         )}
@@ -677,12 +762,45 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
           setShowEventModal(false);
           setEventPreselectedDate(null);
         }}
-        onSave={(eventData) => {
-          console.log('Event saved:', eventData);
-          // TODO: Save event to database
-          setShowEventModal(false);
-          setEventPreselectedDate(null);
-          refresh(); // Refresh dashboard data
+        onSave={async (eventData) => {
+          try {
+            // Get current user/family member ID
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+              alert('You must be logged in to create events');
+              return;
+            }
+
+            const { data: memberData } = await supabase
+              .from('family_members')
+              .select('id, family_id')
+              .eq('auth_user_id', user.id)
+              .single();
+
+            if (!memberData) {
+              alert('Could not find your family member profile');
+              return;
+            }
+
+            const input = convertModalDataToEventInput(eventData);
+            const newEvent = await EventsService.createEvent(
+              input,
+              memberData.id,
+              memberData.family_id
+            );
+
+            if (newEvent) {
+              await refreshEvents();
+              setShowEventModal(false);
+              setEventPreselectedDate(null);
+              refresh(); // Refresh dashboard data
+            } else {
+              alert('Failed to create event. Please try again.');
+            }
+          } catch (error) {
+            console.error('Error creating event:', error);
+            alert('Error creating event. Please try again.');
+          }
         }}
         preselectedDate={eventPreselectedDate}
         familyMembers={mockFamilyMembers}

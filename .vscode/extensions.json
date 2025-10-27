@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    // Tier 1 - Install Now
+    "cweijan.vscode-database-client2",
+    "rangav.vscode-thunder-client",
+    "eamodio.gitlens",
+
+    // Tier 2 - Install Soon
+    "n8n-io.n8n-vscode-extension",
+    "bradlc.vscode-tailwindcss",
+    "dsznajder.es7-react-js-snippets",
+
+    // Tier 3 - Optional
+    "saoudrizwan.claude-dev",
+    "modelcontextprotocol.mcp-vscode-extension",
+
+    // Bonus: Already useful
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

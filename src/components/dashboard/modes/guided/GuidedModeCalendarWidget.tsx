@@ -5,12 +5,14 @@
  * Features: Month/week view, event display, sync ready
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import DateDetailModal from '../../../modals/DateDetailModal';
 import EventCreationModal from '../../../modals/EventCreationModal';
+import { EventsService } from '../../../../services/eventsService';
+import { convertModalDataToEventInput } from '../../../../utils/eventHelpers';
 import './GuidedModeCalendarWidget.css';
 
 export interface CalendarEvent {
@@ -37,7 +39,7 @@ interface GuidedModeCalendarWidgetProps {
 
 export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> = ({
   familyMemberId,
-  events = [],
+  events: propEvents = [],
   onEventClick
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -47,6 +49,35 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>(propEvents);
+  const [familyId, setFamilyId] = useState<string>('');
+
+  // Load family ID and events
+  useEffect(() => {
+    const loadData = async () => {
+      // Get family ID from family member
+      const { data: memberData } = await (await import('../../../../lib/supabase')).supabase
+        .from('family_members')
+        .select('family_id')
+        .eq('id', familyMemberId)
+        .single();
+
+      if (memberData) {
+        setFamilyId(memberData.family_id);
+      }
+
+      // Load events for the week
+      const weekEvents = await EventsService.getWeekEvents(familyMemberId);
+      setEvents(weekEvents);
+    };
+
+    loadData();
+  }, [familyMemberId]);
+
+  const refreshEvents = async () => {
+    const weekEvents = await EventsService.getWeekEvents(familyMemberId);
+    setEvents(weekEvents);
+  };
 
   // Get current week dates (starts on Sunday for guided mode)
   const getWeekDates = () => {
@@ -339,11 +370,22 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
           setShowEventModal(false);
           setEventPreselectedDate(null);
         }}
-        onSave={(eventData) => {
-          console.log('Event saved:', eventData);
-          // TODO: Save event to database
-          setShowEventModal(false);
-          setEventPreselectedDate(null);
+        onSave={async (eventData) => {
+          try {
+            const input = convertModalDataToEventInput(eventData);
+            const newEvent = await EventsService.createEvent(input, familyMemberId, familyId);
+
+            if (newEvent) {
+              await refreshEvents();
+              setShowEventModal(false);
+              setEventPreselectedDate(null);
+            } else {
+              alert('Failed to create event. Please try again.');
+            }
+          } catch (error) {
+            console.error('Error creating event:', error);
+            alert('Error creating event. Please try again.');
+          }
         }}
         preselectedDate={eventPreselectedDate}
         familyMembers={[]} // TODO: Pass actual family members

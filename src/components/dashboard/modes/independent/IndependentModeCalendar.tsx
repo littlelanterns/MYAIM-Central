@@ -11,6 +11,8 @@ import { Calendar } from 'lucide-react';
 import '../independent/IndependentMode.css';
 import DateDetailModal from '../../../modals/DateDetailModal';
 import EventCreationModal from '../../../modals/EventCreationModal';
+import { EventsService } from '../../../../services/eventsService';
+import { convertModalDataToEventInput } from '../../../../utils/eventHelpers';
 import { supabase } from '../../../../lib/supabase';
 
 interface CalendarProps {
@@ -600,11 +602,37 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
           setShowEventModal(false);
           setEventPreselectedDate(null);
         }}
-        onSave={(eventData) => {
-          console.log('Event saved:', eventData);
-          // TODO: Save event to database
-          setShowEventModal(false);
-          setEventPreselectedDate(null);
+        onSave={async (eventData) => {
+          try {
+            const { data: memberData } = await supabase
+              .from('family_members')
+              .select('family_id')
+              .eq('id', familyMemberId)
+              .single();
+
+            if (!memberData) {
+              alert('Could not find family information');
+              return;
+            }
+
+            const input = convertModalDataToEventInput(eventData);
+            const newEvent = await EventsService.createEvent(
+              input,
+              familyMemberId,
+              memberData.family_id
+            );
+
+            if (newEvent) {
+              setShowEventModal(false);
+              setEventPreselectedDate(null);
+              // TODO: Refresh calendar events
+            } else {
+              alert('Failed to create event. Please try again.');
+            }
+          } catch (error) {
+            console.error('Error creating event:', error);
+            alert('Error creating event. Please try again.');
+          }
         }}
         preselectedDate={eventPreselectedDate}
         familyMembers={[]} // TODO: Load actual family members

@@ -61,7 +61,7 @@ From AI beginner to power user in weeks:
 
 ```
 families
-├── subscription_tier (essential, enhanced, full_magic, creator)
+├── subscription_tier (Essential, Enhanced, Full Magic, Creator)
 └── context_privacy_level
 
 family_members
@@ -309,6 +309,8 @@ Your personalized command center with drag-and-drop customization.
 
 ## 📦 Subscription Tiers
 
+**Note:** Tier structure is defined, but subscription enforcement and payment integration are not yet implemented. All features currently accessible during beta.
+
 ### Essential Tier
 - Core tutorials in Library
 - Basic prompt tools
@@ -458,37 +460,109 @@ vercel --prod
 
 ---
 
+## ✅ What's Actually Working Right Now
+
+### Dashboard System
+- **Family Mode Dashboard** - Mom's master view with family overview, task management, calendar, analytics
+- **Independent Mode** - Teen dashboard with calendar, task widget, analytics, best intentions
+- **Guided Mode** - Pre-teen dashboard with task list, calendar, rewards
+- **Play Mode** - Child dashboard with gamified interface
+- **Additional Adult Dashboard** - Granular permission-based access for dads, grandparents, babysitters, tutors
+- **Dashboard switcher** - Easy navigation between all dashboards
+
+### Calendar & Events
+- **Event creation** - Create events with title, description, location, date/time
+- **Recurrence support** - Daily, weekly, monthly, yearly, custom intervals
+- **Family member selection** - Choose who's involved in events
+- **Week view** - See upcoming week at a glance
+- **Month view modal** - Full calendar view in modal
+- **Date detail modal** - View/add events for specific dates
+- **Database persistence** - Events save to Supabase and persist across sessions
+
+### Theme System
+- **26+ themes** - Wide variety of color schemes
+- **Theme categories** - Professional, Fun, Seasonal, Nature, Abstract
+- **CSS variable architecture** - All themes use variables for consistency
+- **Instant switching** - Change themes without page reload
+- **Persistent selection** - Theme choice saves to database
+
+### Family Management
+- **Role-based access** - Primary organizer, parent, additional adult, teen, child
+- **Dashboard mode assignment** - Each member gets appropriate dashboard
+- **Member profiles** - Names, roles, avatars, preferences
+- **Authentication** - Secure login with Supabase Auth
+
+### Permission System (Additional Adults)
+- **16 granular permissions** - View/edit tasks, calendar, family data, reports, etc.
+- **Permission indicators** - Visual display of access level
+- **Permission gates** - UI components hide/show based on permissions
+- **Extensive/Moderate/Limited/None** - Permission level categories
+
+### Tasks & Productivity
+- **Task creation** - Title, description, due date, priority, assignee
+- **Task list display** - View assigned tasks
+- **Victory recorder** - Log accomplishments
+- **Tracker templates** - Pre-built habit trackers
+
+### What's NOT Working Yet
+- ❌ LiLa AI systems (Optimizer, Assist, Help)
+- ❌ Archives file management (folders exist, but no file upload/storage)
+- ❌ Context export functionality
+- ❌ Library tutorial content (structure exists, minimal content)
+- ❌ Best Intentions full integration (exists but not wired up everywhere)
+- ❌ Multi-AI panel
+- ❌ Automation features
+- ❌ Subscription tier enforcement
+- ❌ Payment integration
+
+---
+
 ## 📈 Roadmap
 
-### Phase 1: Beta Launch (Current)
-- ✅ Best Intentions system
-- ✅ Basic Archives
-- 🔨 Library browsing (in progress)
-- 🔨 LiLa prompt crafting (in progress)
+### Phase 1: Beta Launch (Current - Active Development)
+- ✅ Multi-mode dashboard system (Family, Personal, Play, Guided, Independent, Additional Adult)
+- ✅ Calendar system with events (create, view, recurrence support)
+- ✅ Theme system (26+ themes with dynamic CSS variables)
+- ✅ Family member management with role-based access
+- ✅ Permission system for additional adults (16 granular permissions)
+- ✅ Task creation and management (basic)
+- ✅ Victory recorder (basic)
+- ✅ Tracker templates
+- 🔨 Best Intentions system (structure exists, needs full integration)
+- 🔨 Archives system (structure exists, needs file management)
+- 🔨 Library browsing (basic structure exists)
+- 📋 LiLa prompt crafting (planned, not started)
+- 📋 Context export functionality (planned)
 
-### Phase 2: Enhanced Context
-- Context presets/scenes
-- Smart suggestions
-- Progress tracking
-- Version history
+### Phase 2: Enhanced Context (Planned)
+- 📋 Full Archives folder system with file upload
+- 📋 Context checkboxes for AI usage control
+- 📋 Auto-generated overview cards
+- 📋 Context presets/scenes
+- 📋 Smart suggestions
+- 📋 Progress tracking
+- 📋 Version history
 
-### Phase 3: Advanced AI
-- Multi-AI panel
-- Platform-specific optimization
-- Automation workflows
-- Advanced integrations
+### Phase 3: Advanced AI (Future)
+- 📋 LiLa Optimizer (context-aware prompts)
+- 📋 LiLa Assist (in-app help)
+- 📋 LiLa Help (educational AI literacy)
+- 📋 Multi-AI panel
+- 📋 Platform-specific optimization
+- 📋 Automation workflows
+- 📋 Advanced integrations
 
-### Phase 4: Custom Models (Upsell)
-- Train on family photos
-- Custom image generation codes
-- Voice cloning
-- Personalized AI models
+### Phase 4: Custom Models (Upsell - Future)
+- 📋 Train on family photos
+- 📋 Custom image generation codes
+- 📋 Voice cloning
+- 📋 Personalized AI models
 
-### Phase 5: Creator Economy
-- Tool marketplace
-- Template selling
-- Revenue sharing
-- White-label options
+### Phase 5: Creator Economy (Future)
+- 📋 Tool marketplace
+- 📋 Template selling
+- 📋 Revenue sharing
+- 📋 White-label options
 
 ---
 
@@ -583,10 +657,11 @@ Built with love for modern families who want to amplify their brilliance using A
 
 ## 📊 Current Status
 
-- **Version:** Beta v1.0
-- **Status:** Active Development
-- **Last Updated:** 2025-10-17
-- **Next Milestone:** Library Vault completion + LiLa integration
+- **Version:** Beta v0.5 (Pre-Launch)
+- **Status:** Core Infrastructure Complete, Feature Integration Ongoing
+- **Last Updated:** 2025-01-26
+- **Current Focus:** Calendar events system, dashboard functionality testing
+- **Next Milestone:** Complete event loading/display, add test family members, begin Archives integration
 
 ---
 
