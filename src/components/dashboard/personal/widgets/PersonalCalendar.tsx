@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { IndependentModeCalendar } from '../../modes/independent/IndependentModeCalendar';
 import './PersonalCalendar.css';
@@ -193,7 +194,7 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
       </div>
 
       {/* Full Month Modal */}
-      {showMonthModal && (
+      {showMonthModal && ReactDOM.createPortal(
         <div
           className="calendar-modal-overlay"
           onClick={() => setShowMonthModal(false)}
@@ -225,7 +226,8 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.getElementById('modal-root') as HTMLElement
       )}
     </>
   );
