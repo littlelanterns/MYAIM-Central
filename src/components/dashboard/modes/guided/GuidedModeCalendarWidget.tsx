@@ -36,20 +36,18 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month'>('week');
-  const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMonthModal, setShowMonthModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // Get current week dates
+  // Get current week dates (starts on Sunday for guided mode)
   const getWeekDates = () => {
     const week: Date[] = [];
     const startOfWeek = new Date(currentDate);
     const dayOfWeek = startOfWeek.getDay();
 
-    // Adjust for Monday start
-    const offset = weekStartsOnMonday ? (dayOfWeek === 0 ? 6 : dayOfWeek - 1) : dayOfWeek;
-    startOfWeek.setDate(startOfWeek.getDate() - offset);
+    // Start on Sunday
+    startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
@@ -57,35 +55,6 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
       week.push(date);
     }
     return week;
-  };
-
-  // Get month calendar dates (6 weeks grid)
-  const getMonthDates = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    // First day of month
-    const firstDay = new Date(year, month, 1);
-    const firstDayOfWeek = firstDay.getDay();
-
-    // Adjust for Monday start
-    const startOffset = weekStartsOnMonday
-      ? (firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1)
-      : firstDayOfWeek;
-
-    // Start date (might be in previous month)
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - startOffset);
-
-    // Generate 6 weeks (42 days)
-    const dates: Date[] = [];
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
-      dates.push(date);
-    }
-
-    return dates;
   };
 
   // Get events for a specific date

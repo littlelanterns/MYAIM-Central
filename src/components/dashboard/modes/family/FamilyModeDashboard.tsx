@@ -4,10 +4,10 @@
  * NO EMOJIS - CSS VARIABLES ONLY - THEME AWARE
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { useFamilyDashboard } from '../../../../hooks/dashboard/useFamilyDashboard';
 import { familyMemberColors } from '../../../../styles/colors';
 import FamilyOverviewWidget from './FamilyOverviewWidget';
