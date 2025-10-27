@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { IndependentModeCalendar } from '../../modes/independent/IndependentModeCalendar';
+import DateDetailModal from '../../../modals/DateDetailModal';
 import './PersonalCalendar.css';
 
 interface PersonalCalendarProps {
@@ -19,6 +20,7 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [showMonthModal, setShowMonthModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Week navigation
   const handlePreviousWeek = () => {
@@ -176,7 +178,12 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
                 key={day}
                 className="calendar-day-column"
               >
-                <div className={`calendar-day-header ${isToday ? 'today' : 'regular'}`}>
+                <div
+                  className={`calendar-day-header ${isToday ? 'today' : 'regular'}`}
+                  onClick={() => setSelectedDate(weekDates[index])}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to view day details"
+                >
                   <div className="calendar-day-name">{day}</div>
                   <div className="calendar-day-number">
                     {weekDates[index].getDate()}
@@ -229,6 +236,17 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
         </div>,
         document.getElementById('modal-root') as HTMLElement
       )}
+
+      {/* Date Detail Modal */}
+      <DateDetailModal
+        date={selectedDate}
+        events={[]} // TODO: Get actual events for the selected date
+        onClose={() => setSelectedDate(null)}
+        onAddEvent={() => {
+          console.log('Add event clicked');
+          // TODO: Open event creation modal
+        }}
+      />
     </>
   );
 };

@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Calendar } from 'lucide-react';
 import '../independent/IndependentMode.css';
 import DateDetailModal from '../../../modals/DateDetailModal';
@@ -592,8 +593,8 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
     return calendarContent;
   }
 
-  // Otherwise, render with our own modal wrapper
-  return (
+  // Otherwise, render with our own modal wrapper using React Portal
+  return ReactDOM.createPortal(
     <div
       style={{
         position: 'fixed',
@@ -672,7 +673,8 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
           {calendarContent}
         </div>
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root') as HTMLElement
   );
 };
 

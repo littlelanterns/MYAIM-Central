@@ -18,6 +18,7 @@ import TaskCreationModal from '../../../tasks/TaskCreationModal';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import DashboardSwitcher from '../../DashboardSwitcher';
 import ManageDashboardsModal from '../../ManageDashboardsModal';
+import DateDetailModal from '../../../modals/DateDetailModal';
 import './FamilyModeDashboard.css';
 
 interface FamilyModeDashboardProps {
@@ -35,6 +36,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   const [weekStartsOnMonday, setWeekStartsOnMonday] = useState(false);
   const [showCalendarSettings, setShowCalendarSettings] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Mock data for development - will be replaced with real data from overview
   const mockFamilyMembers = [
@@ -207,7 +209,8 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
   };
 
   const handleToday = () => {
-    setCurrentWeek(new Date());
+    // Open date detail modal for today
+    setSelectedDate(new Date());
   };
 
   // Event handlers
@@ -513,7 +516,12 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                       key={day}
                       className="family-calendar-day-column"
                     >
-                      <div className={`family-calendar-day-header ${isToday ? 'today' : 'regular'}`}>
+                      <div
+                        className={`family-calendar-day-header ${isToday ? 'today' : 'regular'}`}
+                        onClick={() => setSelectedDate(weekDates[index])}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to view day details"
+                      >
                         <div className="family-calendar-day-name">{day}</div>
                         <div className="family-calendar-day-number">
                           {weekDates[index].getDate()}
@@ -645,6 +653,17 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
       <ManageDashboardsModal
         isOpen={showManageDashboards}
         onClose={() => setShowManageDashboards(false)}
+      />
+
+      {/* Date Detail Modal */}
+      <DateDetailModal
+        date={selectedDate}
+        events={[]} // TODO: Get actual events for the selected date
+        onClose={() => setSelectedDate(null)}
+        onAddEvent={() => {
+          console.log('Add event clicked');
+          // TODO: Open event creation modal
+        }}
       />
     </div>
   );
