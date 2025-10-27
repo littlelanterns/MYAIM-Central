@@ -16,8 +16,13 @@ export interface CalendarEvent {
   id: string;
   title: string;
   description?: string;
-  startTime: Date;
-  endTime?: Date;
+  start: Date;
+  end: Date;
+  type: 'task' | 'event' | 'deadline' | 'reminder';
+  category?: string;
+  isAllDay: boolean;
+  isRecurring?: boolean;
+  priority?: 'low' | 'medium' | 'high';
   location?: string;
   color?: string;
   source?: 'family' | 'google' | 'mindsweep';
@@ -60,7 +65,7 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   // Get events for a specific date
   const getEventsForDate = (date: Date) => {
     return events.filter(event => {
-      const eventDate = new Date(event.startTime);
+      const eventDate = new Date(event.start);
       return eventDate.toDateString() === date.toDateString();
     });
   };
@@ -244,7 +249,7 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
                         >
                           <div className="event-time">
                             <Clock size={12} />
-                            {new Date(event.startTime).toLocaleTimeString('en-US', {
+                            {new Date(event.start).toLocaleTimeString('en-US', {
                               hour: 'numeric',
                               minute: '2-digit'
                             })}
