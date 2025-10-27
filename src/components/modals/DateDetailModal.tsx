@@ -40,7 +40,7 @@ export const DateDetailModal: React.FC<DateDetailModalProps> = ({
   onDeleteEvent,
   onDateChange
 }) => {
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(true);
 
   if (!date) return null;
 
