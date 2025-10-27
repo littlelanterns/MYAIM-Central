@@ -17,6 +17,7 @@ interface PersonalCalendarProps {
 const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [showMonthModal, setShowMonthModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Week navigation
   const handlePreviousWeek = () => {
@@ -30,6 +31,35 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
     newWeek.setDate(newWeek.getDate() + 7);
     setCurrentWeek(newWeek);
   };
+
+  // Date picker handlers
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setMonth(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setDate(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentWeek);
+    newDate.setFullYear(parseInt(e.target.value));
+    setCurrentWeek(newDate);
+  };
+
+  // Generate options for date picker
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const daysInMonth = new Date(currentWeek.getFullYear(), currentWeek.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   // Get week dates
   const getWeekDates = () => {
@@ -58,6 +88,13 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
           <div className="calendar-controls">
             <div className="calendar-week-nav">
               <button
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="calendar-nav-button"
+                title="Jump to date"
+              >
+                <CalendarIcon size={16} />
+              </button>
+              <button
                 onClick={handlePreviousWeek}
                 className="calendar-nav-button"
               >
@@ -83,6 +120,50 @@ const PersonalCalendar: React.FC<PersonalCalendarProps> = ({ familyMemberId }) =
             </button>
           </div>
         </div>
+
+        {/* Date Picker Dropdowns - Shows below header when toggled */}
+        {showDatePicker && (
+          <div className="personal-calendar-date-picker">
+            <select
+              className="personal-date-select personal-month-select"
+              value={currentWeek.getMonth()}
+              onChange={handleMonthChange}
+              aria-label="Select month"
+            >
+              {months.map((month, index) => (
+                <option key={index} value={index}>
+                  {month}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="personal-date-select personal-day-select"
+              value={currentWeek.getDate()}
+              onChange={handleDayChange}
+              aria-label="Select day"
+            >
+              {days.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="personal-date-select personal-year-select"
+              value={currentWeek.getFullYear()}
+              onChange={handleYearChange}
+              aria-label="Select year"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Calendar grid */}
         <div className="calendar-week-grid">

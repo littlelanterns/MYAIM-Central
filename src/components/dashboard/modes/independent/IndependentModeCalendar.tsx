@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { Calendar } from 'lucide-react';
 import '../independent/IndependentMode.css';
 import DateDetailModal from '../../../modals/DateDetailModal';
 import { supabase } from '../../../../lib/supabase';
@@ -437,7 +438,7 @@ export const IndependentModeCalendar: React.FC<CalendarProps> = ({
             className="independent-nav-btn"
             title="Jump to date"
           >
-            📅
+            <Calendar size={18} />
           </button>
           <button onClick={goToPreviousMonth} className="independent-nav-btn">
             ←
