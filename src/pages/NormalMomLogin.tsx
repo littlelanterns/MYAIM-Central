@@ -120,7 +120,7 @@ const NormalMomLogin = () => {
 
       // Step 7: Redirect to Command Center
       console.log('Login successful, redirecting to command center');
-      navigate('/command-center');
+      navigate('/commandcenter');
 
     } catch (err: any) {
       console.error('Login error:', err);

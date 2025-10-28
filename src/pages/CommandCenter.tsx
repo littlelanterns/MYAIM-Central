@@ -27,21 +27,21 @@ type CommandCenterAction = PageAction | ModalAction;
 const commandCenterActions: CommandCenterAction[] = [
   {
     type: 'page',
-    path: '/family-dashboard',
+    path: 'family-dashboard',
     title: 'DASHBOARD',
     subtitle: 'Family Dashboard',
     description: 'Your family command center where chaos becomes coordination. Create tasks (or opportunities!), track progress, celebrate victories, and keep everyone moving forward together.'
   },
   {
     type: 'page',
-    path: '/library',
+    path: 'library',
     title: 'LIBRARY',
     subtitle: 'AI Learning Library',
     description: 'Discover AI tools, prompts, and tutorials built to amplify what you already do amazingly. This isn\'t just about making life easier—it\'s about giving moms a voice in shaping how AI impacts our families, our kids, and our future. Browse, optimize with LiLa™, and master skills that matter.'
   },
   {
     type: 'page',
-    path: '/family-archive',
+    path: 'family-archive',
     title: 'ARCHIVE',
     subtitle: 'Your Archives',
     description: 'Your beautiful context vault for all those open tabs in your mom brain. Create folders for anything—family members, projects, recipes, whatever matters. Carry your context with you to any AI tool, and control exactly what AI knows about your family.'
@@ -78,9 +78,9 @@ const CommandCenter: FC = () => {
       if (action.actionId === 'best_intentions') {
         setBestIntentionsOpen(true);
       } else if (action.actionId === 'inner_oracle') {
-        navigate('/inner-oracle');
+        navigate('inner-oracle');
       } else if (action.actionId === 'mindsweep') {
-        navigate('/mindsweep');
+        navigate('mindsweep');
       }
     }
   };

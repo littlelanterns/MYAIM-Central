@@ -36,7 +36,7 @@ export const ManageDashboardsModal: React.FC<ManageDashboardsModalProps> = ({ is
       description: 'Create a new family member dashboard',
       icon: <UserPlus size={24} />,
       action: () => {
-        navigate('/command-center?tab=family');
+        navigate('/commandcenter?tab=family');
         onClose();
       },
       available: true
@@ -47,7 +47,7 @@ export const ManageDashboardsModal: React.FC<ManageDashboardsModalProps> = ({ is
       description: 'Update family member settings',
       icon: <Edit3 size={24} />,
       action: () => {
-        navigate('/command-center?tab=family');
+        navigate('/commandcenter?tab=family');
         onClose();
       },
       available: true

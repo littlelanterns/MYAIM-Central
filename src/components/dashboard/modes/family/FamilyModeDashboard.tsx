@@ -294,11 +294,11 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
 
   // Event handlers
   const handleViewMember = (memberId: string) => {
-    navigate(`/member/${memberId}`);
+    navigate(`/commandcenter/member/${memberId}`);
   };
 
   const handleManageFamily = () => {
-    navigate('/command-center?tab=family');
+    navigate('/commandcenter?tab=family');
   };
 
   const handlePreviousWeek = () => {

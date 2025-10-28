@@ -4,6 +4,10 @@ import { SubfolderGrid } from '../components/archives/SubfolderGrid';
 import { CreateSubfolderModal } from '../components/archives/CreateSubfolderModal';
 import { archivesService } from '../lib/archivesService';
 import type { ArchiveFolder } from '../types/archives';
+import {
+  GoldThumbtack,
+  CrayonStar
+} from '../components/decorations/ScrapbookDecorations';
 
 export default function Archives() {
   const [masterFolders, setMasterFolders] = useState<ArchiveFolder[]>([]);
@@ -198,23 +202,72 @@ export default function Archives() {
     );
   }
 
+  // Use gold thumbtack for all cards
+  const getThumbtack = () => {
+    return GoldThumbtack;
+  };
+
   return (
     <div style={styles.container}>
+      {/* Page title */}
       <h1 style={styles.pageTitle}>Archives</h1>
 
       <div style={styles.gridContainer}>
-        {masterFolders.map((master) => {
+        {masterFolders.map((master, index) => {
           const displayInfo = getFolderDisplayInfo(master.folder_type);
           const isExpanded = expandedMaster === master.id;
           const folderSubfolders = subfolders[master.id] || [];
+          const Thumbtack = getThumbtack();
+
+          // Slight rotation for scrapbook feel
+          const rotation = [-2, 1, -1, 2][index % 4];
 
           return (
-            <div key={master.id}>
+            <div key={master.id} style={{ position: 'relative' }}>
+              {/* Thumbtack pinning the card */}
+              <Thumbtack
+                size={45}
+                rotation={rotation * 3}
+                style={{
+                  position: 'absolute',
+                  top: -15,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 10,
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                }}
+              />
+
+              {/* Add a star accent on some cards */}
+              {index % 3 === 0 && (
+                <CrayonStar
+                  size={40}
+                  rotation={index * 20}
+                  style={{
+                    position: 'absolute',
+                    bottom: 10,
+                    right: 10,
+                    opacity: 0.6,
+                    zIndex: 1
+                  }}
+                />
+              )}
+
               <div
-                style={styles.card}
+                style={{
+                  ...styles.card,
+                  transform: `rotate(${rotation}deg)`,
+                  transition: 'all 0.3s ease'
+                }}
                 onClick={() => handleMasterClick(master.id)}
-                onMouseOver={handleMouseOver}
-                onMouseOut={handleMouseOut}
+                onMouseOver={(e) => {
+                  handleMouseOver(e);
+                  e.currentTarget.style.transform = `rotate(0deg) translateY(-8px) scale(1.02)`;
+                }}
+                onMouseOut={(e) => {
+                  handleMouseOut(e);
+                  e.currentTarget.style.transform = `rotate(${rotation}deg) translateY(0) scale(1)`;
+                }}
               >
                 <h2 style={styles.cardTitle}>{displayInfo.title}</h2>
                 <h3 style={styles.cardSubtitle}>{displayInfo.subtitle}</h3>

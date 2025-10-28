@@ -1,6 +1,25 @@
 /* src/styles/global.css - Updated with comprehensive theme fixes */
 
 /* ========================================
+   BASE HTML & BODY - ENSURE SCROLLING WORKS
+   ======================================== */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto !important;
+  overflow-y: scroll !important;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  overflow: auto;
+}
+
+/* ========================================
    THEME VARIABLES - Core theme system
    ======================================== */
 

@@ -1,6 +1,7 @@
 // src/components/ui/SmartNotepad.jsx - UPDATED to be self-contained
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Bold, Italic, Underline, List, ListOrdered, Plus, X } from 'lucide-react';
+import { ClipboardClip } from '../decorations/ScrapbookDecorations';
 import './SmartNotepad.css';
 
 // THE FIX: We remove all props from the definition.
@@ -136,6 +137,19 @@ const SmartNotepad = () => {
 
   return (
     <div className="clipboard-container">
+      {/* Clipboard clip decoration at the top */}
+      <ClipboardClip
+        size={130}
+        rotation={0}
+        style={{
+          position: 'absolute',
+          top: -77,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 20,
+          filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.3))'
+        }}
+      />
       {/* All the JSX from here down is perfect, no changes needed */}
       <div className="clipboard-paper">
         <div className="document-sections">

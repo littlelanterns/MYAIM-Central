@@ -171,16 +171,16 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   const handleNavigation = (actionId) => {
     switch (actionId) {
       case 'command-center':
-        navigate('/command-center');
+        navigate('/commandcenter');
         break;
       case 'personal-dashboard':
-        navigate('/dashboard/personal');
+        navigate('/commandcenter/dashboard/personal');
         break;
       case 'family-dashboard':
-        navigate('/dashboard/family');
+        navigate('/commandcenter/family-dashboard');
         break;
       case 'family-setup':
-        navigate('/family-setup');
+        navigate('/commandcenter/family-setup');
         break;
       // ARCHIVED: aim-admin navigation removed (access directly via /aim-admin URL)
       default:

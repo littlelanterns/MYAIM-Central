@@ -5,6 +5,7 @@ import { ModalProvider } from './contexts/ModalContext.tsx';
 import { FeedbackProvider } from './contexts/FeedbackContext.jsx';
 import { AuthProvider } from './components/auth/shared/AuthContext.tsx';
 import MainLayout from './layouts/MainLayout.tsx';
+import MarketingLayout from './layouts/MarketingLayout.tsx';
 import CommandCenter from './pages/CommandCenter.tsx';
 import FamilyDashboard from './pages/FamilyDashboard.tsx';
 // Removed - use play/guided/independent modes instead
@@ -29,6 +30,12 @@ import PersonalDashboard from './components/dashboard/personal/PersonalDashboard
 import MemberDashboard from './pages/MemberDashboard.tsx';
 import AdditionalAdultDashboard from './components/dashboard/additional-adult/AdditionalAdultDashboard.tsx';
 import DashboardPreview from './pages/DashboardPreview.tsx';
+import Home from './pages/marketing/Home.tsx';
+import Pricing from './pages/marketing/Pricing.tsx';
+import About from './pages/marketing/About.tsx';
+import BetaSignup from './pages/marketing/BetaSignup.tsx';
+import Articles from './pages/marketing/Articles.tsx';
+import ArticleDetail from './pages/marketing/ArticleDetail.tsx';
 import './styles/global.css';
 
 function App() {
@@ -39,6 +46,16 @@ function App() {
           <Router>
             <div className="App">
             <Routes>
+              {/* Marketing Site Routes (Public) */}
+              <Route path="/" element={<MarketingLayout />}>
+                <Route index element={<Home />} />
+                <Route path="about" element={<About />} />
+                <Route path="articles" element={<Articles />} />
+                <Route path="articles/:slug" element={<ArticleDetail />} />
+                <Route path="pricing" element={<Pricing />} />
+                <Route path="beta-signup" element={<BetaSignup />} />
+              </Route>
+
               {/* Login Routes - 3 Different Entry Points */}
               <Route path="/login" element={<NormalMomLogin />} />
               <Route path="/admin" element={<AdminLogin />} />
@@ -57,7 +74,7 @@ function App() {
               {/* <Route path="/child-dashboard" element={<ChildDashboard />} /> */}
               
               {/* Main App Routes - With MainLayout */}
-              <Route path="/" element={<MainLayout />}>
+              <Route path="/commandcenter" element={<MainLayout />}>
                 <Route index element={<CommandCenter />} />
                 <Route path="command-center" element={<CommandCenter />} />
                 <Route path="family-dashboard" element={<FamilyDashboard />} />
