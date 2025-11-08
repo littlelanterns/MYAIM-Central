@@ -39,3 +39,6 @@ supabase/.temp/
 
 # Development archive
 dev-archive/
+
+# Claude Code local settings
+.claude/settings.local.json

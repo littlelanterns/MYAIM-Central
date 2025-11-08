@@ -12,6 +12,7 @@ interface FolderCardProps {
 export function FolderCard({ folder, onClick, onRefresh }: FolderCardProps) {
   const [contextItems, setContextItems] = useState<ArchiveContextItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     loadContextItems();
@@ -45,38 +46,92 @@ export function FolderCard({ folder, onClick, onRefresh }: FolderCardProps) {
   ).length || 0;
   const completeness = Math.round((filledFields / totalFields) * 100);
 
+  const styles: Record<string, React.CSSProperties> = {
+    card: {
+      position: 'relative',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+      boxShadow: isHovered
+        ? '0 20px 40px rgba(0,0,0,0.2)'
+        : '0 4px 12px rgba(0,0,0,0.1)'
+    },
+    background: {
+      position: 'relative',
+      paddingBottom: '100%', // aspect-square
+      width: '100%',
+      background: folder.cover_photo_url
+        ? 'none'
+        : `linear-gradient(135deg, ${folder.color_hex || '#68a395'} 0%, ${adjustColor(folder.color_hex || '#68a395', -20)} 100%)`
+    },
+    image: {
+      position: 'absolute' as const,
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const
+    },
+    hoverOverlay: {
+      position: 'absolute' as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: isHovered ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0)',
+      transition: 'background 0.3s ease'
+    },
+    nameOverlay: {
+      position: 'absolute' as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+      padding: '1rem'
+    },
+    name: {
+      color: 'white',
+      fontWeight: '600',
+      fontSize: '1.125rem',
+      margin: 0
+    },
+    completion: {
+      color: 'rgba(255,255,255,0.8)',
+      fontSize: '0.875rem',
+      marginTop: '0.25rem',
+      margin: 0
+    }
+  };
+
   return (
     <div
       onClick={onClick}
-      className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={styles.card}
     >
       {/* Photo or Gradient Background */}
-      <div
-        className="relative aspect-square w-full"
-        style={{
-          background: folder.cover_photo_url
-            ? 'none'
-            : `linear-gradient(135deg, ${folder.color_hex || '#68a395'} 0%, ${adjustColor(folder.color_hex || '#68a395', -20)} 100%)`
-        }}
-      >
-        {folder.cover_photo_url ? (
+      <div style={styles.background}>
+        {folder.cover_photo_url && (
           <img
             src={folder.cover_photo_url}
             alt={folder.folder_name}
-            className="w-full h-full object-cover"
+            style={styles.image}
           />
-        ) : null}
+        )}
 
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+        <div style={styles.hoverOverlay} />
 
         {/* Name Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-          <h3 className="text-white font-semibold text-lg">
+        <div style={styles.nameOverlay}>
+          <h3 style={styles.name}>
             {folder.folder_name}
           </h3>
           {folder.folder_type === 'family_member' && !loading && (
-            <p className="text-white/80 text-sm mt-1">
+            <p style={styles.completion}>
               {completeness >= 80 ? '✨ Complete' : `${completeness}% complete`}
             </p>
           )}

@@ -349,11 +349,47 @@ Your personalized command center with drag-and-drop customization.
 
 ---
 
+## 🌐 Marketing Site (aimagicformoms.com)
+
+**New:** Integrated marketing site for public-facing content and beta signups.
+
+### Public Pages
+- **/** - Home page with hero, testimonials, stats, pricing preview
+- **/about** - Founder story, mission, meet LiLa
+- **/articles** - Article grid ("Strategies & Snippets")
+- **/articles/[slug]** - Individual article with reactions and comments
+- **/pricing** - Full pricing comparison with FAQ
+- **/beta-signup** - Self-service beta enrollment (creates founding family status)
+
+### Admin Pages (Authenticated)
+- **/commandcenter/admin/articles** - Article CRUD with AI hook/title generation
+- **/commandcenter/admin/testimonials** - Testimonial management with image upload
+
+### Key Features
+- **Founding Family System** - First 100 paid subscribers get locked pricing forever:
+  - Essential: $7.99/mo (vs $9.99)
+  - Enhanced: $13.99/mo (vs $16.99)
+  - Full Magic: $21.99/mo (vs $24.99)
+  - Creator: $34.99/mo (vs $39.99)
+- **Article Reactions** - Heart, lightbulb, target reactions (no smiley)
+- **Testimonials** - Polaroid-style cards with handwriting fonts
+- **Beta Signup** - Self-service with auto founding family status
+- **AI Content Generation** - Hook and title suggestions for articles/testimonials
+
+### Database Tables (Migration 024)
+- `articles` - Blog content (called "Strategies & Snippets" publicly)
+- `testimonials` - Customer testimonials with polaroid styling
+- `article_comments` - Threaded comments on articles
+- `article_reactions` - Heart/lightbulb/target reactions
+- `families.is_founding_family` - Founding family tracking columns
+
+---
+
 ## 🚀 Getting Started
 
 ### For New Users
 
-1. **Sign Up** - Create your account through beta login
+1. **Sign Up** - Create your account through beta login at /beta-signup
 2. **Family Setup** - Add family members with roles
 3. **Create First Best Intention** - Define what matters to your family
 4. **Organize Archives** - Create folders for family members and interests
@@ -657,11 +693,11 @@ Built with love for modern families who want to amplify their brilliance using A
 
 ## 📊 Current Status
 
-- **Version:** Beta v0.5 (Pre-Launch)
-- **Status:** Core Infrastructure Complete, Feature Integration Ongoing
-- **Last Updated:** 2025-01-26
-- **Current Focus:** Calendar events system, dashboard functionality testing
-- **Next Milestone:** Complete event loading/display, add test family members, begin Archives integration
+- **Version:** Beta v0.6 (Pre-Launch + Marketing Site)
+- **Status:** Core Infrastructure Complete, Marketing Site In Progress
+- **Last Updated:** 2025-10-27
+- **Current Focus:** Marketing site development (aimagicformoms.com)
+- **Next Milestone:** Complete marketing pages, article system, testimonials, beta signup flow
 
 ---
 

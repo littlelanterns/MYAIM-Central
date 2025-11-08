@@ -105,9 +105,105 @@ export function SubfolderGrid({
     setDraggedIndex(null);
   }
 
+  // Smart column calculation: find best fit for 1, 2, 3, or 4 columns
+  // Prefer LARGEST remainder to avoid lonely single cards at the bottom
+  function getOptimalColumns() {
+    const count = localFolders.length;
+    if (count === 0) return 3;
+    if (count === 1) return 1;
+    if (count === 2) return 2;
+
+    // Calculate remainders for each option
+    const options = [
+      { cols: 4, remainder: count % 4 },
+      { cols: 3, remainder: count % 3 },
+      { cols: 2, remainder: count % 2 }
+    ];
+
+    // First check if any option divides evenly (remainder = 0)
+    const perfectDivision = options.find(opt => opt.remainder === 0);
+    if (perfectDivision) return perfectDivision.cols;
+
+    // Otherwise, sort by remainder (descending - largest first), then by columns (descending)
+    options.sort((a, b) => {
+      if (a.remainder !== b.remainder) return b.remainder - a.remainder; // Largest remainder wins
+      return b.cols - a.cols; // Prefer higher column count on tie
+    });
+
+    return options[0].cols;
+  }
+
+  const styles: Record<string, React.CSSProperties> = {
+    grid: {
+      display: 'grid',
+      gridTemplateColumns: `repeat(${getOptimalColumns()}, 1fr)`,
+      gap: '1.5rem'
+    },
+    dragItem: {
+      transition: 'opacity 0.2s'
+    },
+    addButton: {
+      position: 'relative',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      background: 'linear-gradient(135deg, rgba(104,163,149,0.1), rgba(104,163,149,0.05))',
+      border: '2px dashed rgba(104,163,149,0.3)',
+      paddingBottom: '100%', // aspect-square
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    addButtonContent: {
+      position: 'absolute' as const,
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      textAlign: 'center' as const,
+      width: '100%',
+      padding: '1rem'
+    },
+    addIcon: {
+      fontSize: '4rem',
+      color: 'var(--primary-color, #68a395)',
+      marginBottom: '1rem'
+    },
+    addTitle: {
+      fontSize: '1.125rem',
+      fontWeight: '600',
+      color: 'var(--primary-color, #68a395)',
+      marginBottom: '0.5rem'
+    },
+    addSubtitle: {
+      fontSize: '0.875rem',
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.7
+    },
+    emptyState: {
+      gridColumn: '1 / -1',
+      textAlign: 'center' as const,
+      padding: '3rem',
+      background: 'white',
+      borderRadius: '12px'
+    },
+    emptyText: {
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.6,
+      fontSize: '1.125rem',
+      margin: 0
+    },
+    emptySubtext: {
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.4,
+      fontSize: '0.875rem',
+      marginTop: '0.5rem'
+    }
+  };
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div style={styles.grid}>
         {/* Existing Subfolders */}
         {localFolders.map((folder, index) => (
           <div
@@ -116,7 +212,10 @@ export function SubfolderGrid({
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
-            className={`transition-opacity ${draggedIndex === index ? 'opacity-50' : 'opacity-100'}`}
+            style={{
+              ...styles.dragItem,
+              opacity: draggedIndex === index ? 0.5 : 1
+            }}
           >
             <FolderCard
               folder={folder}
@@ -130,14 +229,14 @@ export function SubfolderGrid({
         {isFamilyMaster && (
           <div
             onClick={() => setShowAddMember(true)}
-            className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-[#68a395]/10 to-[#68a395]/5 border-2 border-dashed border-[#68a395]/30 hover:border-[#68a395] aspect-square flex items-center justify-center"
+            style={styles.addButton}
           >
-            <div className="text-center">
-              <div className="text-6xl text-[#68a395] mb-3">⊕</div>
-              <p className="text-lg font-semibold text-[#68a395] mb-1">
+            <div style={styles.addButtonContent}>
+              <div style={styles.addIcon}>⊕</div>
+              <p style={styles.addTitle}>
                 Add Family Member
               </p>
-              <p className="text-sm text-gray-600 px-4">
+              <p style={styles.addSubtitle}>
                 Add someone to your family
               </p>
             </div>
@@ -148,14 +247,14 @@ export function SubfolderGrid({
         {canCreateCustom && (
           <div
             onClick={onCreateNew}
-            className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-2xl hover:scale-105 bg-gradient-to-br from-[#68a395]/10 to-[#68a395]/5 border-2 border-dashed border-[#68a395]/30 hover:border-[#68a395] aspect-square flex items-center justify-center"
+            style={styles.addButton}
           >
-            <div className="text-center">
-              <div className="text-6xl text-[#68a395] mb-3">⊕</div>
-              <p className="text-lg font-semibold text-[#68a395] mb-1">
+            <div style={styles.addButtonContent}>
+              <div style={styles.addIcon}>⊕</div>
+              <p style={styles.addTitle}>
                 Add New
               </p>
-              <p className="text-sm text-gray-600 px-4">
+              <p style={styles.addSubtitle}>
                 Create a custom folder
               </p>
             </div>
@@ -163,18 +262,18 @@ export function SubfolderGrid({
         )}
 
         {/* Empty State */}
-        {subfolders.length === 0 && !canCreateCustom && (
-          <div className="col-span-full text-center py-12 bg-white rounded-xl">
-            <p className="text-gray-500 text-lg">
+        {subfolders.length === 0 && !canCreateCustom && !isFamilyMaster && (
+          <div style={styles.emptyState}>
+            <p style={styles.emptyText}>
               No folders yet
             </p>
             {masterFolder.folder_type === 'master_family' && (
-              <p className="text-sm text-gray-400 mt-2">
+              <p style={styles.emptySubtext}>
                 Family member folders will appear here automatically
               </p>
             )}
             {masterFolder.folder_type === 'master_best_intentions' && (
-              <p className="text-sm text-gray-400 mt-2">
+              <p style={styles.emptySubtext}>
                 Best Intentions will appear here when you create them
               </p>
             )}

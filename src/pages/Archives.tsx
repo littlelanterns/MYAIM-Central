@@ -1,7 +1,9 @@
 // src/pages/Archives.tsx - Archives with Command Center style cards
 import React, { useState, useEffect, CSSProperties } from 'react';
+import { Download } from 'lucide-react';
 import { SubfolderGrid } from '../components/archives/SubfolderGrid';
 import { CreateSubfolderModal } from '../components/archives/CreateSubfolderModal';
+import { ContextExportModal } from '../components/archives/ContextExportModal';
 import { archivesService } from '../lib/archivesService';
 import type { ArchiveFolder } from '../types/archives';
 import {
@@ -14,6 +16,7 @@ export default function Archives() {
   const [expandedMaster, setExpandedMaster] = useState<string | null>(null);
   const [subfolders, setSubfolders] = useState<Record<string, ArchiveFolder[]>>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [createParentId, setCreateParentId] = useState<string | null>(null);
   const [createParentType, setCreateParentType] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -87,22 +90,37 @@ export default function Archives() {
   // Command Center style
   const styles: Record<string, CSSProperties> = {
     container: {
-      padding: '20px',
-      maxWidth: '1200px',
+      padding: '20px 40px',
+      maxWidth: '1600px',
       margin: '0 auto'
     },
     pageTitle: {
       textAlign: 'center',
       color: 'var(--primary-color, #68a395)',
-      marginBottom: '2rem',
+      margin: 0,
       fontFamily: "'The Seasons', 'Playfair Display', serif",
       fontSize: '2.5rem',
       fontWeight: '600',
       textShadow: '0 2px 4px rgba(0,0,0,0.1)'
     },
+    exportButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.75rem 1.5rem',
+      background: 'var(--primary-color, #68a395)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      fontSize: '0.9rem',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    },
     gridContainer: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gridTemplateColumns: 'repeat(2, 1fr)',
       gap: '2rem',
       marginBottom: '2rem'
     },
@@ -209,8 +227,18 @@ export default function Archives() {
 
   return (
     <div style={styles.container}>
-      {/* Page title */}
-      <h1 style={styles.pageTitle}>Archives</h1>
+      {/* Page title with Export button */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={styles.pageTitle}>Archives</h1>
+        <button
+          onClick={() => setShowExportModal(true)}
+          style={styles.exportButton}
+          title="Export context for AI platforms"
+        >
+          <Download size={20} />
+          Export Context
+        </button>
+      </div>
 
       <div style={styles.gridContainer}>
         {masterFolders.map((master, index) => {
@@ -223,59 +251,65 @@ export default function Archives() {
           const rotation = [-2, 1, -1, 2][index % 4];
 
           return (
-            <div key={master.id} style={{ position: 'relative' }}>
-              {/* Thumbtack pinning the card */}
-              <Thumbtack
-                size={45}
-                rotation={rotation * 3}
-                style={{
-                  position: 'absolute',
-                  top: -15,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  zIndex: 10,
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-                }}
-              />
-
-              {/* Add a star accent on some cards */}
-              {index % 3 === 0 && (
-                <CrayonStar
-                  size={40}
-                  rotation={index * 20}
+            <React.Fragment key={master.id}>
+              <div style={{ position: 'relative' }}>
+                {/* Thumbtack pinning the card */}
+                <Thumbtack
+                  size={45}
+                  rotation={rotation * 3}
                   style={{
                     position: 'absolute',
-                    bottom: 10,
-                    right: 10,
-                    opacity: 0.6,
-                    zIndex: 1
+                    top: -15,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 10,
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
                   }}
                 />
-              )}
 
-              <div
-                style={{
-                  ...styles.card,
-                  transform: `rotate(${rotation}deg)`,
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={() => handleMasterClick(master.id)}
-                onMouseOver={(e) => {
-                  handleMouseOver(e);
-                  e.currentTarget.style.transform = `rotate(0deg) translateY(-8px) scale(1.02)`;
-                }}
-                onMouseOut={(e) => {
-                  handleMouseOut(e);
-                  e.currentTarget.style.transform = `rotate(${rotation}deg) translateY(0) scale(1)`;
-                }}
-              >
-                <h2 style={styles.cardTitle}>{displayInfo.title}</h2>
-                <h3 style={styles.cardSubtitle}>{displayInfo.subtitle}</h3>
-                <p style={styles.cardDescription}>{master.description}</p>
+                {/* Add a star accent on some cards */}
+                {index % 3 === 0 && (
+                  <CrayonStar
+                    size={40}
+                    rotation={index * 20}
+                    style={{
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 10,
+                      opacity: 0.6,
+                      zIndex: 1
+                    }}
+                  />
+                )}
+
+                <div
+                  style={{
+                    ...styles.card,
+                    transform: `rotate(${rotation}deg)`,
+                    transition: 'all 0.3s ease'
+                  }}
+                  onClick={() => handleMasterClick(master.id)}
+                  onMouseOver={(e) => {
+                    handleMouseOver(e);
+                    e.currentTarget.style.transform = `rotate(0deg) translateY(-8px) scale(1.02)`;
+                  }}
+                  onMouseOut={(e) => {
+                    handleMouseOut(e);
+                    e.currentTarget.style.transform = `rotate(${rotation}deg) translateY(0) scale(1)`;
+                  }}
+                >
+                  <h2 style={styles.cardTitle}>{displayInfo.title}</h2>
+                  <h3 style={styles.cardSubtitle}>{displayInfo.subtitle}</h3>
+                  <p style={styles.cardDescription}>{master.description}</p>
+                </div>
               </div>
 
               {isExpanded && (
-                <div style={{ marginTop: '1rem' }}>
+                <div style={{
+                  gridColumn: '1 / -1',
+                  marginTop: '1rem',
+                  marginBottom: '1rem'
+                }}>
                   <div style={{
                     background: 'white',
                     borderRadius: '16px',
@@ -306,7 +340,7 @@ export default function Archives() {
                   </div>
                 </div>
               )}
-            </div>
+            </React.Fragment>
           );
         })}
       </div>
@@ -327,6 +361,13 @@ export default function Archives() {
             setCreateParentType('');
             refreshAll();
           }}
+        />
+      )}
+
+      {/* Export Context Modal */}
+      {showExportModal && (
+        <ContextExportModal
+          onClose={() => setShowExportModal(false)}
         />
       )}
 

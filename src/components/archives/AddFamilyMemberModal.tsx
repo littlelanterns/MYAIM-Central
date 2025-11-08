@@ -61,84 +61,250 @@ export function AddFamilyMemberModal({ familyId, onClose, onCreated }: AddFamily
     }
   }
 
+  const styles: Record<string, React.CSSProperties> = {
+    overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '1rem'
+    },
+    modal: {
+      background: 'white',
+      borderRadius: '12px',
+      maxWidth: '500px',
+      width: '100%',
+      overflow: 'hidden',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      padding: '1.5rem',
+      borderBottom: '1px solid var(--accent-color, #d4e3d9)',
+      background: 'var(--gradient-background, linear-gradient(135deg, var(--background-color, #fff4ec) 0%, var(--accent-color, #d4e3d9) 100%))'
+    },
+    title: {
+      fontSize: '1.5rem',
+      fontWeight: '600',
+      color: 'var(--primary-color, #68a395)',
+      margin: '0 0 0.25rem 0'
+    },
+    subtitle: {
+      fontSize: '0.875rem',
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.7,
+      margin: 0
+    },
+    closeButton: {
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      color: 'var(--primary-color, #68a395)',
+      padding: '0.25rem',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '1.5rem'
+    },
+    content: {
+      padding: '1.5rem',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '1.5rem'
+    },
+    fieldLabel: {
+      display: 'block',
+      fontSize: '0.875rem',
+      fontWeight: '600',
+      color: 'var(--text-color, #5a4033)',
+      marginBottom: '0.5rem'
+    },
+    input: {
+      width: '100%',
+      padding: '0.75rem 1rem',
+      fontSize: '0.875rem',
+      border: '1px solid var(--accent-color, #d4e3d9)',
+      borderRadius: '8px',
+      background: 'white',
+      color: 'var(--text-color, #5a4033)',
+      outline: 'none',
+      boxSizing: 'border-box' as const
+    },
+    colorButton: {
+      width: '100%',
+      padding: '0.75rem 1rem',
+      border: '1px solid var(--accent-color, #d4e3d9)',
+      borderRadius: '8px',
+      background: 'white',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      transition: 'border-color 0.2s'
+    },
+    colorLeft: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.75rem'
+    },
+    colorSwatch: {
+      width: '40px',
+      height: '40px',
+      borderRadius: '8px'
+    },
+    colorInfo: {
+      textAlign: 'left' as const
+    },
+    colorName: {
+      fontWeight: '500',
+      color: 'var(--text-color, #5a4033)',
+      fontSize: '0.875rem',
+      margin: 0
+    },
+    colorHex: {
+      fontSize: '0.75rem',
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.6,
+      margin: 0
+    },
+    interviewBox: {
+      background: 'var(--accent-color, #d4e3d9)',
+      borderRadius: '8px',
+      padding: '1rem'
+    },
+    checkboxLabel: {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.75rem',
+      cursor: 'pointer'
+    },
+    checkbox: {
+      marginTop: '0.25rem',
+      width: '20px',
+      height: '20px',
+      accentColor: 'var(--primary-color, #68a395)'
+    },
+    checkboxText: {
+      fontWeight: '500',
+      color: 'var(--text-color, #5a4033)',
+      fontSize: '0.875rem',
+      margin: 0
+    },
+    checkboxSubtext: {
+      fontSize: '0.75rem',
+      color: 'var(--text-color, #5a4033)',
+      opacity: 0.7,
+      marginTop: '0.25rem',
+      margin: 0
+    },
+    footer: {
+      padding: '1.5rem',
+      borderTop: '1px solid var(--accent-color, #d4e3d9)',
+      display: 'flex',
+      gap: '1rem'
+    },
+    cancelButton: {
+      flex: 1,
+      padding: '0.75rem 1.5rem',
+      fontSize: '0.875rem',
+      fontWeight: '600',
+      border: '1px solid var(--accent-color, #d4e3d9)',
+      borderRadius: '8px',
+      background: 'white',
+      color: 'var(--text-color, #5a4033)',
+      cursor: 'pointer',
+      transition: 'all 0.2s'
+    },
+    saveButton: {
+      flex: 1,
+      padding: '0.75rem 1.5rem',
+      fontSize: '0.875rem',
+      fontWeight: '600',
+      border: 'none',
+      borderRadius: '8px',
+      background: 'var(--primary-color, #68a395)',
+      color: 'white',
+      cursor: 'pointer',
+      transition: 'all 0.2s'
+    }
+  };
+
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden">
+      <div style={styles.overlay} onClick={onClose}>
+        <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-[#5a4033]">
-                  Add Family Member
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Add someone to your family archives
-                </p>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-3xl text-gray-400 hover:text-[#5a4033] transition-colors leading-none"
-              >
-                ×
-              </button>
+          <div style={styles.header}>
+            <div>
+              <h2 style={styles.title}>Add Family Member</h2>
+              <p style={styles.subtitle}>
+                Add someone to your family archives
+              </p>
             </div>
+            <button onClick={onClose} style={styles.closeButton}>
+              ×
+            </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div style={styles.content}>
             {/* Name Input */}
             <div>
-              <label className="block text-sm font-semibold text-[#5a4033] mb-2">
-                Name
-              </label>
+              <label style={styles.fieldLabel}>Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter name (or pet's name!)"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl outline-none focus:border-[#68a395] transition-colors text-[#5a4033]"
+                style={styles.input}
                 autoFocus
               />
             </div>
 
             {/* Color Picker */}
             <div>
-              <label className="block text-sm font-semibold text-[#5a4033] mb-2">
-                Folder Color
-              </label>
+              <label style={styles.fieldLabel}>Folder Color</label>
               <button
                 onClick={() => setShowColorPicker(true)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl hover:border-[#68a395] transition-colors flex items-center justify-between group"
+                style={styles.colorButton}
               >
-                <div className="flex items-center gap-3">
+                <div style={styles.colorLeft}>
                   <div
-                    className="w-10 h-10 rounded-lg"
-                    style={{ backgroundColor: selectedColor }}
+                    style={{
+                      ...styles.colorSwatch,
+                      backgroundColor: selectedColor
+                    }}
                   />
-                  <div className="text-left">
-                    <p className="font-medium text-[#5a4033]">{selectedColorName}</p>
-                    <p className="text-sm text-gray-500">{selectedColor}</p>
+                  <div style={styles.colorInfo}>
+                    <p style={styles.colorName}>{selectedColorName}</p>
+                    <p style={styles.colorHex}>{selectedColor}</p>
                   </div>
                 </div>
-                <span className="text-xl text-gray-400 group-hover:text-[#68a395] transition-colors">🎨</span>
+                <span style={{ fontSize: '1.25rem' }}>🎨</span>
               </button>
             </div>
 
             {/* Start Interview Option */}
-            <div className="bg-[#f0f8f6] rounded-xl p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
+            <div style={styles.interviewBox}>
+              <label style={styles.checkboxLabel}>
                 <input
                   type="checkbox"
                   checked={startInterview}
                   onChange={(e) => setStartInterview(e.target.checked)}
-                  className="mt-1 w-5 h-5 text-[#68a395] rounded focus:ring-[#68a395]"
+                  style={styles.checkbox}
                 />
                 <div>
-                  <p className="font-medium text-[#5a4033]">
-                    Start LiLa Interview
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p style={styles.checkboxText}>Start LiLa Interview</p>
+                  <p style={styles.checkboxSubtext}>
                     Get help from LiLa to fill in their context through a friendly conversation
                   </p>
                 </div>
@@ -147,18 +313,26 @@ export function AddFamilyMemberModal({ familyId, onClose, onCreated }: AddFamily
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50 flex gap-3">
+          <div style={styles.footer}>
             <button
               onClick={onClose}
               disabled={saving}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl font-medium text-[#5a4033] hover:bg-gray-100 transition-colors disabled:opacity-50"
+              style={{
+                ...styles.cancelButton,
+                opacity: saving ? 0.5 : 1,
+                cursor: saving ? 'not-allowed' : 'pointer'
+              }}
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving || !name.trim()}
-              className="flex-1 px-6 py-3 bg-[#68a395] text-white rounded-xl font-medium hover:bg-[#5a9285] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                ...styles.saveButton,
+                opacity: saving || !name.trim() ? 0.5 : 1,
+                cursor: saving || !name.trim() ? 'not-allowed' : 'pointer'
+              }}
             >
               {saving ? 'Creating...' : startInterview ? 'Create & Interview' : 'Create'}
             </button>
