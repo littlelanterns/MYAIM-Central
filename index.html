@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#68a395" />
+    <meta
+      name="description"
+      content="AIM for Moms - AI-powered family organization and dashboard system"
+    />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="AIM Family" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>AIM for Moms - Family Hub</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <div id="modal-root"></div>
+
+    <!-- Vite entry point -->
+    <script type="module" src="/src/index.jsx"></script>
+
+    <!-- Service Worker Registration - DISABLED FOR DEVELOPMENT -->
+    <!-- Uncomment when ready to deploy as PWA -->
+    <!--
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/service-worker.js')
+            .then((registration) => {
+              console.log('PWA: Service Worker registered successfully:', registration.scope);
+
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New service worker available, prompt user to refresh
+                    if (confirm('New version available! Refresh to update?')) {
+                      newWorker.postMessage({ type: 'SKIP_WAITING' });
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.log('PWA: Service Worker registration failed:', error);
+            });
+        });
+      }
+    </script>
+    -->
+  </body>
+</html>

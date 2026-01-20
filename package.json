@@ -2,6 +2,7 @@
   "name": "aimfm-app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "AI Magic for Moms - Family productivity platform with LiLa™ AI assistants",
   "author": "Tenise Wertman",
   "license": "MIT",
@@ -17,26 +18,18 @@
     "@types/react-dom": "^19.0.0",
     "bcryptjs": "^3.0.2",
     "lucide-react": "^0.525.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.1.2",
+    "react-dom": "^19.1.2",
     "react-draggable": "^4.5.0",
     "react-router-dom": "^7.7.0",
-    "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
-    "build:windows": "set \"DISABLE_ESLINT_PLUGIN=true\" && react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "browserslist": {
     "production": [
@@ -49,5 +42,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^7.3.1"
   }
 }
