@@ -28,25 +28,19 @@ const NormalMomLogin = () => {
         throw new Error('No user data returned from authentication');
       }
 
-      // Step 2: Check if this is a beta-only user (should use /beta/login instead)
+      // Step 2: Check if this is a beta user and if setup is completed
       const { data: betaUser } = await supabase
         .from('beta_users')
         .select('id, status, setup_completed')
         .eq('user_id', authData.user.id)
         .maybeSingle();
 
-      // If beta user exists, check if they have a family
+      // If beta user exists, check if setup is completed
       if (betaUser) {
-        const { data: family } = await supabase
-          .from('families')
-          .select('id')
-          .eq('auth_user_id', authData.user.id)
-          .maybeSingle();
-
-        // Beta user without family should use beta login
-        if (!family) {
-          await supabase.auth.signOut();
-          navigate('/beta/login');
+        if (!betaUser.setup_completed) {
+          // Beta user hasn't completed family setup - redirect to setup
+          console.log('Beta user setup not completed, redirecting to family setup');
+          navigate('/beta/family-setup');
           return;
         }
       }
@@ -348,7 +342,7 @@ const NormalMomLogin = () => {
         <div style={{ padding: '0 1.5rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'center' }}>
             <button
-              onClick={() => {/* TODO: Implement password reset */}}
+              onClick={() => navigate('/forgot-password')}
               style={{
                 fontSize: '0.875rem',
                 color: 'var(--primary-color, #68a395)',
@@ -370,7 +364,7 @@ const NormalMomLogin = () => {
             <div style={{ fontSize: '0.875rem', color: 'var(--text-color, #5a4033)', opacity: 0.7 }}>
               Don't have an account?{' '}
               <button
-                onClick={() => {/* TODO: Navigate to signup */}}
+                onClick={() => navigate('/beta-signup')}
                 style={{
                   color: 'var(--primary-color, #68a395)',
                   fontWeight: '500',

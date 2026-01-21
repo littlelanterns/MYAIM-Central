@@ -36,6 +36,9 @@ import About from './pages/marketing/About.tsx';
 import BetaSignup from './pages/marketing/BetaSignup.tsx';
 import Articles from './pages/marketing/Articles.tsx';
 import ArticleDetail from './pages/marketing/ArticleDetail.tsx';
+import ForgotPassword from './pages/ForgotPassword.tsx';
+import ResetPassword from './pages/ResetPassword.tsx';
+import AuthCallback from './pages/AuthCallback.tsx';
 import './styles/global.css';
 
 function App() {
@@ -60,6 +63,13 @@ function App() {
               <Route path="/login" element={<NormalMomLogin />} />
               <Route path="/admin" element={<AdminLogin />} />
               <Route path="/dashboard" element={<FamilyMemberLogin />} />
+
+              {/* Password Reset Routes */}
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+
+              {/* Auth Callback - handles email confirmation redirects */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
 
               {/* Beta Routes */}
               <Route path="/beta/login" element={<BetaLogin />} />

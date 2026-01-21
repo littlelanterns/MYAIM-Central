@@ -15,13 +15,13 @@ const AI_CONFIG = {
     defaultModel: 'anthropic/claude-3.5-sonnet'
   },
   n8n: {
-    familyProcessing: process.env.REACT_APP_N8N_FAMILY_WEBHOOK,
-    mindsweepProcessing: process.env.REACT_APP_N8N_MINDSWEEP_WEBHOOK,
-    taskProcessing: process.env.REACT_APP_N8N_TASK_WEBHOOK
+    familyProcessing: import.meta.env.VITE_N8N_FAMILY_WEBHOOK,
+    mindsweepProcessing: import.meta.env.VITE_N8N_MINDSWEEP_WEBHOOK,
+    taskProcessing: import.meta.env.VITE_N8N_TASK_WEBHOOK
   },
   pipedream: {
-    subtaskGeneration: process.env.REACT_APP_PIPEDREAM_SUBTASK_WEBHOOK,
-    mealPlanning: process.env.REACT_APP_PIPEDREAM_MEAL_WEBHOOK
+    subtaskGeneration: import.meta.env.VITE_PIPEDREAM_SUBTASK_WEBHOOK,
+    mealPlanning: import.meta.env.VITE_PIPEDREAM_MEAL_WEBHOOK
   }
 };
 

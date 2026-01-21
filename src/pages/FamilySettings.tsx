@@ -1,6 +1,6 @@
 // src/pages/FamilySettings.tsx - REFACTORED with shared types
-import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
-import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, ChangeEvent, useRef, useCallback } from 'react';
+import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp, HelpCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
   saveFamilySetup,
@@ -10,6 +10,7 @@ import {
   deleteFamilyMember
 } from '../lib/api';
 import { processFamilyDescription } from '../lib/aiServices';
+import { checkFamilyLoginNameAvailable } from '../lib/betaSignupService';
 import FamilyMemberForm from '../components/family/FamilyMemberForm';
 
 // Import shared types
@@ -19,6 +20,14 @@ import { FamilyMember, RelationshipType, AccessLevel, ShowPermissionsState, Coll
 
 const FamilySetupInterface: React.FC = () => {
   const [familyName, setFamilyName] = useState<string>('');
+  const [familyLoginName, setFamilyLoginName] = useState<string>('');
+  const [originalLoginName, setOriginalLoginName] = useState<string>('');
+  const [isEditingLoginName, setIsEditingLoginName] = useState<boolean>(false);
+  const [loginNameStatus, setLoginNameStatus] = useState<{
+    checking: boolean;
+    available: boolean | null;
+    error?: string;
+  }>({ checking: false, available: null });
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showPermissions, setShowPermissions] = useState<ShowPermissionsState>({});
   const [collapsed, setCollapsed] = useState<CollapsedState>({});
@@ -56,6 +65,55 @@ const FamilySetupInterface: React.FC = () => {
     };
     getAuthUser();
   }, []);
+
+  // Debounced check for login name availability when editing
+  useEffect(() => {
+    if (!isEditingLoginName) return;
+
+    const loginName = familyLoginName.trim();
+
+    // If unchanged from original, it's available (it's the current value)
+    if (loginName === originalLoginName) {
+      setLoginNameStatus({ checking: false, available: true });
+      return;
+    }
+
+    // Reset status if empty or too short
+    if (loginName.length < 3) {
+      setLoginNameStatus({ checking: false, available: null });
+      return;
+    }
+
+    // Set checking state
+    setLoginNameStatus({ checking: true, available: null });
+
+    // Debounce the check
+    const timeoutId = setTimeout(async () => {
+      const result = await checkFamilyLoginNameAvailable(loginName, currentFamilyId || undefined);
+      setLoginNameStatus({
+        checking: false,
+        available: result.available,
+        error: result.error
+      });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [familyLoginName, isEditingLoginName, originalLoginName, currentFamilyId]);
+
+  // Handle login name input - auto-lowercase and strip invalid chars
+  const handleLoginNameChange = useCallback((value: string) => {
+    const normalized = value.toLowerCase().replace(/\s+/g, '-');
+    // Allow lowercase letters, numbers, hyphens, &, _, !
+    const cleaned = normalized.replace(/[^a-z0-9\-&_!]/g, '');
+    setFamilyLoginName(cleaned);
+  }, []);
+
+  // Cancel login name editing
+  const cancelLoginNameEdit = useCallback(() => {
+    setFamilyLoginName(originalLoginName);
+    setIsEditingLoginName(false);
+    setLoginNameStatus({ checking: false, available: null });
+  }, [originalLoginName]);
 
   // Relationship types with "out-of-nest" terminology
   const relationshipTypes: Record<string, RelationshipType> = {
@@ -161,11 +219,13 @@ const FamilySetupInterface: React.FC = () => {
     try {
       setLoading(true);
       const familyResult = await getFamilyByUserId(currentUserId);
-      
+
       if (familyResult.success && familyResult.family) {
         setCurrentFamilyId(familyResult.family.id);
         setFamilyName(familyResult.family.family_name || '');
-        
+        setFamilyLoginName(familyResult.family.family_login_name || '');
+        setOriginalLoginName(familyResult.family.family_login_name || '');
+
         const membersResult = await getFamilyMembers(familyResult.family.id);
         if (membersResult.success) {
           setFamilyMembers(membersResult.members || []);
@@ -262,27 +322,48 @@ const FamilySetupInterface: React.FC = () => {
   const handleSaveFamilySetup = async (): Promise<void> => {
     try {
       setSaving(true);
-      
+
       if (!familyName.trim()) {
         alert('Please enter a family name.');
         return;
       }
 
-      const familyData = {
+      // If login name was edited, validate it
+      if (isEditingLoginName && familyLoginName !== originalLoginName) {
+        if (!loginNameStatus.available) {
+          alert('Please choose an available Family Login ID before saving.');
+          return;
+        }
+      }
+
+      // Build family data - only include login name if we have one
+      const familyData: any = {
         auth_user_id: currentUserId,
-        family_login_name: null,
         family_name: familyName,
         subscription_tier: 'basic'
       };
 
+      // Only update login name if it's changed and valid
+      if (familyLoginName && (familyLoginName !== originalLoginName || !originalLoginName)) {
+        familyData.family_login_name = familyLoginName.toLowerCase().trim();
+      } else if (originalLoginName) {
+        // Preserve existing login name
+        familyData.family_login_name = originalLoginName;
+      }
+
       const result = await saveFamilySetup(familyData);
       if (result.success) {
         setCurrentFamilyId(result.familyId);
+        // Update original login name to reflect saved value
+        if (familyData.family_login_name) {
+          setOriginalLoginName(familyData.family_login_name);
+        }
+        setIsEditingLoginName(false);
         alert('Family setup saved successfully!');
       } else {
         throw new Error(result.error || 'Failed to save family setup');
       }
-      
+
     } catch (error) {
       console.error('Error saving family setup:', error);
       alert('Failed to save family setup: ' + (error as Error).message);
@@ -448,7 +529,7 @@ const FamilySetupInterface: React.FC = () => {
           </div>
 
           {/* Family Name */}
-          <div style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
               Family Name
             </label>
@@ -457,8 +538,145 @@ const FamilySetupInterface: React.FC = () => {
               value={familyName}
               onChange={(e) => setFamilyName(e.target.value)}
               placeholder="e.g., The Smith Family"
-              style={{ width: '100%', padding: '0.75rem' }}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--accent-color, #d4e3d9)' }}
             />
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-color, #5a4033)', opacity: 0.7, marginTop: '0.25rem' }}>
+              Display name shown throughout the app
+            </p>
+          </div>
+
+          {/* Family Login ID */}
+          <div style={{ marginBottom: '2rem' }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: '600',
+              marginBottom: '0.5rem'
+            }}>
+              Family Login ID
+              <span title="Family members use this ID to log in to their dashboards">
+                <HelpCircle
+                  size={16}
+                  style={{ opacity: 0.6, cursor: 'help' }}
+                />
+              </span>
+            </label>
+
+            {!isEditingLoginName ? (
+              // Display mode
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                padding: '0.75rem',
+                background: 'var(--background-color, #fff4ec)',
+                borderRadius: '8px',
+                border: '1px solid var(--accent-color, #d4e3d9)'
+              }}>
+                <span style={{
+                  fontFamily: 'monospace',
+                  fontSize: '1rem',
+                  color: 'var(--primary-color, #68a395)',
+                  fontWeight: '600'
+                }}>
+                  {familyLoginName || '(not set)'}
+                </span>
+                <button
+                  onClick={() => setIsEditingLoginName(true)}
+                  style={{
+                    marginLeft: 'auto',
+                    padding: '0.5rem 1rem',
+                    fontSize: '0.85rem',
+                    background: 'var(--secondary-color, #d6a461)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {familyLoginName ? 'Change' : 'Set Login ID'}
+                </button>
+              </div>
+            ) : (
+              // Edit mode
+              <div>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={familyLoginName}
+                    onChange={(e) => handleLoginNameChange(e.target.value)}
+                    placeholder="e.g., smith-family or mom&dad"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      paddingRight: '2.5rem',
+                      fontFamily: 'monospace',
+                      borderRadius: '8px',
+                      border: `2px solid ${
+                        loginNameStatus.available === true ? 'var(--primary-color, #68a395)' :
+                        loginNameStatus.available === false ? '#b25a58' :
+                        'var(--accent-color, #d4e3d9)'
+                      }`
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)'
+                  }}>
+                    {loginNameStatus.checking && (
+                      <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} color="var(--primary-color, #68a395)" />
+                    )}
+                    {!loginNameStatus.checking && loginNameStatus.available === true && (
+                      <CheckCircle size={18} color="var(--primary-color, #68a395)" />
+                    )}
+                    {!loginNameStatus.checking && loginNameStatus.available === false && (
+                      <XCircle size={18} color="#b25a58" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Status messages */}
+                {loginNameStatus.error && (
+                  <p style={{ color: '#b25a58', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                    {loginNameStatus.error}
+                  </p>
+                )}
+                {!loginNameStatus.checking && loginNameStatus.available === true && familyLoginName !== originalLoginName && (
+                  <p style={{ color: 'var(--primary-color, #68a395)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                    ✓ Available!
+                  </p>
+                )}
+                {!loginNameStatus.checking && loginNameStatus.available === false && !loginNameStatus.error && (
+                  <p style={{ color: '#b25a58', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                    This login ID is already taken
+                  </p>
+                )}
+
+                {/* Edit actions */}
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <button
+                    onClick={cancelLoginNameEdit}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.85rem',
+                      background: 'transparent',
+                      color: 'var(--text-color, #5a4033)',
+                      border: '1px solid var(--accent-color, #d4e3d9)',
+                      borderRadius: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-color, #5a4033)', opacity: 0.7, marginTop: '0.5rem' }}>
+              Family members use this ID to access their dashboards. Get creative! Examples: mom&dad, pizza_party!, adventure_squad
+            </p>
           </div>
 
           {/* Action Buttons */}

@@ -83,34 +83,73 @@ const ForcedFamilySetup = () => {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Create family and family member records if family setup was chosen
-      let familyId = null;
+      // First, check if a family already exists for this user (created during beta signup)
+      const { data: existingFamily } = await supabase
+        .from('families')
+        .select('id, family_name, family_login_name')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      // Also check for existing primary family member
+      const { data: existingMember } = await supabase
+        .from('family_members')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      let familyId = existingFamily?.id || null;
+
       if (familyData.setupType === 'family') {
-        // Create family record
-        const { data: newFamily, error: familyError } = await supabase
-          .from('families')
-          .insert({
-            family_name: familyData.familyName,
-            auth_user_id: user.id,
-            family_login_name: null,
-          })
-          .select()
-          .single();
+        if (existingFamily) {
+          // Update existing family record (preserve family_login_name!)
+          const { error: updateError } = await supabase
+            .from('families')
+            .update({
+              family_name: familyData.familyName,
+              // Do NOT update family_login_name - keep what was set during signup
+            })
+            .eq('id', existingFamily.id);
 
-        if (familyError) throw familyError;
-        familyId = newFamily.id;
+          if (updateError) throw updateError;
+          familyId = existingFamily.id;
+        } else {
+          // Create new family record (fallback, shouldn't happen with beta signup)
+          const { data: newFamily, error: familyError } = await supabase
+            .from('families')
+            .insert({
+              family_name: familyData.familyName,
+              auth_user_id: user.id,
+            })
+            .select()
+            .single();
 
-        // Add primary parent as family member
-        await supabase
-          .from('family_members')
-          .insert({
-            family_id: familyId,
-            auth_user_id: user.id,
-            name: familyData.primaryParentName,
-            role: familyData.primaryParentRole,
-            age: 30, // Default adult age
-            pin: null,
-          });
+          if (familyError) throw familyError;
+          familyId = newFamily.id;
+        }
+
+        // Update or create primary parent family member
+        if (existingMember) {
+          await supabase
+            .from('family_members')
+            .update({
+              name: familyData.primaryParentName,
+              role: familyData.primaryParentRole,
+              display_title: familyData.primaryParentRole === 'mom' ? 'Mom' :
+                            familyData.primaryParentRole === 'dad' ? 'Dad' : 'Guardian',
+            })
+            .eq('id', existingMember.id);
+        } else {
+          await supabase
+            .from('family_members')
+            .insert({
+              family_id: familyId,
+              auth_user_id: user.id,
+              name: familyData.primaryParentName,
+              role: familyData.primaryParentRole,
+              age: 30,
+              pin: null,
+            });
+        }
 
         // Add partner if exists
         if (familyData.hasPartner && familyData.partnerName) {
@@ -120,7 +159,7 @@ const ForcedFamilySetup = () => {
               family_id: familyId,
               name: familyData.partnerName,
               role: familyData.partnerRole === 'mom' || familyData.partnerRole === 'dad' ? familyData.partnerRole : 'guardian',
-              age: 30, // Default adult age
+              age: 30,
               pin: null,
             });
         }
@@ -141,31 +180,58 @@ const ForcedFamilySetup = () => {
             .insert(childrenData);
         }
       } else {
-        // Solo setup - create a simple family record for the individual
-        const { data: newFamily, error: familyError } = await supabase
-          .from('families')
-          .insert({
-            family_name: familyData.primaryParentName + "'s Family",
-            auth_user_id: user.id,
-            family_login_name: null,
-          })
-          .select()
-          .single();
+        // Solo setup
+        if (existingFamily) {
+          // Update existing family with solo-style name if desired
+          const soloFamilyName = familyData.primaryParentName + "'s Family";
+          const { error: updateError } = await supabase
+            .from('families')
+            .update({
+              family_name: soloFamilyName,
+              // Do NOT update family_login_name - keep what was set during signup
+            })
+            .eq('id', existingFamily.id);
 
-        if (familyError) throw familyError;
-        familyId = newFamily.id;
+          if (updateError) throw updateError;
+          familyId = existingFamily.id;
+        } else {
+          // Create new family record (fallback)
+          const { data: newFamily, error: familyError } = await supabase
+            .from('families')
+            .insert({
+              family_name: familyData.primaryParentName + "'s Family",
+              auth_user_id: user.id,
+            })
+            .select()
+            .single();
 
-        // Add them as the only family member
-        await supabase
-          .from('family_members')
-          .insert({
-            family_id: familyId,
-            auth_user_id: user.id,
-            name: familyData.primaryParentName,
-            role: familyData.primaryParentRole,
-            age: 30, // Default adult age
-            pin: null,
-          });
+          if (familyError) throw familyError;
+          familyId = newFamily.id;
+        }
+
+        // Update or create primary family member
+        if (existingMember) {
+          await supabase
+            .from('family_members')
+            .update({
+              name: familyData.primaryParentName,
+              role: familyData.primaryParentRole,
+              display_title: familyData.primaryParentRole === 'mom' ? 'Mom' :
+                            familyData.primaryParentRole === 'dad' ? 'Dad' : 'Guardian',
+            })
+            .eq('id', existingMember.id);
+        } else {
+          await supabase
+            .from('family_members')
+            .insert({
+              family_id: familyId,
+              auth_user_id: user.id,
+              name: familyData.primaryParentName,
+              role: familyData.primaryParentRole,
+              age: 30,
+              pin: null,
+            });
+        }
       }
 
       // Mark beta setup as completed

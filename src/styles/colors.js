@@ -583,6 +583,15 @@ export const getContrastColor = (hexColor) => {
 export const createThemeVariables = (theme) => {
   const isClassic = theme === personalThemes.classic;
 
+  // Create a darker version of the primary color for header gradient end
+  const darkenColor = (hex, amount = 30) => {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.max(0, (num >> 16) - amount);
+    const g = Math.max(0, ((num >> 8) & 0x00FF) - amount);
+    const b = Math.max(0, (num & 0x0000FF) - amount);
+    return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+  };
+
   return {
     '--primary-color': theme.primary,
     '--secondary-color': theme.secondary,
@@ -592,6 +601,8 @@ export const createThemeVariables = (theme) => {
     '--gradient-primary': createGradient(theme.primary, theme.secondary),
     '--gradient-background': theme.cardGradient || createGradient(theme.background, theme.accent + '20'),
     '--lila-gradient': theme.lilaGradient || createGradient(theme.background, theme.accent),
+    // Header gradient - uses primary to a darker shade for depth
+    '--theme-header-gradient': theme.headerGradient || createGradient(theme.primary, darkenColor(theme.primary)),
     // Quick action button styling - Classic theme keeps original look, others use FAB gradient
     '--quick-action-gradient': isClassic
       ? (theme.cardGradient || 'linear-gradient(135deg, #f4dcb7, #d4e3d9)')

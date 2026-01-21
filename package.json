@@ -29,7 +29,8 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:types": "npx supabase gen types typescript --project-id vrouxykpyzsdqoxestdm > src/types/supabase.ts"
   },
   "browserslist": {
     "production": [

@@ -182,18 +182,30 @@ const BetaLogin = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                style={{
-                  display: 'block',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  color: 'var(--text-color, #5a4033)',
-                  marginBottom: '0.5rem'
-                }}
-              >
-                Temporary Password
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <label
+                  htmlFor="password"
+                  style={{
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    color: 'var(--text-color, #5a4033)'
+                  }}
+                >
+                  Password
+                </label>
+                <a
+                  href="/forgot-password"
+                  style={{
+                    fontSize: '0.8rem',
+                    color: 'var(--primary-color, #68a395)',
+                    textDecoration: 'none'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                >
+                  Forgot password?
+                </a>
+              </div>
               <input
                 type="password"
                 id="password"
