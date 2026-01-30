@@ -222,9 +222,9 @@ Birthday extraction examples:
 
     // Process and format for database
     const processedMembers = parsedData.familyMembers.map((member, index) => {
-      // Calculate age from birthday if provided
-      let calculatedAge = member.age;
-      if (member.birthday && !calculatedAge) {
+      // Calculate age from birthday - ALWAYS use birthday if available, ignore AI's age
+      let calculatedAge = null;
+      if (member.birthday) {
         try {
           const birthDate = new Date(member.birthday);
           const today = new Date();
@@ -234,9 +234,15 @@ Birthday extraction examples:
             age--;
           }
           calculatedAge = age;
+          console.log(`[AI Services] Calculated age for ${member.name}: ${calculatedAge} from birthday ${member.birthday}`);
         } catch (e) {
           console.warn('Could not calculate age from birthday:', member.birthday);
+          // Fall back to AI's age only if birthday calculation fails
+          calculatedAge = member.age;
         }
+      } else {
+        // No birthday provided, use AI's age estimate
+        calculatedAge = member.age;
       }
 
       // Smart defaults for access levels
@@ -297,12 +303,30 @@ Birthday extraction examples:
       duplicates,
       totalProcessed: parsedData.familyMembers.length,
       service: 'openrouter-direct',
-      detectedRelationships: processedMembers.map(m => ({
-        name: m.name,
-        relationship: m.relationship,
-        inHousehold: m.inHousehold,
-        accessLevel: m.accessLevel
-      }))
+      detectedRelationships: processedMembers.map(m => {
+        // Display-friendly access level text
+        let accessDisplay = m.accessLevel;
+        if (m.relationship === 'partner' || m.relationship === 'special') {
+          accessDisplay = 'Additional Adult Dashboard';
+        } else if (m.accessLevel === 'none') {
+          accessDisplay = 'Context Only';
+        } else if (m.accessLevel === 'play') {
+          accessDisplay = 'Play Mode';
+        } else if (m.accessLevel === 'guided') {
+          accessDisplay = 'Guided Mode';
+        } else if (m.accessLevel === 'independent') {
+          accessDisplay = 'Independent Mode';
+        } else if (m.accessLevel === 'full') {
+          accessDisplay = 'Full Access';
+        }
+
+        return {
+          name: m.name,
+          relationship: m.relationship,
+          inHousehold: m.inHousehold,
+          accessLevel: accessDisplay
+        };
+      })
     };
 
   } catch (error) {
