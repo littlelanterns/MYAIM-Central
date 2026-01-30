@@ -17,11 +17,15 @@ const NormalMomLogin = () => {
     setError('');
 
     try {
+      console.log('🔐 Login attempt started for:', email);
+
       // Step 1: Sign in with Supabase Auth
+      console.log('📡 Attempting Supabase authentication...');
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      console.log('✅ Auth response received:', { user: authData?.user?.id, error: authError });
 
       if (authError) throw authError;
 
@@ -30,6 +34,7 @@ const NormalMomLogin = () => {
       }
 
       // Step 2: Load family context
+      console.log('📊 Loading family data for user:', authData.user.id);
       const { data: familyData, error: familyError } = await supabase
         .from('families')
         .select(`
@@ -46,6 +51,7 @@ const NormalMomLogin = () => {
         .eq('auth_user_id', authData.user.id)
         .eq('family_members.is_primary_parent', true)
         .maybeSingle();
+      console.log('✅ Family data response:', { familyData, error: familyError });
 
       if (familyError) throw familyError;
 
@@ -97,15 +103,22 @@ const NormalMomLogin = () => {
         login_type: 'normal',
       };
 
+      console.log('💾 Storing session data:', sessionData);
+
       // Store in localStorage for quick access
       localStorage.setItem('aimfm_session', JSON.stringify(sessionData));
       localStorage.setItem('last_login_type', 'normal');
 
       // Set remember me preference (persists across browser closes vs session only)
-      setRememberPreference(rememberMe);
+      try {
+        setRememberPreference(rememberMe);
+        console.log('✅ Remember me preference set:', rememberMe);
+      } catch (error) {
+        console.error('❌ Error setting remember preference:', error);
+      }
 
       // Step 7: Redirect to Command Center
-      console.log('Login successful, redirecting to command center');
+      console.log('🚀 Login successful, redirecting to command center');
       navigate('/commandcenter');
 
     } catch (err: any) {
