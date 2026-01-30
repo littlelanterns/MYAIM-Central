@@ -45,8 +45,14 @@ import './styles/global.css';
 
 function App() {
   // Check session validity on app load (handles "Remember Me" logic)
+  // Skip if we're on the login page to avoid interference
   useEffect(() => {
-    checkSessionValidity();
+    const currentPath = window.location.pathname;
+    const isLoginPage = currentPath === '/login' || currentPath === '/dashboard' || currentPath === '/';
+
+    if (!isLoginPage) {
+      checkSessionValidity();
+    }
   }, []);
 
   return (
