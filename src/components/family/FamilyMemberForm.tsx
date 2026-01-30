@@ -154,11 +154,27 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
                 </option>
               ))}
           </select>
+
+          {/* Info for partners/special relationships */}
+          {(member.relationship === 'partner' || member.relationship === 'special') && (
+            <div style={{
+              marginTop: '0.5rem',
+              padding: '0.75rem',
+              background: 'rgba(104, 163, 149, 0.1)',
+              borderRadius: '6px',
+              fontSize: '0.875rem',
+              lineHeight: '1.4'
+            }}>
+              <strong>Additional Adult Dashboard:</strong> {member.name} will use a permission-based dashboard.
+              You can customize their specific permissions below to control what family data and features they can access.
+            </div>
+          )}
         </div>
       )}
 
-      {/* Dashboard Type Selection (only for household members with guided/independent/full access) */}
+      {/* Dashboard Type Selection (only for CHILDREN with household access) */}
       {member.inHousehold &&
+       member.relationship === 'child' &&
        (member.accessLevel === 'guided' || member.accessLevel === 'independent' || member.accessLevel === 'full') && (
         <div style={{ marginBottom: '1rem' }}>
           <label style={{
