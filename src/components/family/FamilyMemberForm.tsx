@@ -240,9 +240,9 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
               style={{ flex: 1, padding: '0.75rem' }}
               disabled={isSaving}
             >
-              <option value="play">Play Mode (Ages 5-9) - Fun & Gamified</option>
-              <option value="guided">Guided Mode (Ages 10-12) - Balanced Structure</option>
-              <option value="independent">Independent Mode (Ages 13-18) - Full Features</option>
+              <option value="play">Play Mode - Fun & Gamified</option>
+              <option value="guided">Guided Mode - Guided Experience</option>
+              <option value="independent">Independent Mode - Full Features</option>
             </select>
 
             <a

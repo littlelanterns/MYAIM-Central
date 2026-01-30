@@ -834,7 +834,9 @@ const FamilySetupInterface: React.FC = () => {
                           </span>
                           {member.inHousehold ? (
                             <span className="status-badge access-level">
-                              {accessLevels[member.accessLevel]?.label || member.accessLevel}
+                              {(member.relationship === 'partner' || member.relationship === 'special')
+                                ? 'Additional Adult'
+                                : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
                             </span>
                           ) : (
                             <span className="status-badge context-only">Context Only</span>
@@ -1098,7 +1100,9 @@ const FamilySetupInterface: React.FC = () => {
                         </span>
                         {member.inHousehold ? (
                           <span className="status-badge access-level">
-                            {accessLevels[member.accessLevel]?.label || member.accessLevel}
+                            {(member.relationship === 'partner' || member.relationship === 'special')
+                              ? 'Additional Adult'
+                              : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
                           </span>
                         ) : (
                           <span className="status-badge context-only">Context Only</span>
