@@ -61,13 +61,22 @@ const FamilySetupInterface: React.FC = () => {
   // Get authenticated user on mount
   useEffect(() => {
     const getAuthUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setCurrentUserId(user.id);
+        } else {
+          // No authenticated user - redirect to login
+          console.log('No authenticated user, redirecting to login');
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error getting authenticated user:', error);
+        navigate('/login');
       }
     };
     getAuthUser();
-  }, []);
+  }, [navigate]);
 
   // Debounced check for login name availability when editing
   useEffect(() => {
@@ -277,6 +286,9 @@ const FamilySetupInterface: React.FC = () => {
         if (membersResult.success) {
           setFamilyMembers(membersResult.members || []);
         }
+      } else {
+        // No family found yet - this is okay for new users
+        console.log('No family data found yet - user can create new family');
       }
     } catch (error) {
       console.error('Error loading family data:', error);
