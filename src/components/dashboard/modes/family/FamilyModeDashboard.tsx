@@ -9,6 +9,7 @@ import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { useFamilyDashboard } from '../../../../hooks/dashboard/useFamilyDashboard';
+import { usePermissions } from '../../../../hooks/usePermissions';
 import { familyMemberColors } from '../../../../styles/colors';
 import FamilyOverviewWidget from './FamilyOverviewWidget';
 import TaskManagementWidget from './TaskManagementWidget';
@@ -28,11 +29,23 @@ import './FamilyModeDashboard.css';
 
 interface FamilyModeDashboardProps {
   familyId?: string;
+  familyMemberId?: string; // For permission checking when restrictToPermissions is true
+  restrictToPermissions?: boolean; // When true, filter features by family member's permissions
 }
 
-const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) => {
+const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
+  familyId,
+  familyMemberId,
+  restrictToPermissions = false
+}) => {
   const navigate = useNavigate();
   const { loading, error, refresh } = useFamilyDashboard(familyId || null);
+
+  // Conditionally use permissions hook when restrictToPermissions is true
+  const permissionsHook = usePermissions(familyMemberId || '');
+  const checkPermission = restrictToPermissions && familyMemberId
+    ? permissionsHook.checkPermission
+    : () => true; // Always return true if not restricting
 
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [showTaskCreationModal, setShowTaskCreationModal] = useState(false);
@@ -452,16 +465,19 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
               </p>
             </div>
 
-            {/* Dashboard Switcher */}
-            <DashboardSwitcher onManageDashboards={() => setShowManageDashboards(true)} />
+            {/* Dashboard Switcher - Only for mom, not additional adults */}
+            {!restrictToPermissions && (
+              <DashboardSwitcher onManageDashboards={() => setShowManageDashboards(true)} />
+            )}
           </div>
         </div>
 
         {/* Widgets Grid */}
         <div className="family-widgets-grid">
-          {/* This Week - Combined Family Calendar - Full width - AT TOP */}
-          <div style={{ gridColumn: 'span 12' }}>
-            <div className="family-calendar-container">
+          {/* This Week - Combined Family Calendar - Full width - AT TOP (Permission: view_calendar) */}
+          {checkPermission('view_calendar') && (
+            <div style={{ gridColumn: 'span 12' }}>
+              <div className="family-calendar-container">
               <div className="family-calendar-header">
                 <h3 className="family-calendar-title">
                   This Week
@@ -647,58 +663,69 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
                 })}
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
-          {/* Family Overview - Full width */}
-          <div style={{ gridColumn: 'span 12' }}>
-            <FamilyOverviewWidget
-              familyMembers={mockFamilyMembers}
-              onViewMember={handleViewMember}
-              onManageFamily={handleManageFamily}
-            />
-          </div>
+          {/* Family Overview - Full width (Permission: view_family_data) */}
+          {checkPermission('view_family_data') && (
+            <div style={{ gridColumn: 'span 12' }}>
+              <FamilyOverviewWidget
+                familyMembers={mockFamilyMembers}
+                onViewMember={handleViewMember}
+                onManageFamily={handleManageFamily}
+              />
+            </div>
+          )}
 
-          {/* Task Management - Full width */}
-          <div style={{ gridColumn: 'span 12' }}>
-            <TaskManagementWidget
-              tasks={mockTasks}
-              onCreateTask={handleCreateTask}
-              onToggleTask={handleToggleTask}
-              onDeleteTask={handleDeleteTask}
-            />
-          </div>
+          {/* Task Management - Full width (Permission: view_tasks) */}
+          {checkPermission('view_tasks') && (
+            <div style={{ gridColumn: 'span 12' }}>
+              <TaskManagementWidget
+                tasks={mockTasks}
+                onCreateTask={checkPermission('create_tasks') ? handleCreateTask : undefined}
+                onToggleTask={checkPermission('edit_tasks') ? handleToggleTask : undefined}
+                onDeleteTask={checkPermission('edit_tasks') ? handleDeleteTask : undefined}
+              />
+            </div>
+          )}
 
-          {/* Analytics - Left side */}
-          <div style={{ gridColumn: 'span 7' }}>
-            <FamilyAnalyticsWidget
-              familyMembers={mockFamilyMembers}
-              weeklyTrend={12}
-              totalTasksThisWeek={13}
-              totalCompletedThisWeek={10}
-              averageCompletionTime={18}
-            />
-          </div>
+          {/* Analytics - Left side (Permission: access_reports) */}
+          {checkPermission('access_reports') && (
+            <div style={{ gridColumn: 'span 7' }}>
+              <FamilyAnalyticsWidget
+                familyMembers={mockFamilyMembers}
+                weeklyTrend={12}
+                totalTasksThisWeek={13}
+                totalCompletedThisWeek={10}
+                averageCompletionTime={18}
+              />
+            </div>
+          )}
 
-          {/* Reward Management - Right side */}
-          <div style={{ gridColumn: 'span 5' }}>
-            <RewardManagementWidget
-              memberBalances={mockMemberBalances}
-              pendingRequests={mockPendingRequests}
-              onApproveRequest={handleApproveRequest}
-              onDenyRequest={handleDenyRequest}
-              onAdjustBalance={handleAdjustBalance}
-            />
-          </div>
+          {/* Reward Management - Right side (Permission: manage_rewards) */}
+          {checkPermission('manage_rewards') && (
+            <div style={{ gridColumn: 'span 5' }}>
+              <RewardManagementWidget
+                memberBalances={mockMemberBalances}
+                pendingRequests={mockPendingRequests}
+                onApproveRequest={handleApproveRequest}
+                onDenyRequest={handleDenyRequest}
+                onAdjustBalance={handleAdjustBalance}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Task Creation Modal */}
-      <TaskCreationModal
-        isOpen={showTaskCreationModal}
-        onClose={() => setShowTaskCreationModal(false)}
-        onSave={handleTaskSave}
-        familyMembers={mockFamilyMembers}
-      />
+      {/* Task Creation Modal (Permission: create_tasks) */}
+      {checkPermission('create_tasks') && (
+        <TaskCreationModal
+          isOpen={showTaskCreationModal}
+          onClose={() => setShowTaskCreationModal(false)}
+          onSave={handleTaskSave}
+          familyMembers={mockFamilyMembers}
+        />
+      )}
 
       {/* Full Month Calendar Modal */}
       {showMonthModal && ReactDOM.createPortal(
@@ -737,11 +764,13 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({ familyId }) =
         document.getElementById('modal-root') || document.body
       )}
 
-      {/* Manage Dashboards Modal */}
-      <ManageDashboardsModal
-        isOpen={showManageDashboards}
-        onClose={() => setShowManageDashboards(false)}
-      />
+      {/* Manage Dashboards Modal - Only for mom, not additional adults */}
+      {!restrictToPermissions && (
+        <ManageDashboardsModal
+          isOpen={showManageDashboards}
+          onClose={() => setShowManageDashboards(false)}
+        />
+      )}
 
       {/* Date Detail Modal */}
       <DateDetailModal

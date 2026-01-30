@@ -10,6 +10,7 @@ import AdditionalAdultDashboard from './AdditionalAdultDashboard';
 
 const AdditionalAdultDashboardWrapper: React.FC = () => {
   const [familyMemberId, setFamilyMemberId] = useState<string | null>(null);
+  const [familyId, setFamilyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -42,7 +43,8 @@ const AdditionalAdultDashboardWrapper: React.FC = () => {
         return;
       }
 
-      // Set the family member ID
+      // Set both family ID and family member ID
+      setFamilyId(sessionData.family_id);
       setFamilyMemberId(sessionData.family_member_id);
     } catch (err) {
       console.error('Error parsing session data:', err);
@@ -74,11 +76,11 @@ const AdditionalAdultDashboardWrapper: React.FC = () => {
     );
   }
 
-  if (!familyMemberId) {
+  if (!familyMemberId || !familyId) {
     return null; // Will redirect in useEffect
   }
 
-  return <AdditionalAdultDashboard familyMemberId={familyMemberId} />;
+  return <AdditionalAdultDashboard familyMemberId={familyMemberId} familyId={familyId} />;
 };
 
 export default AdditionalAdultDashboardWrapper;
