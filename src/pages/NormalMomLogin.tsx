@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { setRememberPreference } from '../lib/sessionManager';
 
 const NormalMomLogin = () => {
   const [email, setEmail] = useState('');
@@ -100,10 +101,8 @@ const NormalMomLogin = () => {
       localStorage.setItem('aimfm_session', JSON.stringify(sessionData));
       localStorage.setItem('last_login_type', 'normal');
 
-      // Set remember me (7 days vs 24 hours)
-      if (rememberMe) {
-        localStorage.setItem('remember_me', 'true');
-      }
+      // Set remember me preference (persists across browser closes vs session only)
+      setRememberPreference(rememberMe);
 
       // Step 7: Redirect to Command Center
       console.log('Login successful, redirecting to command center');

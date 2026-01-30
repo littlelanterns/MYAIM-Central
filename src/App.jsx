@@ -1,9 +1,10 @@
 // src/App.jsx - Corrected version with ModalProvider and family-setup route added
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ModalProvider } from './contexts/ModalContext.tsx';
 import { FeedbackProvider } from './contexts/FeedbackContext.jsx';
 import { AuthProvider } from './components/auth/shared/AuthContext.tsx';
+import { checkSessionValidity } from './lib/sessionManager';
 import MainLayout from './layouts/MainLayout.tsx';
 import MarketingLayout from './layouts/MarketingLayout.tsx';
 import CommandCenter from './pages/CommandCenter.tsx';
@@ -43,6 +44,11 @@ import AccountSettings from './pages/AccountSettings.tsx';
 import './styles/global.css';
 
 function App() {
+  // Check session validity on app load (handles "Remember Me" logic)
+  useEffect(() => {
+    checkSessionValidity();
+  }, []);
+
   return (
     <AuthProvider>
       <ModalProvider>
