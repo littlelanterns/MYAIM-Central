@@ -129,15 +129,27 @@ const FamilyMemberLogin = () => {
         login_type: 'family_member',
         requires_parent_approval: memberData.requires_parent_approval,
         content_filter_level: memberData.content_filter_level,
+        relationship: memberData.relationship,
       };
 
       localStorage.setItem('aimfm_session', JSON.stringify(sessionData));
       localStorage.setItem('last_login_type', 'family_member');
 
-      // Redirect to member dashboard (which will load the appropriate mode)
-      const redirectPath = `/member/${memberData.id}`;
+      // Route based on relationship type:
+      // - Additional adults (partner, special) → AdditionalAdultDashboard
+      // - Children → Play/Guided/Independent dashboard
+      let redirectPath: string;
 
-      console.log(`Family member ${memberData.name} logged in, redirecting to ${redirectPath}`);
+      if (memberData.relationship === 'partner' || memberData.relationship === 'special') {
+        // Additional adult - use permission-based dashboard
+        redirectPath = `/commandcenter/dashboard/additional-adult`;
+        console.log(`Additional adult ${memberData.name} logged in, redirecting to Additional Adult Dashboard`);
+      } else {
+        // Child - use age-appropriate dashboard (play/guided/independent)
+        redirectPath = `/member/${memberData.id}`;
+        console.log(`Child ${memberData.name} logged in, redirecting to ${memberData.dashboard_type || 'independent'} mode dashboard`);
+      }
+
       navigate(redirectPath);
 
     } catch (err: any) {

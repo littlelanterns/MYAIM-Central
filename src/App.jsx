@@ -28,7 +28,7 @@ import BetaLogin from './components/auth/BetaLogin.jsx';
 import ForcedFamilySetup from './components/auth/ForcedFamilySetup.jsx';
 import PersonalDashboard from './components/dashboard/personal/PersonalDashboard.tsx';
 import MemberDashboard from './pages/MemberDashboard.tsx';
-import AdditionalAdultDashboard from './components/dashboard/additional-adult/AdditionalAdultDashboard.tsx';
+import AdditionalAdultDashboardWrapper from './components/dashboard/additional-adult/AdditionalAdultDashboardWrapper.tsx';
 import DashboardPreview from './pages/DashboardPreview.tsx';
 import Home from './pages/marketing/Home.tsx';
 import Pricing from './pages/marketing/Pricing.tsx';
@@ -95,7 +95,7 @@ function App() {
                 <Route path="family-dashboard" element={<FamilyDashboard />} />
                 <Route path="dashboard/personal" element={<PersonalDashboard />} />
                 <Route path="member/:memberId" element={<MemberDashboard />} />
-                <Route path="dashboard/additional-adult" element={<AdditionalAdultDashboard familyMemberId="" />} />
+                <Route path="dashboard/additional-adult" element={<AdditionalAdultDashboardWrapper />} />
                 <Route path="family-archive" element={<Archives />} />
                 <Route path="archives" element={<Archives />} />
                 <Route path="prompt-library" element={<PromptLibrary />} />
