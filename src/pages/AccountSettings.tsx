@@ -73,6 +73,7 @@ const AccountSettings: React.FC = () => {
     setSaved(false);
 
     try {
+      // Update family_members table
       const { error: updateError } = await supabase
         .from('family_members')
         .update({
@@ -83,6 +84,20 @@ const AccountSettings: React.FC = () => {
         .eq('id', familyMemberId);
 
       if (updateError) throw updateError;
+
+      // Also update auth user metadata so it shows in Supabase dashboard
+      const displayName = displayTitle.trim() || name.trim();
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: {
+          display_name: displayName,
+          full_name: name.trim()
+        }
+      });
+
+      if (metadataError) {
+        console.warn('Could not update auth metadata:', metadataError);
+        // Don't fail the whole save if metadata update fails
+      }
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
