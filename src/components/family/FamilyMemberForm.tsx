@@ -46,6 +46,33 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         />
       </div>
 
+      {/* Nicknames Field */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+          Nicknames
+          <span style={{ fontWeight: 'normal', fontSize: '0.85rem', marginLeft: '0.5rem', opacity: 0.7 }}>
+            (Optional)
+          </span>
+        </label>
+        <input
+          type="text"
+          value={Array.isArray(member.nicknames) ? member.nicknames.join(', ') : ''}
+          onChange={(e) => {
+            const nicknamesArray = e.target.value
+              .split(',')
+              .map(n => n.trim())
+              .filter(n => n.length > 0);
+            onUpdate(member.id, 'nicknames', nicknamesArray);
+          }}
+          placeholder="e.g., Gid, Mim, Simmy (separate with commas)"
+          style={{ width: '100%', padding: '0.75rem' }}
+          disabled={isSaving}
+        />
+        <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+          Enter nicknames separated by commas
+        </p>
+      </div>
+
       {/* Relationship Field */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
@@ -134,39 +161,89 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         </div>
       </div>
 
-      {/* Access Level (only for household members) */}
+      {/* Access Level - Different for children vs additional adults */}
       {member.inHousehold && (
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
-            Access Level
-          </label>
-          <select
-            value={member.accessLevel}
-            onChange={(e) => onUpdate(member.id, 'accessLevel', e.target.value)}
-            style={{ width: '100%', padding: '0.75rem' }}
-            disabled={isSaving}
-          >
-            {Object.entries(accessLevels)
-              .filter(([key]) => key !== 'none')
-              .map(([key, level]) => (
-                <option key={key} value={key}>
-                  {level.label} - {level.description}
-                </option>
-              ))}
-          </select>
+          {/* For Children: Show access level dropdown */}
+          {member.relationship === 'child' && (
+            <>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '600',
+                marginBottom: '0.5rem'
+              }}>
+                Permission Level
+                <div
+                  style={{
+                    position: 'relative',
+                    display: 'inline-flex',
+                    alignItems: 'center'
+                  }}
+                  title="Controls what features and data they can access"
+                >
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'var(--primary-color, #68a395)',
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: 'bold',
+                    cursor: 'help'
+                  }}>
+                    ?
+                  </span>
+                </div>
+              </label>
+              <select
+                value={member.accessLevel}
+                onChange={(e) => onUpdate(member.id, 'accessLevel', e.target.value)}
+                style={{ width: '100%', padding: '0.75rem' }}
+                disabled={isSaving}
+              >
+                {Object.entries(accessLevels)
+                  .filter(([key]) => key !== 'none')
+                  .map(([key, level]) => (
+                    <option key={key} value={key}>
+                      {level.label} - {level.description}
+                    </option>
+                  ))}
+              </select>
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem',
+                background: 'rgba(104, 163, 149, 0.05)',
+                borderRadius: '4px',
+                fontSize: '0.8rem',
+                color: '#666'
+              }}>
+                <strong>Permission Level</strong> = What they can do (create tasks, view calendar, etc.)
+              </div>
+            </>
+          )}
 
-          {/* Info for partners/special relationships */}
+          {/* For Partners/Special: Show info message instead of dropdown */}
           {(member.relationship === 'partner' || member.relationship === 'special') && (
             <div style={{
-              marginTop: '0.5rem',
               padding: '0.75rem',
               background: 'rgba(104, 163, 149, 0.1)',
               borderRadius: '6px',
               fontSize: '0.875rem',
-              lineHeight: '1.4'
+              lineHeight: '1.6',
+              border: '2px solid rgba(104, 163, 149, 0.2)'
             }}>
-              <strong>Additional Adult Dashboard:</strong> {member.name} will use a permission-based dashboard.
-              You can customize their specific permissions below to control what family data and features they can access.
+              <div style={{ fontWeight: '600', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>
+                📋 Additional Adult Dashboard
+              </div>
+              <div>
+                {member.name} will use a <strong>permission-based dashboard</strong> instead of child access levels.
+                Customize their specific permissions below to control what family data and features they can access.
+              </div>
             </div>
           )}
         </div>
@@ -184,14 +261,14 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
             fontWeight: '600',
             marginBottom: '0.5rem'
           }}>
-            Dashboard Type
+            Dashboard Style (UI Theme)
             <div
               style={{
                 position: 'relative',
                 display: 'inline-flex',
                 alignItems: 'center'
               }}
-              title="Preview different dashboard styles"
+              title="Controls how the dashboard looks and feels - not what they can access"
             >
               <span style={{
                 display: 'inline-flex',
@@ -210,6 +287,16 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
               </span>
             </div>
           </label>
+          <div style={{
+            marginBottom: '0.5rem',
+            padding: '0.5rem',
+            background: 'rgba(104, 163, 149, 0.05)',
+            borderRadius: '4px',
+            fontSize: '0.8rem',
+            color: '#666'
+          }}>
+            <strong>Dashboard Style</strong> = How the interface looks (fun/professional, colors, animations)
+          </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <select
