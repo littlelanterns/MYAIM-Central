@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import bcrypt from 'bcryptjs';
 
 interface Family {
   id: string;
@@ -100,25 +99,8 @@ const FamilyMemberLogin = () => {
         throw new Error('No family member with that name found. Check spelling or ask mom for help.');
       }
 
-      // Check if account is locked (too many failed attempts)
-      const { data: isLocked } = await supabase.rpc('is_pin_locked', {
-        member_id: memberData.id,
-      });
-
-      if (isLocked) {
-        throw new Error('Too many incorrect PIN attempts. Ask mom to unlock your account.');
-      }
-
-      // Verify PIN (compare hashed)
-      const isPINValid = await bcrypt.compare(pin, memberData.pin);
-
-      // Log the PIN attempt
-      await supabase.rpc('log_pin_attempt', {
-        member_id: memberData.id,
-        success: isPINValid,
-        ip: null, // Could add IP tracking if needed
-        agent: navigator.userAgent,
-      });
+      // Verify PIN (direct comparison - these are simple family PINs)
+      const isPINValid = pin === memberData.pin;
 
       if (!isPINValid) {
         throw new Error('Incorrect PIN. Try again or ask mom for help.');

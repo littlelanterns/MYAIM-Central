@@ -1,7 +1,7 @@
 // src/pages/FamilySettings.tsx - REFACTORED with shared types
 import React, { useState, useEffect, ChangeEvent, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp, HelpCircle, CheckCircle, XCircle, Loader, ArrowLeft } from 'lucide-react';
+import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp, HelpCircle, CheckCircle, XCircle, Loader, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
   saveFamilySetup,
@@ -33,6 +33,7 @@ const FamilySetupInterface: React.FC = () => {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showPermissions, setShowPermissions] = useState<ShowPermissionsState>({});
   const [collapsed, setCollapsed] = useState<CollapsedState>({});
+  const [visiblePins, setVisiblePins] = useState<Record<string | number, boolean>>({});
   const [showBulkAdd, setShowBulkAdd] = useState<boolean>(false);
   const [bulkText, setBulkText] = useState<string>('');
   const [aiProcessing, setAiProcessing] = useState<boolean>(false);
@@ -344,6 +345,15 @@ const FamilySetupInterface: React.FC = () => {
       setSaving(true);
       const member = familyMembers.find(m => m.id === memberId);
       if (!member) return;
+
+      // Validate PIN if member needs dashboard access
+      if (member.inHousehold && member.accessLevel !== 'none') {
+        if (!member.pin || member.pin.length !== 4 || !/^\d{4}$/.test(member.pin)) {
+          alert(`${member.name || 'This member'} needs a 4-digit PIN to log into their dashboard. Please set a PIN before saving.`);
+          setSaving(false);
+          return;
+        }
+      }
 
       const memberData = {
         ...member,
@@ -800,13 +810,13 @@ const FamilySetupInterface: React.FC = () => {
                 
                 {/* Collapsed View */}
                 {collapsed[member.id] ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: '1 1 auto' }}>
+                      <div style={{ flex: '1 1 auto' }}>
                         <h3 style={{ margin: 0, color: 'var(--text-color, #5a4033)' }}>
                           {member.name || 'Unnamed Member'}
                         </h3>
-                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
                           <span className="status-badge household">
                             {relationshipTypes[member.relationship]?.label || member.relationship}
                           </span>
@@ -817,11 +827,47 @@ const FamilySetupInterface: React.FC = () => {
                           ) : (
                             <span className="status-badge context-only">Context Only</span>
                           )}
+                          {/* PIN Display */}
+                          {member.inHousehold && member.accessLevel !== 'none' && member.pin && (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.25rem 0.75rem',
+                              background: 'var(--accent-color, #d4e3d9)',
+                              borderRadius: '12px',
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              color: 'var(--text-color, #5a4033)'
+                            }}>
+                              <span>PIN:</span>
+                              <span style={{ fontFamily: 'monospace', letterSpacing: '0.2em' }}>
+                                {visiblePins[member.id] ? member.pin : '••••'}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setVisiblePins({ ...visiblePins, [member.id]: !visiblePins[member.id] });
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px',
+                                  display: 'flex',
+                                  alignItems: 'center'
+                                }}
+                                title={visiblePins[member.id] ? 'Hide PIN' : 'Show PIN'}
+                              >
+                                {visiblePins[member.id] ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-                    
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                       <button
                         onClick={() => setCollapsed({ ...collapsed, [member.id]: false })}
                         style={{

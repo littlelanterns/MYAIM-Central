@@ -258,6 +258,40 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         </div>
       )}
 
+      {/* PIN (only for household members who will log in) */}
+      {member.inHousehold && member.accessLevel !== 'none' && (
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
+            Login PIN
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={member.pin || ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                onUpdate(member.id, 'pin', value);
+              }}
+              placeholder="4-digit PIN"
+              maxLength={4}
+              pattern="\d{4}"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                fontSize: '1.25rem',
+                letterSpacing: '0.5em',
+                textAlign: 'center',
+                fontFamily: 'monospace'
+              }}
+              disabled={isSaving}
+            />
+          </div>
+          <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+            This PIN allows {member.name || 'this member'} to log into their dashboard. You can view or change it anytime.
+          </p>
+        </div>
+      )}
+
       {/* Birthday */}
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>
