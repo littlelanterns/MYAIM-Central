@@ -136,6 +136,7 @@ Output format (return EXACTLY this structure):
       "name": "string",
       "relationship": "self|child|out-of-nest|partner|special",
       "age": number or null,
+      "birthday": "YYYY-MM-DD" or null (extract if mentioned, use any date format but return as YYYY-MM-DD),
       "accessLevel": "guided|independent|full|none",
       "nicknames": ["string"],
       "notes": "string with age info if detected"
@@ -147,16 +148,22 @@ Output format (return EXACTLY this structure):
 
 Focus on detecting:
 - Ages to determine child vs out-of-nest
+- Birthdays (in any format: "March 15", "3/15/2010", "born 2010-03-15", etc.) - convert to YYYY-MM-DD
 - Living situations (home vs moved out vs separate household)
 - Generational relationships (children vs grandchildren vs great-grandchildren)
 - Relationship indicators (mom, dad, spouse, grandchild, etc.)
 
 Examples of "out-of-nest":
 - "My adult daughter Sarah and her kids"
-- "Grandson Jake who's in college" 
+- "Grandson Jake who's in college"
 - "Our married son and his family"
 - "Daughter-in-law Emma"
-- "Great-grandchildren from our oldest"`;
+- "Great-grandchildren from our oldest"
+
+Birthday extraction examples:
+- "Emma, age 10, birthday March 15" → "birthday": "2015-03-15" (calculate year from age)
+- "John born 5/20/2008" → "birthday": "2008-05-20"
+- "Sarah's birthday is December 1st, she's 12" → "birthday": "2013-12-01"`;
 
     const aiResponse = await makeOpenRouterRequest(systemPrompt, userPrompt);
 
@@ -188,7 +195,7 @@ Examples of "out-of-nest":
         id: Date.now() + index,
         name: member.name || 'Unknown',
         nicknames: Array.isArray(member.nicknames) ? member.nicknames : [member.nicknames || ''],
-        birthday: '',
+        birthday: member.birthday || '',
         relationship: member.relationship || 'child',
         customRole: member.relationship === 'special' ? member.name : '',
         accessLevel: accessLevel,
