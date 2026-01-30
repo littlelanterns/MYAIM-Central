@@ -222,6 +222,23 @@ Birthday extraction examples:
 
     // Process and format for database
     const processedMembers = parsedData.familyMembers.map((member, index) => {
+      // Calculate age from birthday if provided
+      let calculatedAge = member.age;
+      if (member.birthday && !calculatedAge) {
+        try {
+          const birthDate = new Date(member.birthday);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          calculatedAge = age;
+        } catch (e) {
+          console.warn('Could not calculate age from birthday:', member.birthday);
+        }
+      }
+
       // Smart defaults for access levels
       let accessLevel = member.accessLevel;
       if (!accessLevel) {
@@ -229,10 +246,24 @@ Birthday extraction examples:
           accessLevel = 'none'; // Context only
         } else if (member.relationship === 'partner' || member.relationship === 'self') {
           accessLevel = 'full';
-        } else if (member.age && member.age >= 13) {
+        } else if (calculatedAge && calculatedAge >= 13) {
           accessLevel = 'independent';
         } else {
           accessLevel = 'guided';
+        }
+      }
+
+      // Set dashboard type based on age (for children only)
+      let dashboardType = 'guided'; // default
+      if (member.relationship === 'child' && calculatedAge) {
+        if (calculatedAge >= 13) {
+          dashboardType = 'independent'; // Ages 13-18
+        } else if (calculatedAge >= 10) {
+          dashboardType = 'guided'; // Ages 10-12
+        } else if (calculatedAge >= 5) {
+          dashboardType = 'play'; // Ages 5-9
+        } else {
+          dashboardType = 'play'; // Under 5
         }
       }
 
@@ -244,9 +275,10 @@ Birthday extraction examples:
         relationship: member.relationship || 'child',
         customRole: member.relationship === 'special' ? member.name : '',
         accessLevel: accessLevel,
+        dashboard_type: member.relationship === 'child' ? dashboardType : undefined,
         inHousehold: member.relationship !== 'out-of-nest' && member.relationship !== 'special',
         permissions: {},
-        notes: member.notes || `Added via AI on ${new Date().toLocaleDateString()}${member.age ? ` (Age: ${member.age})` : ''}`
+        notes: member.notes || `Added via AI on ${new Date().toLocaleDateString()}${calculatedAge ? ` (Age: ${calculatedAge})` : ''}`
       };
     });
 

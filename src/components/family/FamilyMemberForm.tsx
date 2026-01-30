@@ -161,91 +161,25 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         </div>
       </div>
 
-      {/* Access Level - Different for children vs additional adults */}
-      {member.inHousehold && (
+      {/* Access Level - Only shown for Additional Adults (Partners/Special) */}
+      {member.inHousehold && (member.relationship === 'partner' || member.relationship === 'special') && (
         <div style={{ marginBottom: '1rem' }}>
-          {/* For Children: Show access level dropdown */}
-          {member.relationship === 'child' && (
-            <>
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '600',
-                marginBottom: '0.5rem'
-              }}>
-                Permission Level
-                <div
-                  style={{
-                    position: 'relative',
-                    display: 'inline-flex',
-                    alignItems: 'center'
-                  }}
-                  title="Controls what features and data they can access"
-                >
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '18px',
-                    height: '18px',
-                    borderRadius: '50%',
-                    background: 'var(--primary-color, #68a395)',
-                    color: 'white',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    cursor: 'help'
-                  }}>
-                    ?
-                  </span>
-                </div>
-              </label>
-              <select
-                value={member.accessLevel}
-                onChange={(e) => onUpdate(member.id, 'accessLevel', e.target.value)}
-                style={{ width: '100%', padding: '0.75rem' }}
-                disabled={isSaving}
-              >
-                {Object.entries(accessLevels)
-                  .filter(([key]) => key !== 'none')
-                  .map(([key, level]) => (
-                    <option key={key} value={key}>
-                      {level.label} - {level.description}
-                    </option>
-                  ))}
-              </select>
-              <div style={{
-                marginTop: '0.5rem',
-                padding: '0.5rem',
-                background: 'rgba(104, 163, 149, 0.05)',
-                borderRadius: '4px',
-                fontSize: '0.8rem',
-                color: '#666'
-              }}>
-                <strong>Permission Level</strong> = What they can do (create tasks, view calendar, etc.)
-              </div>
-            </>
-          )}
-
-          {/* For Partners/Special: Show info message instead of dropdown */}
-          {(member.relationship === 'partner' || member.relationship === 'special') && (
-            <div style={{
-              padding: '0.75rem',
-              background: 'rgba(104, 163, 149, 0.1)',
-              borderRadius: '6px',
-              fontSize: '0.875rem',
-              lineHeight: '1.6',
-              border: '2px solid rgba(104, 163, 149, 0.2)'
-            }}>
-              <div style={{ fontWeight: '600', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>
-                📋 Additional Adult Dashboard
-              </div>
-              <div>
-                {member.name} will use a <strong>permission-based dashboard</strong> instead of child access levels.
-                Customize their specific permissions below to control what family data and features they can access.
-              </div>
+          <div style={{
+            padding: '0.75rem',
+            background: 'rgba(104, 163, 149, 0.1)',
+            borderRadius: '6px',
+            fontSize: '0.875rem',
+            lineHeight: '1.6',
+            border: '2px solid rgba(104, 163, 149, 0.2)'
+          }}>
+            <div style={{ fontWeight: '600', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>
+              📋 Additional Adult Dashboard
             </div>
-          )}
+            <div>
+              {member.name} will use a <strong>permission-based dashboard</strong>.
+              Customize their specific permissions below to control what family data and features they can access.
+            </div>
+          </div>
         </div>
       )}
 
@@ -261,14 +195,14 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
             fontWeight: '600',
             marginBottom: '0.5rem'
           }}>
-            Dashboard Style (UI Theme)
+            Dashboard Style
             <div
               style={{
                 position: 'relative',
                 display: 'inline-flex',
                 alignItems: 'center'
               }}
-              title="Controls how the dashboard looks and feels - not what they can access"
+              title="Choose the visual style they prefer - this is just how it looks, not what they can access"
             >
               <span style={{
                 display: 'inline-flex',
@@ -290,12 +224,13 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
           <div style={{
             marginBottom: '0.5rem',
             padding: '0.5rem',
-            background: 'rgba(104, 163, 149, 0.05)',
+            background: 'rgba(214, 164, 97, 0.1)',
             borderRadius: '4px',
             fontSize: '0.8rem',
-            color: '#666'
+            color: '#5a4033',
+            border: '1px solid rgba(214, 164, 97, 0.2)'
           }}>
-            <strong>Dashboard Style</strong> = How the interface looks (fun/professional, colors, animations)
+            💡 This controls how their dashboard <strong>looks</strong> (colors, animations, style), not what features they can use. Feature permissions coming soon!
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
