@@ -104,6 +104,13 @@ export async function processFamilyDescription(familyDescription, existingMember
 
     const systemPrompt = `You are a family data extraction specialist. Convert natural language family descriptions into structured JSON data.
 
+CRITICAL JSON FORMATTING RULES:
+- Return ONLY valid JSON - no extra text, explanations, markdown, or comments
+- Ensure all string values are properly quoted
+- Ensure all commas are properly placed between array items and object properties
+- Do NOT include trailing commas before closing brackets
+- For large families (10+ people), double-check your JSON syntax is perfect
+
 IMPORTANT RULES:
 1. Extract ONLY the people mentioned in the input
 2. Infer relationships and ages from context clues
@@ -165,11 +172,49 @@ Birthday extraction examples:
 - "John born 5/20/2008" → "birthday": "2008-05-20"
 - "Sarah's birthday is December 1st, she's 12" → "birthday": "2013-12-01"`;
 
-    const aiResponse = await makeOpenRouterRequest(systemPrompt, userPrompt);
+    const aiResponse = await makeOpenRouterRequest(systemPrompt, userPrompt, {
+      maxTokens: 3000, // Increased for large families
+      temperature: 0.1
+    });
 
     // Parse and validate response
-    const cleanedResponse = aiResponse.replace(/```json\n?|\n?```/g, '').trim();
-    const parsedData = JSON.parse(cleanedResponse);
+    let cleanedResponse = aiResponse.replace(/```json\n?|\n?```/g, '').trim();
+
+    // Log the raw response for debugging
+    console.log('[AI Services] Raw AI response length:', cleanedResponse.length);
+    console.log('[AI Services] First 500 chars:', cleanedResponse.substring(0, 500));
+    console.log('[AI Services] Last 500 chars:', cleanedResponse.substring(cleanedResponse.length - 500));
+
+    // Try to extract JSON if there's extra text
+    const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanedResponse = jsonMatch[0];
+    }
+
+    let parsedData;
+    try {
+      parsedData = JSON.parse(cleanedResponse);
+    } catch (parseError) {
+      // Try to fix common JSON errors
+      console.error('[AI Services] JSON parse error, attempting repair:', parseError.message);
+
+      // Try removing trailing commas
+      const repairedResponse = cleanedResponse
+        .replace(/,\s*}/g, '}')
+        .replace(/,\s*]/g, ']');
+
+      try {
+        parsedData = JSON.parse(repairedResponse);
+        console.log('[AI Services] JSON repair successful');
+      } catch (repairError) {
+        console.error('[AI Services] Full response that failed to parse:', cleanedResponse);
+        throw new AIServiceError(
+          `AI returned invalid JSON: ${parseError.message}. Response length: ${cleanedResponse.length} chars`,
+          'family-processing',
+          parseError
+        );
+      }
+    }
 
     if (!parsedData.familyMembers || !Array.isArray(parsedData.familyMembers)) {
       throw new AIServiceError('Invalid response structure from AI', 'family-processing');
