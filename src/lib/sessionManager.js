@@ -23,10 +23,13 @@ export const setRememberPreference = (rememberMe) => {
 export const checkSessionValidity = () => {
   const rememberMe = localStorage.getItem('aimfm_remember_me');
   const isTemporary = sessionStorage.getItem('aimfm_session_temporary');
+  const hasSession = localStorage.getItem('aimfm_session');
 
-  // If remember me is false and this is a new browser session (no temp flag)
-  // then the user closed their browser and we should clear the session
-  if (rememberMe === 'false' && !isTemporary) {
+  // Only clear if ALL these conditions are true:
+  // 1. User explicitly set remember me to false (not just missing)
+  // 2. This is a new browser session (no temporary flag in sessionStorage)
+  // 3. There's actually a session to clear
+  if (rememberMe === 'false' && !isTemporary && hasSession) {
     console.log('Session was not marked for remembering and browser was closed - clearing session');
     clearSession();
     return false; // Session invalid
