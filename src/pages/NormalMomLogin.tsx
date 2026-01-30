@@ -28,24 +28,7 @@ const NormalMomLogin = () => {
         throw new Error('No user data returned from authentication');
       }
 
-      // Step 2: Check if this is a beta user and if setup is completed
-      const { data: betaUser } = await supabase
-        .from('beta_users')
-        .select('id, status, setup_completed')
-        .eq('user_id', authData.user.id)
-        .maybeSingle();
-
-      // If beta user exists, check if setup is completed
-      if (betaUser) {
-        if (!betaUser.setup_completed) {
-          // Beta user hasn't completed family setup - redirect to setup
-          console.log('Beta user setup not completed, redirecting to family setup');
-          navigate('/beta/family-setup');
-          return;
-        }
-      }
-
-      // Step 3: Load family context
+      // Step 2: Load family context
       const { data: familyData, error: familyError } = await supabase
         .from('families')
         .select(`
@@ -88,11 +71,21 @@ const NormalMomLogin = () => {
         return;
       }
 
-      // Step 6: Store session data
+      // Step 6: Get primary family member info
       const familyMember = Array.isArray(familyData.family_members)
         ? familyData.family_members[0]
         : familyData.family_members;
 
+      // Step 7: Check if profile setup is complete (universal check - works for all users)
+      // If name is still the placeholder "Primary Parent", redirect to settings to complete setup
+      if (familyMember.name === 'Primary Parent') {
+        console.log('Profile setup incomplete (placeholder name), redirecting to family settings');
+        localStorage.setItem('last_login_type', 'normal');
+        navigate('/family-settings');
+        return;
+      }
+
+      // Step 8: Store session data
       const sessionData = {
         user_id: authData.user.id,
         family_id: familyData.id,

@@ -39,6 +39,7 @@ import ArticleDetail from './pages/marketing/ArticleDetail.tsx';
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import ResetPassword from './pages/ResetPassword.tsx';
 import AuthCallback from './pages/AuthCallback.tsx';
+import AccountSettings from './pages/AccountSettings.tsx';
 import './styles/global.css';
 
 function App() {
@@ -70,6 +71,10 @@ function App() {
 
               {/* Auth Callback - handles email confirmation redirects */}
               <Route path="/auth/callback" element={<AuthCallback />} />
+
+              {/* Settings Routes - Standalone pages */}
+              <Route path="/account-settings" element={<AccountSettings />} />
+              <Route path="/family-settings" element={<FamilySetupInterface />} />
 
               {/* Beta Routes */}
               <Route path="/beta/login" element={<BetaLogin />} />

@@ -1,6 +1,7 @@
 // src/pages/FamilySettings.tsx - REFACTORED with shared types
 import React, { useState, useEffect, ChangeEvent, useRef, useCallback } from 'react';
-import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp, HelpCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Edit2, Check, AlertCircle, ChevronDown, ChevronUp, HelpCircle, CheckCircle, XCircle, Loader, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
   saveFamilySetup,
@@ -19,6 +20,7 @@ import { FamilyMember, RelationshipType, AccessLevel, ShowPermissionsState, Coll
 // Remove duplicate interface definitions - now imported from shared types
 
 const FamilySetupInterface: React.FC = () => {
+  const navigate = useNavigate();
   const [familyName, setFamilyName] = useState<string>('');
   const [familyLoginName, setFamilyLoginName] = useState<string>('');
   const [originalLoginName, setOriginalLoginName] = useState<string>('');
@@ -115,6 +117,48 @@ const FamilySetupInterface: React.FC = () => {
     setLoginNameStatus({ checking: false, available: null });
   }, [originalLoginName]);
 
+  // Save login name immediately to database
+  const saveLoginName = async () => {
+    if (!currentFamilyId) {
+      alert('Please save your family setup first before setting a login ID.');
+      return;
+    }
+
+    if (loginNameStatus.checking) {
+      alert('Please wait while we check availability.');
+      return;
+    }
+
+    if (loginNameStatus.available === false && familyLoginName !== originalLoginName) {
+      alert('This login ID is not available. Please choose a different one.');
+      return;
+    }
+
+    if (familyLoginName.trim().length < 3) {
+      alert('Login ID must be at least 3 characters.');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('families')
+        .update({ family_login_name: familyLoginName.toLowerCase().trim() })
+        .eq('id', currentFamilyId);
+
+      if (error) throw error;
+
+      setOriginalLoginName(familyLoginName.toLowerCase().trim());
+      setIsEditingLoginName(false);
+      setLoginNameStatus({ checking: false, available: null });
+    } catch (error) {
+      console.error('Error saving login name:', error);
+      alert('Failed to save login ID: ' + (error as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Relationship types with "out-of-nest" terminology
   const relationshipTypes: Record<string, RelationshipType> = {
     self: { label: 'Self (Me)', color: 'var(--accent-tertiary, #805a82)' },
@@ -210,10 +254,12 @@ const FamilySetupInterface: React.FC = () => {
     }
   };
 
-  // Load family data on component mount
+  // Load family data when currentUserId is available
   useEffect(() => {
-    loadFamilyData();
-  }, []);
+    if (currentUserId) {
+      loadFamilyData();
+    }
+  }, [currentUserId]);
 
   const loadFamilyData = async (): Promise<void> => {
     try {
@@ -504,6 +550,27 @@ const FamilySetupInterface: React.FC = () => {
       padding: '2rem'
     }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/commandcenter')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--primary-color, #68a395)',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            padding: '0.5rem 0',
+            marginBottom: '1rem'
+          }}
+        >
+          <ArrowLeft size={18} />
+          Back to Command Center
+        </button>
+
         <div style={{
           background: 'rgba(255, 255, 255, 0.9)',
           borderRadius: '20px',
@@ -511,7 +578,7 @@ const FamilySetupInterface: React.FC = () => {
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
           border: '1px solid var(--accent-color, #d4e3d9)'
         }}>
-          
+
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h1 style={{
@@ -657,6 +724,28 @@ const FamilySetupInterface: React.FC = () => {
 
                 {/* Edit actions */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <button
+                    onClick={saveLoginName}
+                    disabled={saving || loginNameStatus.checking || (loginNameStatus.available === false && familyLoginName !== originalLoginName)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.85rem',
+                      background: loginNameStatus.available === true || familyLoginName === originalLoginName
+                        ? 'var(--primary-color, #68a395)'
+                        : 'var(--accent-color, #d4e3d9)',
+                      color: loginNameStatus.available === true || familyLoginName === originalLoginName
+                        ? 'white'
+                        : 'var(--text-color, #5a4033)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: saving || loginNameStatus.checking || (loginNameStatus.available === false && familyLoginName !== originalLoginName)
+                        ? 'not-allowed'
+                        : 'pointer',
+                      opacity: (saving || loginNameStatus.checking) ? 0.6 : 1
+                    }}
+                  >
+                    {saving ? 'Saving...' : loginNameStatus.checking ? 'Checking...' : 'Save Login ID'}
+                  </button>
                   <button
                     onClick={cancelLoginNameEdit}
                     style={{
