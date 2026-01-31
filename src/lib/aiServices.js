@@ -145,7 +145,7 @@ Output format (return EXACTLY this structure):
       "age": number or null,
       "birthday": "YYYY-MM-DD" or null (extract if mentioned, use any date format but return as YYYY-MM-DD),
       "accessLevel": "guided|independent|full|none",
-      "nicknames": ["string"],
+      "nicknames": ["string"] (IMPORTANT: If multiple nicknames, return as separate array items. For "Mike, Michael" return ["Mike", "Michael"]),
       "notes": "string with age info if detected"
     }
   ]
@@ -271,6 +271,7 @@ Birthday extraction examples:
         } else {
           dashboardType = 'play'; // Under 5
         }
+        console.log(`[AI Services] Dashboard type for ${member.name} (age ${calculatedAge}): ${dashboardType}`);
       }
 
       // Auto-generate PIN from birthday (MMDD format), default to "0000" if no birthday
@@ -286,10 +287,22 @@ Birthday extraction examples:
         }
       }
 
+      // Process nicknames - handle both arrays and comma-separated strings
+      let processedNicknames = [];
+      if (Array.isArray(member.nicknames)) {
+        // AI returned an array - flatten and split any comma-separated values
+        processedNicknames = member.nicknames.flatMap(nick =>
+          typeof nick === 'string' ? nick.split(',').map(n => n.trim()).filter(n => n) : []
+        );
+      } else if (typeof member.nicknames === 'string' && member.nicknames) {
+        // AI returned a string - split by commas
+        processedNicknames = member.nicknames.split(',').map(n => n.trim()).filter(n => n);
+      }
+
       return {
         id: Date.now() + index,
         name: member.name || 'Unknown',
-        nicknames: Array.isArray(member.nicknames) ? member.nicknames : [member.nicknames || ''],
+        nicknames: processedNicknames,
         birthday: member.birthday || '',
         relationship: member.relationship || 'child',
         customRole: member.relationship === 'special' ? member.name : '',
