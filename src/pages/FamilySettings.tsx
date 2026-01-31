@@ -421,18 +421,68 @@ const FamilySetupInterface: React.FC = () => {
         familyData.family_login_name = originalLoginName;
       }
 
+      // Step 1: Save family metadata
       const result = await saveFamilySetup(familyData);
-      if (result.success) {
-        setCurrentFamilyId(result.familyId);
-        // Update original login name to reflect saved value
-        if (familyData.family_login_name) {
-          setOriginalLoginName(familyData.family_login_name);
-        }
-        setIsEditingLoginName(false);
-        alert('Family setup saved successfully!');
-      } else {
+      if (!result.success) {
         throw new Error(result.error || 'Failed to save family setup');
       }
+
+      const familyId = result.familyId;
+      setCurrentFamilyId(familyId);
+
+      // Update original login name to reflect saved value
+      if (familyData.family_login_name) {
+        setOriginalLoginName(familyData.family_login_name);
+      }
+      setIsEditingLoginName(false);
+
+      // Step 2: Validate all members before saving
+      for (const member of familyMembers) {
+        if (member.inHousehold && member.accessLevel !== 'none') {
+          if (!member.pin || member.pin.length !== 4 || !/^\d{4}$/.test(member.pin)) {
+            alert(`${member.name || 'A family member'} needs a 4-digit PIN. Please set PINs for all members before saving.`);
+            setSaving(false);
+            return;
+          }
+        }
+      }
+
+      // Step 3: Save all family members
+      let savedCount = 0;
+      let failedCount = 0;
+
+      for (const member of familyMembers) {
+        try {
+          const memberData = {
+            ...member,
+            family_id: familyId
+          };
+          const memberResult = await saveFamilyMember(memberData);
+          if (memberResult.success) {
+            savedCount++;
+          } else {
+            failedCount++;
+            console.error(`Failed to save ${member.name}:`, memberResult.error);
+          }
+        } catch (error) {
+          failedCount++;
+          console.error(`Error saving ${member.name}:`, error);
+        }
+      }
+
+      // Show results
+      if (failedCount > 0) {
+        alert(`Family setup saved! ${savedCount} members saved, ${failedCount} failed. Check console for details.`);
+      } else {
+        alert(`Family setup saved successfully! ${savedCount} members saved.`);
+      }
+
+      // Collapse all member cards after successful save
+      const newCollapsed: Record<string | number, boolean> = {};
+      familyMembers.forEach(m => {
+        newCollapsed[m.id] = true;
+      });
+      setCollapsed(newCollapsed);
 
     } catch (error) {
       console.error('Error saving family setup:', error);
