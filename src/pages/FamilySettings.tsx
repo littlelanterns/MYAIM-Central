@@ -537,6 +537,8 @@ const FamilySetupInterface: React.FC = () => {
           relationship: member.relationship === 'adult-child' ? 'out-of-nest' : member.relationship,
           customRole: member.customRole || '',
           accessLevel: member.accessLevel,
+          dashboard_type: member.dashboard_type, // Preserve AI-calculated dashboard type
+          pin: member.pin || '0000', // Preserve AI-generated PIN
           inHousehold: member.inHousehold,
           permissions: permissions,
           notes: member.notes || '',
