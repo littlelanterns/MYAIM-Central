@@ -67,6 +67,8 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
           placeholder="e.g., Gid, Mim, Simmy (separate with commas)"
           style={{ width: '100%', padding: '0.75rem' }}
           disabled={isSaving}
+          autoComplete="off"
+          spellCheck="false"
         />
         <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
           Enter nicknames separated by commas
@@ -348,10 +350,13 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
             // Auto-populate PIN from birthday (MMDD) if PIN is empty or still default
             if (!member.pin || member.pin === '' || member.pin === '0000') {
               if (newBirthday) {
-                const date = new Date(newBirthday);
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                onUpdate(member.id, 'pin', month + day);
+                // Parse date string directly to avoid timezone issues (YYYY-MM-DD format)
+                const dateParts = newBirthday.split('-');
+                if (dateParts.length === 3) {
+                  const month = dateParts[1]; // Already zero-padded
+                  const day = dateParts[2]; // Already zero-padded
+                  onUpdate(member.id, 'pin', month + day);
+                }
               } else {
                 // No birthday, set default PIN
                 onUpdate(member.id, 'pin', '0000');

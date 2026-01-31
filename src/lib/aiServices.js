@@ -278,10 +278,16 @@ Birthday extraction examples:
       let autoPin = '0000';  // Default PIN
       if (member.birthday) {
         try {
-          const birthDate = new Date(member.birthday);
-          const month = String(birthDate.getMonth() + 1).padStart(2, '0');
-          const day = String(birthDate.getDate()).padStart(2, '0');
-          autoPin = month + day;
+          // Parse date string directly to avoid timezone issues
+          // Birthday format is YYYY-MM-DD
+          const dateParts = member.birthday.split('-');
+          if (dateParts.length === 3) {
+            const month = dateParts[1]; // Already zero-padded
+            const day = dateParts[2]; // Already zero-padded
+            autoPin = month + day;
+          } else {
+            console.warn('Unexpected birthday format:', member.birthday);
+          }
         } catch (e) {
           console.warn('Could not generate PIN from birthday:', member.birthday);
         }
