@@ -341,7 +341,23 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
         <input
           type="date"
           value={member.birthday}
-          onChange={(e) => onUpdate(member.id, 'birthday', e.target.value)}
+          onChange={(e) => {
+            const newBirthday = e.target.value;
+            onUpdate(member.id, 'birthday', newBirthday);
+
+            // Auto-populate PIN from birthday (MMDD) if PIN is empty or still default
+            if (!member.pin || member.pin === '' || member.pin === '0000') {
+              if (newBirthday) {
+                const date = new Date(newBirthday);
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                onUpdate(member.id, 'pin', month + day);
+              } else {
+                // No birthday, set default PIN
+                onUpdate(member.id, 'pin', '0000');
+              }
+            }
+          }}
           style={{ width: '100%', padding: '0.75rem' }}
           disabled={isSaving}
         />

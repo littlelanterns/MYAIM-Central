@@ -93,6 +93,8 @@ export async function saveFamilyMember(memberData) {
       birthday: memberData.birthday || null,
       nicknames: memberData.nicknames || [],
       access_level: memberData.accessLevel || 'guided',
+      dashboard_type: memberData.dashboard_type || 'guided',
+      pin: memberData.pin || null,
       in_household: memberData.inHousehold !== undefined ? memberData.inHousehold : true,
       permissions: memberData.permissions || {},
       notes: memberData.notes || ''

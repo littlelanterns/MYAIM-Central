@@ -273,6 +273,19 @@ Birthday extraction examples:
         }
       }
 
+      // Auto-generate PIN from birthday (MMDD format), default to "0000" if no birthday
+      let autoPin = '0000';  // Default PIN
+      if (member.birthday) {
+        try {
+          const birthDate = new Date(member.birthday);
+          const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+          const day = String(birthDate.getDate()).padStart(2, '0');
+          autoPin = month + day;
+        } catch (e) {
+          console.warn('Could not generate PIN from birthday:', member.birthday);
+        }
+      }
+
       return {
         id: Date.now() + index,
         name: member.name || 'Unknown',
@@ -282,6 +295,7 @@ Birthday extraction examples:
         customRole: member.relationship === 'special' ? member.name : '',
         accessLevel: accessLevel,
         dashboard_type: member.relationship === 'child' ? dashboardType : undefined,
+        pin: autoPin,
         inHousehold: member.relationship !== 'out-of-nest' && member.relationship !== 'special',
         permissions: {},
         notes: member.notes || `Added via AI on ${new Date().toLocaleDateString()}${calculatedAge ? ` (Age: ${calculatedAge})` : ''}`

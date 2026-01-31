@@ -393,6 +393,7 @@ const FamilySetupInterface: React.FC = () => {
 
       if (!familyName.trim()) {
         alert('Please enter a family name.');
+        setSaving(false);
         return;
       }
 
@@ -400,6 +401,7 @@ const FamilySetupInterface: React.FC = () => {
       if (isEditingLoginName && familyLoginName !== originalLoginName) {
         if (!loginNameStatus.available) {
           alert('Please choose an available Family Login ID before saving.');
+          setSaving(false);
           return;
         }
       }
@@ -529,15 +531,42 @@ const FamilySetupInterface: React.FC = () => {
   // Confirm and add selected AI members
   const confirmAIMembers = (): void => {
     const selectedMembers = aiProcessedMembers.filter((member) => member.selected !== false);
-    
+
     if (selectedMembers.length === 0) {
       alert('Please select at least one family member to add.');
       return;
     }
 
-    // Remove the selected property before adding to main family members
-    const membersToAdd = selectedMembers.map(({ selected, ...member }) => member);
-    setFamilyMembers([...familyMembers, ...membersToAdd]);
+    // Check if any selected member is the primary parent (self)
+    const selfMember = selectedMembers.find(m => m.relationship === 'self');
+
+    // Find existing Primary Parent placeholder
+    const existingPrimaryParent = familyMembers.find(m =>
+      m.name === 'Primary Parent'
+    );
+
+    if (selfMember && existingPrimaryParent) {
+      // Update existing Primary Parent record instead of creating new
+      const updatedMembers = familyMembers.map(m => {
+        if (m.id === existingPrimaryParent.id) {
+          // Replace placeholder with self member data, keeping original ID
+          return { ...selfMember, id: m.id };
+        }
+        return m;
+      });
+
+      // Add remaining members (excluding self)
+      const othersToAdd = selectedMembers
+        .filter(m => m.relationship !== 'self')
+        .map(({ selected, ...member }) => member);
+
+      setFamilyMembers([...updatedMembers, ...othersToAdd]);
+    } else {
+      // Normal flow - no Primary Parent replacement needed
+      const membersToAdd = selectedMembers.map(({ selected, ...member }) => member);
+      setFamilyMembers([...familyMembers, ...membersToAdd]);
+    }
+
     setShowVerification(false);
     setAiProcessedMembers([]);
     setBulkText('');
