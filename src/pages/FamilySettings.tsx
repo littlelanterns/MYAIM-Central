@@ -579,7 +579,7 @@ const FamilySetupInterface: React.FC = () => {
   };
 
   // Confirm and add selected AI members
-  const confirmAIMembers = (): void => {
+  const confirmAIMembers = async (): Promise<void> => {
     const selectedMembers = aiProcessedMembers.filter((member) => member.selected !== false);
 
     if (selectedMembers.length === 0) {
@@ -587,39 +587,100 @@ const FamilySetupInterface: React.FC = () => {
       return;
     }
 
-    // Check if any selected member is the primary parent (self)
-    const selfMember = selectedMembers.find(m => m.relationship === 'self');
-
-    // Find existing Primary Parent placeholder
-    const existingPrimaryParent = familyMembers.find(m =>
-      m.name === 'Primary Parent'
-    );
-
-    if (selfMember && existingPrimaryParent) {
-      // Update existing Primary Parent record instead of creating new
-      const updatedMembers = familyMembers.map(m => {
-        if (m.id === existingPrimaryParent.id) {
-          // Replace placeholder with self member data, keeping original ID
-          return { ...selfMember, id: m.id };
+    // Validate all members have PINs before saving
+    for (const member of selectedMembers) {
+      if (member.inHousehold && member.accessLevel !== 'none') {
+        if (!member.pin || member.pin.length !== 4 || !/^\d{4}$/.test(member.pin)) {
+          alert(`${member.name || 'A family member'} needs a 4-digit PIN. Please set PINs for all members before confirming.`);
+          return;
         }
-        return m;
-      });
-
-      // Add remaining members (excluding self)
-      const othersToAdd = selectedMembers
-        .filter(m => m.relationship !== 'self')
-        .map(({ selected, ...member }) => member);
-
-      setFamilyMembers([...updatedMembers, ...othersToAdd]);
-    } else {
-      // Normal flow - no Primary Parent replacement needed
-      const membersToAdd = selectedMembers.map(({ selected, ...member }) => member);
-      setFamilyMembers([...familyMembers, ...membersToAdd]);
+      }
     }
 
-    setShowVerification(false);
-    setAiProcessedMembers([]);
-    setBulkText('');
+    setSaving(true);
+
+    try {
+      // Check if any selected member is the primary parent (self)
+      const selfMember = selectedMembers.find(m => m.relationship === 'self');
+
+      // Find existing Primary Parent placeholder
+      const existingPrimaryParent = familyMembers.find(m =>
+        m.name === 'Primary Parent'
+      );
+
+      let updatedFamilyMembers = [...familyMembers];
+      let membersToSave = [...selectedMembers];
+
+      if (selfMember && existingPrimaryParent) {
+        // Update existing Primary Parent record instead of creating new
+        updatedFamilyMembers = familyMembers.map(m => {
+          if (m.id === existingPrimaryParent.id) {
+            // Replace placeholder with self member data, keeping original ID
+            return { ...selfMember, id: m.id };
+          }
+          return m;
+        });
+
+        // Save updated Primary Parent
+        const primaryData = { ...selfMember, id: existingPrimaryParent.id, family_id: currentFamilyId };
+        await saveFamilyMember(primaryData);
+
+        // Add remaining members (excluding self)
+        const othersToAdd = selectedMembers
+          .filter(m => m.relationship !== 'self')
+          .map(({ selected, ...member }) => member);
+
+        updatedFamilyMembers = [...updatedFamilyMembers, ...othersToAdd];
+        membersToSave = othersToAdd;
+      } else {
+        // Normal flow - no Primary Parent replacement needed
+        const membersToAdd = selectedMembers.map(({ selected, ...member }) => member);
+        updatedFamilyMembers = [...familyMembers, ...membersToAdd];
+        membersToSave = membersToAdd;
+      }
+
+      // Save all new members to database
+      let savedCount = 0;
+      let failedCount = 0;
+
+      for (const member of membersToSave) {
+        try {
+          const memberData = {
+            ...member,
+            family_id: currentFamilyId
+          };
+          const result = await saveFamilyMember(memberData);
+          if (result.success) {
+            savedCount++;
+          } else {
+            failedCount++;
+            console.error(`Failed to save ${member.name}:`, result.error);
+          }
+        } catch (error) {
+          failedCount++;
+          console.error(`Error saving ${member.name}:`, error);
+        }
+      }
+
+      // Update state with all members
+      setFamilyMembers(updatedFamilyMembers);
+
+      // Show results
+      if (failedCount > 0) {
+        alert(`${savedCount} members saved, ${failedCount} failed. Check console for details.`);
+      } else {
+        alert(`Success! ${savedCount} family members saved to database.`);
+      }
+
+      setShowVerification(false);
+      setAiProcessedMembers([]);
+      setBulkText('');
+    } catch (error) {
+      console.error('Error confirming AI members:', error);
+      alert('Failed to save members: ' + (error as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Retry AI processing
