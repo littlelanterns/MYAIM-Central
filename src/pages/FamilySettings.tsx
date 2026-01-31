@@ -649,7 +649,7 @@ const FamilySetupInterface: React.FC = () => {
       }
 
       // Save all new members to database
-      let savedCount = 0;
+      let savedCount = selfMember && existingPrimaryParent ? 1 : 0; // Count Primary Parent if replaced
       let failedCount = 0;
 
       for (const member of membersToSave) {
@@ -1325,8 +1325,9 @@ const FamilySetupInterface: React.FC = () => {
                       onClick={confirmAIMembers}
                       className="btn-primary"
                       style={{ padding: '0.75rem 1.5rem', fontSize: '1rem', fontWeight: '600' }}
+                      disabled={saving}
                     >
-                      Add Selected Members ({aiProcessedMembers.filter((m) => m.selected !== false).length})
+                      {saving ? 'Saving...' : `Add Selected Members (${aiProcessedMembers.filter((m) => m.selected !== false).length})`}
                     </button>
                   </div>
                 </div>
