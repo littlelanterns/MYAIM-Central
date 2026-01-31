@@ -514,6 +514,13 @@ const FamilySetupInterface: React.FC = () => {
 
       // Convert AI results to unified FamilyMember format
       const processedMembers: FamilyMember[] = result.newMembers.map((member: any) => {
+        console.log(`[FamilySettings] Processing ${member.name}:`, {
+          accessLevel: member.accessLevel,
+          dashboard_type: member.dashboard_type,
+          pin: member.pin,
+          inHousehold: member.inHousehold
+        });
+
         // Apply smart defaults for permissions
         let permissions: Record<string, boolean> = {};
         
@@ -1244,7 +1251,12 @@ const FamilySetupInterface: React.FC = () => {
                           <span className="status-badge access-level">
                             {(member.relationship === 'partner' || member.relationship === 'special')
                               ? 'Additional Adult'
-                              : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
+                              : member.relationship === 'child' && member.dashboard_type
+                                ? (member.dashboard_type === 'play' ? 'Play Mode' :
+                                   member.dashboard_type === 'guided' ? 'Guided Mode' :
+                                   member.dashboard_type === 'independent' ? 'Independent Mode' :
+                                   member.dashboard_type)
+                                : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
                           </span>
                         ) : (
                           <span className="status-badge context-only">Context Only</span>
