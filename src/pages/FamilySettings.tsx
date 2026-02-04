@@ -648,9 +648,10 @@ const FamilySetupInterface: React.FC = () => {
         membersToSave = membersToAdd;
       }
 
-      // Save all new members to database
+      // Save all new members to database with timeout
       let savedCount = selfMember && existingPrimaryParent ? 1 : 0; // Count Primary Parent if replaced
       let failedCount = 0;
+      const saveTimeout = 30000; // 30 second timeout per member
 
       for (const member of membersToSave) {
         try {
@@ -658,16 +659,30 @@ const FamilySetupInterface: React.FC = () => {
             ...member,
             family_id: currentFamilyId
           };
-          const result = await saveFamilyMember(memberData);
+
+          // Add timeout to prevent hanging
+          const savePromise = saveFamilyMember(memberData);
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Save timeout')), saveTimeout)
+          );
+
+          const result = await Promise.race([savePromise, timeoutPromise]);
           if (result.success) {
             savedCount++;
+            console.log(`✅ Saved ${member.name}`);
           } else {
             failedCount++;
-            console.error(`Failed to save ${member.name}:`, result.error);
+            console.error(`❌ Failed to save ${member.name}:`, result.error);
           }
         } catch (error) {
           failedCount++;
-          console.error(`Error saving ${member.name}:`, error);
+          console.error(`❌ Error saving ${member.name}:`, error);
+          // Check for authentication errors
+          if (error.message?.includes('401') || error.message?.includes('JWT')) {
+            alert('Your session has expired. Please log in again.');
+            setSaving(false);
+            return;
+          }
         }
       }
 
