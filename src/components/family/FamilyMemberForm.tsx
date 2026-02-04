@@ -324,6 +324,9 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
                 fontFamily: 'monospace'
               }}
               disabled={isSaving}
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
             />
           </div>
           <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
