@@ -144,19 +144,35 @@ export async function saveFamilyMember(memberData) {
       savedMember = data;
     } else {
       // This is a new member - insert
-      console.log(`🔵 [saveFamilyMember] About to INSERT into family_members`);
-      const { data, error } = await supabase
+      // NOTE: Using simple insert WITHOUT .select().single() to test if that's causing the hang
+      console.log(`🔵 [saveFamilyMember] About to INSERT into family_members (simple insert, no select-back)`);
+      const { error: insertError } = await supabase
         .from('family_members')
-        .insert([dbMemberData])
-        .select()
+        .insert([dbMemberData]);
+
+      if (insertError) {
+        console.error(`🔴 [saveFamilyMember] INSERT error:`, insertError);
+        throw insertError;
+      }
+      console.log(`🟢 [saveFamilyMember] INSERT completed successfully`);
+
+      // Now fetch the inserted record separately
+      console.log(`🔵 [saveFamilyMember] Fetching inserted record...`);
+      const { data: fetchedData, error: fetchError } = await supabase
+        .from('family_members')
+        .select('*')
+        .eq('family_id', dbMemberData.family_id)
+        .eq('name', dbMemberData.name)
         .single();
 
-      if (error) {
-        console.error(`🔴 [saveFamilyMember] INSERT error:`, error);
-        throw error;
+      if (fetchError) {
+        console.error(`🟡 [saveFamilyMember] Could not fetch inserted record:`, fetchError);
+        // Create a minimal savedMember object so post-save logic can continue
+        savedMember = { id: null, ...dbMemberData };
+      } else {
+        console.log(`🟢 [saveFamilyMember] Fetched record with ID: ${fetchedData.id}`);
+        savedMember = fetchedData;
       }
-      console.log(`🟢 [saveFamilyMember] INSERT completed successfully, new ID: ${data.id}`);
-      savedMember = data;
 
       // Post-save logic for NEW members only
       const memberId = savedMember.id;
