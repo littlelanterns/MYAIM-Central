@@ -78,11 +78,13 @@ export async function saveFamilySetup(familyData) {
 
 // NEW: Save individual family member
 export async function saveFamilyMember(memberData) {
+  console.log(`🔵 [saveFamilyMember] Starting save for: ${memberData.name}`);
+
   try {
     // Validate session before attempting save
+    console.log(`🔵 [saveFamilyMember] Checking session...`);
     await requireAuth();
-
-    console.log('Saving family member:', memberData);
+    console.log(`🟢 [saveFamilyMember] Session valid`);
 
     // Calculate age from birthday if provided
     let age = null;
@@ -115,13 +117,17 @@ export async function saveFamilyMember(memberData) {
       family_notes: memberData.notes || '' // Fixed: was 'notes', correct column is 'family_notes'
     };
 
+    console.log(`🔵 [saveFamilyMember] Prepared data:`, dbMemberData);
+
     // Check if this is an existing member (has UUID) or new member
     const isExistingMember = memberData.id && typeof memberData.id === 'string' && memberData.id.includes('-');
+    console.log(`🔵 [saveFamilyMember] Is existing member: ${isExistingMember}`);
 
     let savedMember;
 
     if (isExistingMember) {
       // This is an existing member with a real UUID - update
+      console.log(`🔵 [saveFamilyMember] About to UPDATE family_members for ID: ${memberData.id}`);
       const { data, error } = await supabase
         .from('family_members')
         .update(dbMemberData)
@@ -129,17 +135,26 @@ export async function saveFamilyMember(memberData) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`🔴 [saveFamilyMember] UPDATE error:`, error);
+        throw error;
+      }
+      console.log(`🟢 [saveFamilyMember] UPDATE completed successfully`);
       savedMember = data;
     } else {
       // This is a new member - insert
+      console.log(`🔵 [saveFamilyMember] About to INSERT into family_members`);
       const { data, error } = await supabase
         .from('family_members')
         .insert([dbMemberData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error(`🔴 [saveFamilyMember] INSERT error:`, error);
+        throw error;
+      }
+      console.log(`🟢 [saveFamilyMember] INSERT completed successfully, new ID: ${data.id}`);
       savedMember = data;
 
       // Post-save logic for NEW members only
@@ -147,6 +162,7 @@ export async function saveFamilyMember(memberData) {
       const familyId = memberData.family_id;
 
       // Create personal archive folder for this member
+      console.log(`🔵 [saveFamilyMember] Starting archive folder creation for ${memberData.name}`);
       const { error: folderError } = await supabase
         .from('archive_folders')
         .insert([{
@@ -159,14 +175,15 @@ export async function saveFamilyMember(memberData) {
         }]);
 
       if (folderError) {
-        console.error('Warning: Failed to create archive folder for member:', folderError);
+        console.error(`🟡 [saveFamilyMember] Archive folder creation failed:`, folderError);
         // Don't throw - member was saved successfully, this is supplementary
       } else {
-        console.log(`✅ Created archive folder for ${memberData.name}`);
+        console.log(`🟢 [saveFamilyMember] Created archive folder for ${memberData.name}`);
       }
 
       // Create dashboard config for this member (only if they have dashboard access)
       if (memberData.inHousehold && memberData.accessLevel !== 'none') {
+        console.log(`🔵 [saveFamilyMember] Starting dashboard config creation for ${memberData.name}`);
         const { error: dashboardError } = await supabase
           .from('dashboard_configs')
           .insert([{
@@ -179,17 +196,20 @@ export async function saveFamilyMember(memberData) {
           }]);
 
         if (dashboardError) {
-          console.error('Warning: Failed to create dashboard config for member:', dashboardError);
+          console.error(`🟡 [saveFamilyMember] Dashboard config creation failed:`, dashboardError);
           // Don't throw - member was saved successfully, this is supplementary
         } else {
-          console.log(`✅ Created dashboard config for ${memberData.name} (${dashboardType})`);
+          console.log(`🟢 [saveFamilyMember] Created dashboard config for ${memberData.name} (${dashboardType})`);
         }
+      } else {
+        console.log(`🔵 [saveFamilyMember] Skipping dashboard config (inHousehold=${memberData.inHousehold}, accessLevel=${memberData.accessLevel})`);
       }
     }
 
+    console.log(`🟢 [saveFamilyMember] Save complete for ${memberData.name}`);
     return { success: true, member: savedMember };
   } catch (error) {
-    console.error('Error saving family member:', error);
+    console.error(`🔴 [saveFamilyMember] Error saving ${memberData.name}:`, error);
     return { success: false, error: error.message };
   }
 }
