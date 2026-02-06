@@ -1,14 +1,64 @@
 // src/lib/api.js - Enhanced with family setup functions
 import { supabase } from './supabase';
 
-// Helper: Validate session exists before making authenticated requests
-async function requireAuth() {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error || !session) {
-    throw new Error('Your session has expired. Please log in again.');
-  }
-  return session;
+// ============================================================================
+// ROLE MAPPING: UI relationship types <-> Database role values
+// ============================================================================
+// The database has a CHECK constraint that only allows specific role values.
+// The UI uses different relationship types. This mapping converts between them.
+
+// Map UI relationship type to valid database role
+function mapRelationshipToRole(relationship, customRole) {
+  const mapping = {
+    'self': 'primary_organizer',
+    'partner': 'parent',           // spouse/partner -> parent
+    'child': 'child',
+    'out-of-nest': 'sibling',      // adult children -> sibling (closest fit)
+    'special': customRole || 'other', // use custom role or fallback to 'other'
+  };
+
+  const role = mapping[relationship];
+  if (role) return role;
+
+  // If relationship is already a valid role, use it directly
+  const validRoles = ['mom', 'dad', 'child', 'teen', 'guardian', 'primary_organizer',
+                      'parent', 'co_parent', 'caregiver', 'grandparent', 'aunt_uncle',
+                      'sibling', 'other'];
+  if (validRoles.includes(relationship)) return relationship;
+
+  // Default fallback
+  return 'other';
 }
+
+// Map database role back to UI relationship type (for display)
+function mapRoleToRelationship(role) {
+  const mapping = {
+    'primary_organizer': 'self',
+    'parent': 'partner',
+    'co_parent': 'partner',
+    'mom': 'self',
+    'dad': 'partner',
+    'child': 'child',
+    'teen': 'child',
+    'sibling': 'out-of-nest',
+    'grandparent': 'special',
+    'aunt_uncle': 'special',
+    'caregiver': 'special',
+    'guardian': 'special',
+    'other': 'special',
+  };
+  return mapping[role] || 'special';
+}
+
+// Helper: Validate session exists before making authenticated requests
+// NOTE: Currently disabled due to getSession() hanging issue
+// async function requireAuth() {
+//   const { data: { session }, error } = await supabase.auth.getSession();
+//   if (error || !session) {
+//     throw new Error('Your session has expired. Please log in again.');
+//   }
+//   return session;
+// }
 
 // Existing function
 export async function getTasksForFamily(familyId) {
@@ -102,10 +152,15 @@ export async function saveFamilyMember(memberData) {
     // Prepare member data for database
     // Note: dashboard_type is the primary field for dashboard visual style
     const dashboardType = memberData.dashboard_type || 'guided';
+
+    // Map UI relationship type to valid database role
+    const dbRole = mapRelationshipToRole(memberData.relationship, memberData.customRole);
+    console.log(`🔵 [saveFamilyMember] Mapped relationship '${memberData.relationship}' to role '${dbRole}'`);
+
     const dbMemberData = {
       family_id: memberData.family_id,
       name: memberData.name,
-      role: memberData.relationship === 'special' ? memberData.customRole : memberData.relationship,
+      role: dbRole, // Use mapped role instead of raw relationship
       age: age,
       birthday: memberData.birthday || null,
       nicknames: memberData.nicknames || [],
@@ -121,7 +176,25 @@ export async function saveFamilyMember(memberData) {
     console.log(`🔵 [saveFamilyMember] Prepared data:`, dbMemberData);
 
     // Check if this is an existing member (has UUID) or new member
-    const isExistingMember = memberData.id && typeof memberData.id === 'string' && memberData.id.includes('-');
+    let isExistingMember = memberData.id && typeof memberData.id === 'string' && memberData.id.includes('-');
+
+    // DUPLICATE CHECK: If not an existing member, check if one with same name exists
+    if (!isExistingMember) {
+      console.log(`🔵 [saveFamilyMember] Checking for duplicate member with name '${memberData.name}'...`);
+      const { data: existingMember, error: checkError } = await supabase
+        .from('family_members')
+        .select('id')
+        .eq('family_id', memberData.family_id)
+        .eq('name', memberData.name)
+        .maybeSingle();
+
+      if (!checkError && existingMember) {
+        console.log(`🟡 [saveFamilyMember] Found existing member with same name, will UPDATE instead of INSERT`);
+        memberData.id = existingMember.id;
+        isExistingMember = true;
+      }
+    }
+
     console.log(`🔵 [saveFamilyMember] Is existing member: ${isExistingMember}`);
 
     let savedMember;
@@ -179,13 +252,14 @@ export async function saveFamilyMember(memberData) {
       const familyId = memberData.family_id;
 
       // Create personal archive folder for this member
+      // NOTE: folder_type must be 'family_member' (not 'member') per database constraint
       console.log(`🔵 [saveFamilyMember] Starting archive folder creation for ${memberData.name}`);
       const { error: folderError } = await supabase
         .from('archive_folders')
         .insert([{
           family_id: familyId,
           folder_name: `${memberData.name}'s Archives`,
-          folder_type: 'member',
+          folder_type: 'family_member', // Valid values: family_member, extended_family_member, etc.
           member_id: memberId,
           is_active: true,
           is_master: false
@@ -239,9 +313,23 @@ export async function getFamilyMembers(familyId) {
       .select('*')
       .eq('family_id', familyId)
       .order('created_at', { ascending: true });
-      
+
     if (error) throw error;
-    return { success: true, members: data };
+
+    // Map database fields to UI format
+    const mappedMembers = (data || []).map(member => ({
+      ...member,
+      // Map database 'role' back to UI 'relationship' for display
+      relationship: mapRoleToRelationship(member.role),
+      // Map other fields the UI expects
+      customRole: member.role, // Store original role as customRole
+      accessLevel: member.access_level,
+      inHousehold: member.in_household,
+      notes: member.family_notes || '',
+      nicknames: member.nicknames || [],
+    }));
+
+    return { success: true, members: mappedMembers };
   } catch (error) {
     console.error('Error fetching family members:', error);
     return { success: false, error: error.message };
