@@ -157,10 +157,11 @@ export async function saveFamilyMember(memberData) {
           setTimeout(() => reject(new Error('Duplicate check timeout')), 5000)
         );
 
-        const { data: existingMembers, error: checkError } = await Promise.race([
+        const result = await Promise.race([
           duplicateCheckPromise,
           timeoutPromise
-        ]) as any;
+        ]);
+        const { data: existingMembers, error: checkError } = result || {};
 
         if (!checkError && existingMembers && existingMembers.length > 0) {
           console.log(`🟡 [saveFamilyMember] Found existing member with same name, will UPDATE instead of INSERT`);
