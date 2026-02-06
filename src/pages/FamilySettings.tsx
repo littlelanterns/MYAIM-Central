@@ -507,10 +507,20 @@ const FamilySetupInterface: React.FC = () => {
         throw new Error(result.error || 'AI processing failed');
       }
 
+      // Log duplicates but don't block the flow - just proceed with new members
       if (result.duplicates && result.duplicates.length > 0) {
-        alert(`Some family members might already exist: ${result.duplicates.map((d: any) => d.name).join(', ')}. They might already exist in your family.`);
+        console.log(`🟡 [FamilySettings] Skipping ${result.duplicates.length} existing members:`,
+          result.duplicates.map((d: any) => d.name).join(', '));
+      }
+
+      // If ALL members are duplicates and there are no new ones, inform the user
+      if (!result.newMembers || result.newMembers.length === 0) {
+        alert('All family members from your description already exist in the system. No new members to add.');
+        setAiProcessing(false);
         return;
       }
+
+      console.log(`🟢 [FamilySettings] Processing ${result.newMembers.length} new members`);
 
       // Convert AI results to unified FamilyMember format
       const processedMembers: FamilyMember[] = result.newMembers.map((member: any) => {
