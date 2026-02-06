@@ -12,7 +12,13 @@ const AI_CONFIG = {
   openrouter: {
     // Use serverless endpoint for security (API key stays server-side)
     serverlessEndpoint: '/api/openrouter',
-    defaultModel: 'anthropic/claude-3.5-sonnet'
+    // Model options - use appropriate model for each task type
+    models: {
+      fast: 'anthropic/claude-3-5-haiku-20241022',    // Fast structured tasks (family parsing, subtasks)
+      standard: 'anthropic/claude-3-5-sonnet-20241022', // Complex reasoning (LiLa, brain dump)
+      advanced: 'anthropic/claude-sonnet-4-20250514'    // Most capable (future use)
+    },
+    defaultModel: 'anthropic/claude-3-5-sonnet-20241022'
   },
   n8n: {
     familyProcessing: import.meta.env.VITE_N8N_FAMILY_WEBHOOK,
@@ -173,6 +179,7 @@ Birthday extraction examples:
 - "Sarah's birthday is December 1st, she's 12" → "birthday": "2013-12-01"`;
 
     const aiResponse = await makeOpenRouterRequest(systemPrompt, userPrompt, {
+      model: AI_CONFIG.openrouter.models.fast, // Use Haiku for fast structured extraction
       maxTokens: 3000, // Increased for large families
       temperature: 0.1
     });
@@ -399,6 +406,7 @@ Return format: ["step 1", "step 2", "step 3"]`;
     const userPrompt = `Task: "${taskName}"${description ? `\nDescription: ${description}` : ''}${taskType !== 'task' ? `\nType: ${taskType}` : ''}`;
 
     const aiResponse = await makeOpenRouterRequest(systemPrompt, userPrompt, {
+      model: AI_CONFIG.openrouter.models.fast, // Use Haiku for fast structured extraction
       maxTokens: 500,
       temperature: 0.3
     });
@@ -458,6 +466,7 @@ Return only the optimized prompt, no explanations.`;
     const userPrompt = `Original prompt: "${originalPrompt}"${contextString}\nPrompt type: ${promptType}`;
 
     const optimizedPrompt = await makeOpenRouterRequest(systemPrompt, userPrompt, {
+      model: AI_CONFIG.openrouter.models.standard, // Use Sonnet for nuanced prompt optimization
       maxTokens: 800,
       temperature: 0.2
     });
@@ -558,7 +567,7 @@ Continue conversation until you have enough clarity for all fields. Only set int
           ...messages
         ],
         options: {
-          model: AI_CONFIG.openrouter.defaultModel,
+          model: AI_CONFIG.openrouter.models.standard, // Use Sonnet for nuanced conversation
           maxTokens: 1500,
           temperature: 0.7
         }

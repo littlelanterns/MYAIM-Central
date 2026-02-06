@@ -473,6 +473,17 @@ const { data: context } = await supabase
 
 ---
 
+## FUTURE: ACCESS LEVEL vs DASHBOARD TYPE CLEANUP
+
+These three fields on family_members currently overlap and need consolidation in a future session:
+- **dashboard_type**: What the user picks (play/guided/independent) - controls visual style and routing. THIS IS THE PRIMARY FIELD RIGHT NOW.
+- **dashboard_mode**: Duplicate of dashboard_type, added later. Should be consolidated.
+- **access_level**: Originally meant for PERMISSIONS, not visual style. Future use: when mom clicks a family member in Family Settings, she can set granular permissions for what that member can do (create their own intentions, set goals, create tasks, edit their own profile, etc.). This is a separate concept from dashboard visual style and should NOT be confused with dashboard_type. Implementation is down the road.
+
+For now, dashboard_type drives everything. access_level will become the permissions system later.
+
+---
+
 ## DEVELOPMENT WORKFLOW
 
 1. Edit code in VS Code
