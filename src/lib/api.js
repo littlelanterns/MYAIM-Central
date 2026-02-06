@@ -2,12 +2,76 @@
 import { supabase } from './supabase';
 
 // ============================================================================
-// ROLE/RELATIONSHIP NOTES
+// ROLE MAPPING: AI labels → Database roles → UI display
 // ============================================================================
-// The database constraint now allows UI relationship types directly:
-//   self, partner, child, out-of-nest, special
-// No mapping needed - we store and retrieve the exact values.
-// See migration 032_expand_family_member_roles.sql
+// Database constraint allows: mom, dad, child, teen, guardian, primary_organizer,
+// parent, co_parent, caregiver, grandparent, aunt_uncle, sibling, other,
+// self, partner, out-of-nest, special
+//
+// We map AI-assigned roles to valid database values and store the friendly
+// display label in custom_role so the UI knows what to show.
+
+function mapToValidDatabaseRole(aiRole, customLabel) {
+  // Normalize to lowercase for matching
+  const role = (aiRole || '').toLowerCase().trim();
+  const label = customLabel || aiRole || '';
+
+  // Self/Mom mappings
+  if (['self', 'mom', 'mother', 'primary_organizer'].includes(role)) {
+    return { dbRole: 'primary_organizer', displayLabel: 'Mom' };
+  }
+
+  // Partner mappings
+  if (['partner', 'husband', 'wife', 'spouse', 'dad', 'father'].includes(role)) {
+    // Determine specific label
+    let displayLabel = 'Partner';
+    if (['husband', 'dad', 'father'].includes(role)) displayLabel = 'Husband';
+    if (['wife'].includes(role)) displayLabel = 'Wife';
+    if (label && !['partner', 'spouse'].includes(label.toLowerCase())) displayLabel = label;
+    return { dbRole: 'partner', displayLabel };
+  }
+
+  // Child mappings (living at home)
+  if (['child', 'son', 'daughter', 'kid', 'teen', 'teenager'].includes(role)) {
+    return { dbRole: 'child', displayLabel: 'Child' };
+  }
+
+  // Out-of-nest mappings (adult children, grandchildren not living at home)
+  if (['out-of-nest', 'adult-child', 'adult child', 'grown child', 'grandchild', 'grandson', 'granddaughter'].includes(role)) {
+    let displayLabel = 'Adult Child';
+    if (['grandchild', 'grandson', 'granddaughter'].includes(role)) displayLabel = 'Grandchild';
+    return { dbRole: 'out-of-nest', displayLabel };
+  }
+
+  // In-law mappings → database 'other' with specific display label
+  if (['son-in-law', 'daughter-in-law', 'in-law', 'son in law', 'daughter in law'].includes(role)) {
+    let displayLabel = 'In-Law';
+    if (role.includes('son')) displayLabel = 'Son-in-Law';
+    if (role.includes('daughter')) displayLabel = 'Daughter-in-Law';
+    return { dbRole: 'other', displayLabel };
+  }
+
+  // Grandparent mappings
+  if (['grandparent', 'grandmother', 'grandfather', 'grandma', 'grandpa', 'nana', 'papa'].includes(role)) {
+    return { dbRole: 'grandparent', displayLabel: label || 'Grandparent' };
+  }
+
+  // Caregiver/helper mappings → special
+  if (['special', 'caregiver', 'babysitter', 'nanny', 'tutor', 'helper'].includes(role)) {
+    return { dbRole: 'special', displayLabel: label || 'Helper' };
+  }
+
+  // If it's already a valid database role, use it
+  const validRoles = ['mom', 'dad', 'child', 'teen', 'guardian', 'primary_organizer',
+    'parent', 'co_parent', 'caregiver', 'grandparent', 'aunt_uncle', 'sibling', 'other',
+    'self', 'partner', 'out-of-nest', 'special'];
+  if (validRoles.includes(role)) {
+    return { dbRole: role, displayLabel: label || role };
+  }
+
+  // Default fallback - store as 'other' with the original label for display
+  return { dbRole: 'other', displayLabel: label || 'Family Member' };
+}
 
 // Helper: Validate session exists before making authenticated requests
 // NOTE: Currently disabled due to getSession() hanging issue
@@ -112,17 +176,18 @@ export async function saveFamilyMember(memberData) {
     // Note: dashboard_type is the primary field for dashboard visual style
     const dashboardType = memberData.dashboard_type || 'guided';
 
-    // Store relationship type directly (database constraint now allows our values)
-    // For 'special' category, use customRole if provided (e.g., "Grandma", "Babysitter")
-    const dbRole = memberData.relationship === 'special' && memberData.customRole
-      ? memberData.customRole
-      : memberData.relationship;
-    console.log(`🔵 [saveFamilyMember] Using role: '${dbRole}' (relationship: '${memberData.relationship}')`);
+    // Map AI-assigned role to valid database role and get display label
+    // The dbRole goes in the 'role' column, displayLabel goes in 'custom_role' for UI display
+    const aiRole = memberData.relationship || memberData.role || 'other';
+    const customLabel = memberData.customRole || memberData.display_label || '';
+    const { dbRole, displayLabel } = mapToValidDatabaseRole(aiRole, customLabel);
+    console.log(`🔵 [saveFamilyMember] Role mapping: AI='${aiRole}' → DB='${dbRole}', Display='${displayLabel}'`);
 
     const dbMemberData = {
       family_id: memberData.family_id,
       name: memberData.name,
-      role: dbRole, // Store relationship directly, or customRole for 'special'
+      role: dbRole, // Valid database constraint value
+      custom_role: displayLabel, // Friendly display label for UI
       age: age,
       birthday: memberData.birthday || null,
       nicknames: memberData.nicknames || [],
@@ -298,17 +363,17 @@ export async function getFamilyMembers(familyId) {
     if (error) throw error;
 
     // Map database fields to UI format
-    const primaryRelationships = ['self', 'partner', 'child', 'out-of-nest', 'special'];
-
+    // The 'role' column contains the database-safe value (partner, child, out-of-nest, other, etc.)
+    // The 'custom_role' column contains the friendly display label (Husband, Son-in-Law, etc.)
     const mappedMembers = (data || []).map(member => {
-      // If role is a primary relationship type, use it directly
-      // Otherwise, it's a custom role (like "Grandma") - set relationship to 'special'
-      const isPrimaryRelationship = primaryRelationships.includes(member.role);
+      // Use custom_role for display if available, otherwise derive from role
+      const displayLabel = member.custom_role || member.role || 'Family Member';
 
       return {
         ...member,
-        relationship: isPrimaryRelationship ? member.role : 'special',
-        customRole: isPrimaryRelationship ? '' : member.role, // Custom role for special category
+        relationship: member.role, // The database role value
+        displayLabel: displayLabel, // Friendly label for UI
+        customRole: member.custom_role || '', // For backwards compatibility
         accessLevel: member.access_level,
         inHousehold: member.in_household,
         notes: member.family_notes || '',
