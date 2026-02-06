@@ -2,53 +2,12 @@
 import { supabase } from './supabase';
 
 // ============================================================================
-// ROLE MAPPING: UI relationship types <-> Database role values
+// ROLE/RELATIONSHIP NOTES
 // ============================================================================
-// The database has a CHECK constraint that only allows specific role values.
-// The UI uses different relationship types. This mapping converts between them.
-
-// Map UI relationship type to valid database role
-function mapRelationshipToRole(relationship, customRole) {
-  const mapping = {
-    'self': 'primary_organizer',
-    'partner': 'parent',           // spouse/partner -> parent
-    'child': 'child',
-    'out-of-nest': 'sibling',      // adult children -> sibling (closest fit)
-    'special': customRole || 'other', // use custom role or fallback to 'other'
-  };
-
-  const role = mapping[relationship];
-  if (role) return role;
-
-  // If relationship is already a valid role, use it directly
-  const validRoles = ['mom', 'dad', 'child', 'teen', 'guardian', 'primary_organizer',
-                      'parent', 'co_parent', 'caregiver', 'grandparent', 'aunt_uncle',
-                      'sibling', 'other'];
-  if (validRoles.includes(relationship)) return relationship;
-
-  // Default fallback
-  return 'other';
-}
-
-// Map database role back to UI relationship type (for display)
-function mapRoleToRelationship(role) {
-  const mapping = {
-    'primary_organizer': 'self',
-    'parent': 'partner',
-    'co_parent': 'partner',
-    'mom': 'self',
-    'dad': 'partner',
-    'child': 'child',
-    'teen': 'child',
-    'sibling': 'out-of-nest',
-    'grandparent': 'special',
-    'aunt_uncle': 'special',
-    'caregiver': 'special',
-    'guardian': 'special',
-    'other': 'special',
-  };
-  return mapping[role] || 'special';
-}
+// The database constraint now allows UI relationship types directly:
+//   self, partner, child, out-of-nest, special
+// No mapping needed - we store and retrieve the exact values.
+// See migration 032_expand_family_member_roles.sql
 
 // Helper: Validate session exists before making authenticated requests
 // NOTE: Currently disabled due to getSession() hanging issue
@@ -153,14 +112,17 @@ export async function saveFamilyMember(memberData) {
     // Note: dashboard_type is the primary field for dashboard visual style
     const dashboardType = memberData.dashboard_type || 'guided';
 
-    // Map UI relationship type to valid database role
-    const dbRole = mapRelationshipToRole(memberData.relationship, memberData.customRole);
-    console.log(`🔵 [saveFamilyMember] Mapped relationship '${memberData.relationship}' to role '${dbRole}'`);
+    // Store relationship type directly (database constraint now allows our values)
+    // For 'special' category, use customRole if provided (e.g., "Grandma", "Babysitter")
+    const dbRole = memberData.relationship === 'special' && memberData.customRole
+      ? memberData.customRole
+      : memberData.relationship;
+    console.log(`🔵 [saveFamilyMember] Using role: '${dbRole}' (relationship: '${memberData.relationship}')`);
 
     const dbMemberData = {
       family_id: memberData.family_id,
       name: memberData.name,
-      role: dbRole, // Use mapped role instead of raw relationship
+      role: dbRole, // Store relationship directly, or customRole for 'special'
       age: age,
       birthday: memberData.birthday || null,
       nicknames: memberData.nicknames || [],
@@ -317,17 +279,23 @@ export async function getFamilyMembers(familyId) {
     if (error) throw error;
 
     // Map database fields to UI format
-    const mappedMembers = (data || []).map(member => ({
-      ...member,
-      // Map database 'role' back to UI 'relationship' for display
-      relationship: mapRoleToRelationship(member.role),
-      // Map other fields the UI expects
-      customRole: member.role, // Store original role as customRole
-      accessLevel: member.access_level,
-      inHousehold: member.in_household,
-      notes: member.family_notes || '',
-      nicknames: member.nicknames || [],
-    }));
+    const primaryRelationships = ['self', 'partner', 'child', 'out-of-nest', 'special'];
+
+    const mappedMembers = (data || []).map(member => {
+      // If role is a primary relationship type, use it directly
+      // Otherwise, it's a custom role (like "Grandma") - set relationship to 'special'
+      const isPrimaryRelationship = primaryRelationships.includes(member.role);
+
+      return {
+        ...member,
+        relationship: isPrimaryRelationship ? member.role : 'special',
+        customRole: isPrimaryRelationship ? '' : member.role, // Custom role for special category
+        accessLevel: member.access_level,
+        inHousehold: member.in_household,
+        notes: member.family_notes || '',
+        nicknames: member.nicknames || [],
+      };
+    });
 
     return { success: true, members: mappedMembers };
   } catch (error) {
