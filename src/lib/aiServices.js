@@ -13,12 +13,13 @@ const AI_CONFIG = {
     // Use serverless endpoint for security (API key stays server-side)
     serverlessEndpoint: '/api/openrouter',
     // Model options - use appropriate model for each task type
+    // OpenRouter uses dots in version numbers (3.5 not 3-5)
     models: {
-      fast: 'anthropic/claude-3-5-haiku-20241022',    // Fast structured tasks (family parsing, subtasks)
-      standard: 'anthropic/claude-3-5-sonnet-20241022', // Complex reasoning (LiLa, brain dump)
+      fast: 'anthropic/claude-3.5-haiku',      // Fast structured tasks (family parsing, subtasks)
+      standard: 'anthropic/claude-3.5-sonnet', // Complex reasoning (LiLa, brain dump)
       advanced: 'anthropic/claude-sonnet-4-20250514'    // Most capable (future use)
     },
-    defaultModel: 'anthropic/claude-3-5-sonnet-20241022'
+    defaultModel: 'anthropic/claude-3.5-sonnet'
   },
   n8n: {
     familyProcessing: import.meta.env.VITE_N8N_FAMILY_WEBHOOK,
