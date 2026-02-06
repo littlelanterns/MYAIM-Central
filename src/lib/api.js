@@ -141,19 +141,37 @@ export async function saveFamilyMember(memberData) {
     let isExistingMember = memberData.id && typeof memberData.id === 'string' && memberData.id.includes('-');
 
     // DUPLICATE CHECK: If not an existing member, check if one with same name exists
+    // NOTE: Using simple select without .single()/.maybeSingle() to avoid hanging
+    // Wrapped in try-catch with timeout - if check fails, proceed with insert anyway
     if (!isExistingMember) {
       console.log(`🔵 [saveFamilyMember] Checking for duplicate member with name '${memberData.name}'...`);
-      const { data: existingMember, error: checkError } = await supabase
-        .from('family_members')
-        .select('id')
-        .eq('family_id', memberData.family_id)
-        .eq('name', memberData.name)
-        .maybeSingle();
+      try {
+        // Use Promise.race with a 5-second timeout for the duplicate check
+        const duplicateCheckPromise = supabase
+          .from('family_members')
+          .select('id')
+          .eq('family_id', memberData.family_id)
+          .eq('name', memberData.name);
 
-      if (!checkError && existingMember) {
-        console.log(`🟡 [saveFamilyMember] Found existing member with same name, will UPDATE instead of INSERT`);
-        memberData.id = existingMember.id;
-        isExistingMember = true;
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Duplicate check timeout')), 5000)
+        );
+
+        const { data: existingMembers, error: checkError } = await Promise.race([
+          duplicateCheckPromise,
+          timeoutPromise
+        ]) as any;
+
+        if (!checkError && existingMembers && existingMembers.length > 0) {
+          console.log(`🟡 [saveFamilyMember] Found existing member with same name, will UPDATE instead of INSERT`);
+          memberData.id = existingMembers[0].id;
+          isExistingMember = true;
+        } else {
+          console.log(`🔵 [saveFamilyMember] No duplicate found, proceeding with INSERT`);
+        }
+      } catch (dupCheckError) {
+        // If duplicate check fails or times out, just proceed with insert
+        console.log(`🟡 [saveFamilyMember] Duplicate check failed/timed out, proceeding with INSERT:`, dupCheckError);
       }
     }
 
