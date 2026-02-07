@@ -146,73 +146,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   // Helper function to load family member data from Supabase
-  // Uses proper linking chain: auth.users → beta_users → families → family_members
+  // Simple flow: auth.users → family_members (via auth_user_id)
+  // NOTE: beta_users is NOT part of auth flow - it's only for feature flags
   const loadFamilyMemberData = async (authUserId: string) => {
     console.log('🔐 [AUTH] loadFamilyMemberData called for:', authUserId);
 
     try {
-      // Step 1: Get beta_user record (includes family_id)
-      console.log('🔐 [AUTH] Step 1: Querying beta_users...');
-      const { data: betaUser, error: betaError } = await supabase
-        .from('beta_users')
-        .select('family_id')
-        .eq('user_id', authUserId)
-        .single();
-
-      if (betaError) {
-        console.warn('⚠️ [AUTH] beta_users query error:', betaError.message);
-        // Try alternate path: direct family_members lookup by auth_user_id
-        console.log('🔐 [AUTH] Trying alternate path via family_members.auth_user_id...');
-        const { data: directMember, error: directError } = await supabase
-          .from('family_members')
-          .select('id, family_id, role, name')
-          .eq('auth_user_id', authUserId)
-          .single();
-
-        if (directError || !directMember) {
-          console.error('❌ [AUTH] No member found via alternate path:', directError?.message);
-          return null;
-        }
-
-        console.log('✅ [AUTH] Found member via alternate path:', directMember.name);
-        return directMember;
-      }
-
-      if (!betaUser?.family_id) {
-        console.error('❌ [AUTH] No family_id in beta_user record');
-        return null;
-      }
-
-      // Step 2: Get family_member using family_id
-      console.log('🔐 [AUTH] Step 2: Querying family_members for family:', betaUser.family_id);
+      // Direct lookup: family_members WHERE auth_user_id = user.id
+      console.log('🔐 [AUTH] Querying family_members by auth_user_id...');
       const { data: memberData, error: memberError } = await supabase
         .from('family_members')
         .select('id, family_id, role, name')
-        .eq('family_id', betaUser.family_id)
-        .eq('role', 'primary_parent')
+        .eq('auth_user_id', authUserId)
         .single();
 
-      if (memberError || !memberData) {
-        console.warn('⚠️ [AUTH] No primary_parent found, trying any member with auth_user_id...');
-        // Try to find any member with this auth_user_id
-        const { data: anyMember, error: anyError } = await supabase
-          .from('family_members')
-          .select('id, family_id, role, name')
-          .eq('auth_user_id', authUserId)
-          .single();
+      if (memberError) {
+        console.warn('⚠️ [AUTH] family_members query error:', memberError.message);
+        return null;
+      }
 
-        if (anyError || !anyMember) {
-          console.error('❌ [AUTH] No family_member found by any method');
-          return null;
-        }
-
-        console.log('✅ [AUTH] Found member via auth_user_id:', anyMember.name);
-        return anyMember;
+      if (!memberData) {
+        console.warn('⚠️ [AUTH] No family member found for auth_user_id');
+        return null;
       }
 
       console.log('✅ [AUTH] Successfully loaded family member data:', {
         memberId: memberData.id,
         memberName: memberData.name,
+        familyId: memberData.family_id,
         role: memberData.role
       });
 

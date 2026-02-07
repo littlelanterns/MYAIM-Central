@@ -47,6 +47,18 @@ auth.users (Supabase Auth)
 - Check `src/components/auth/shared/AuthContext.tsx` for auth state
 - Family setup: `src/components/auth/ForcedFamilySetup.jsx`
 
+**IMPORTANT: `beta_users` table is NOT part of the auth flow.** It is only used for:
+- Showing/hiding the beta feedback button
+- Tracking founding family pricing tier
+- Enabling beta-specific features (future)
+
+The correct auth flow is:
+1. Supabase auth (email/password) → get user ID
+2. Query `family_members` WHERE `auth_user_id` = user.id → get family member data
+3. That's it. No beta_users lookup needed for login.
+
+Beta user status can be checked separately AFTER login is complete for feature flags.
+
 ---
 
 ## SUPABASE DATABASE SCHEMA (SOURCE OF TRUTH)
