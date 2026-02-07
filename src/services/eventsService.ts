@@ -80,6 +80,7 @@ export class EventsService {
 
   /**
    * Get events for a specific date range
+   * Simplified query to avoid 400 errors from complex .or() with joins
    */
   static async getEventsForRange(
     familyMemberId: string,
@@ -87,28 +88,67 @@ export class EventsService {
     endDate: Date
   ): Promise<CalendarEvent[]> {
     try {
-      const { data, error } = await supabase
+      // Query 1: Events created by this member
+      const { data: createdEvents, error: createdError } = await supabase
         .from('calendar_events')
-        .select(`
-          *,
-          event_attendees!inner(family_member_id, can_view)
-        `)
-        .or(`created_by.eq.${familyMemberId},event_attendees.family_member_id.eq.${familyMemberId}`)
+        .select('*')
+        .eq('created_by', familyMemberId)
         .gte('start_time', startDate.toISOString())
-        .lte('start_time', endDate.toISOString())
-        .order('start_time', { ascending: true });
+        .lte('start_time', endDate.toISOString());
 
-      if (error) throw error;
+      if (createdError) {
+        console.log('[EVENTS] Error fetching created events (non-blocking):', createdError.message);
+      }
 
-      return (data || []).map((event: any) => dbEventToUIEvent(event as CalendarEventDB));
+      // Query 2: Events this member is invited to
+      const { data: attendeeRecords, error: attendeeError } = await supabase
+        .from('event_attendees')
+        .select('event_id')
+        .eq('family_member_id', familyMemberId)
+        .eq('can_view', true);
+
+      if (attendeeError) {
+        console.log('[EVENTS] Error fetching attendee records (non-blocking):', attendeeError.message);
+      }
+
+      let invitedEvents: any[] = [];
+      if (attendeeRecords && attendeeRecords.length > 0) {
+        const eventIds = attendeeRecords.map(a => a.event_id);
+        const { data: events, error: eventsError } = await supabase
+          .from('calendar_events')
+          .select('*')
+          .in('id', eventIds)
+          .gte('start_time', startDate.toISOString())
+          .lte('start_time', endDate.toISOString());
+
+        if (eventsError) {
+          console.log('[EVENTS] Error fetching invited events (non-blocking):', eventsError.message);
+        } else {
+          invitedEvents = events || [];
+        }
+      }
+
+      // Combine and deduplicate
+      const allEvents = [...(createdEvents || []), ...invitedEvents];
+      const uniqueEvents = Array.from(
+        new Map(allEvents.map(event => [event.id, event])).values()
+      );
+
+      // Sort by start_time
+      uniqueEvents.sort((a, b) =>
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+      );
+
+      return uniqueEvents.map((event: any) => dbEventToUIEvent(event as CalendarEventDB));
     } catch (error) {
-      console.error('Error fetching events for range:', error);
+      console.log('[EVENTS] Error fetching events for range (non-blocking):', error);
       return [];
     }
   }
 
   /**
    * Get all events for a family member (any date range)
+   * Non-blocking error handling to prevent app instability
    */
   static async getEventsForMember(
     familyMemberId: string
@@ -121,7 +161,9 @@ export class EventsService {
         .eq('created_by', familyMemberId)
         .order('start_time', { ascending: true });
 
-      if (createdError) throw createdError;
+      if (createdError) {
+        console.log('[EVENTS] Error fetching created events for member (non-blocking):', createdError.message);
+      }
 
       // Get events this member is invited to
       const { data: attendeeEvents, error: attendeeError } = await supabase
@@ -130,36 +172,42 @@ export class EventsService {
         .eq('family_member_id', familyMemberId)
         .eq('can_view', true);
 
-      if (attendeeError) throw attendeeError;
+      if (attendeeError) {
+        console.log('[EVENTS] Error fetching attendee events (non-blocking):', attendeeError.message);
+      }
 
+      let invitedEvents: any[] = [];
       if (attendeeEvents && attendeeEvents.length > 0) {
         const eventIds = attendeeEvents.map(a => a.event_id);
-        const { data: invitedEvents, error: invitedError } = await supabase
+        const { data: events, error: invitedError } = await supabase
           .from('calendar_events')
           .select('*')
           .in('id', eventIds)
           .order('start_time', { ascending: true });
 
-        if (invitedError) throw invitedError;
-
-        // Combine and deduplicate
-        const allEvents = [...(createdEvents || []), ...(invitedEvents || [])];
-        const uniqueEvents = Array.from(
-          new Map(allEvents.map(event => [event.id, event])).values()
-        );
-
-        return uniqueEvents.map(event => dbEventToUIEvent(event as CalendarEventDB));
+        if (invitedError) {
+          console.log('[EVENTS] Error fetching invited events (non-blocking):', invitedError.message);
+        } else {
+          invitedEvents = events || [];
+        }
       }
 
-      return (createdEvents || []).map(event => dbEventToUIEvent(event as CalendarEventDB));
+      // Combine and deduplicate
+      const allEvents = [...(createdEvents || []), ...invitedEvents];
+      const uniqueEvents = Array.from(
+        new Map(allEvents.map(event => [event.id, event])).values()
+      );
+
+      return uniqueEvents.map(event => dbEventToUIEvent(event as CalendarEventDB));
     } catch (error) {
-      console.error('Error fetching events for member:', error);
+      console.log('[EVENTS] Error fetching events for member (non-blocking):', error);
       return [];
     }
   }
 
   /**
    * Get all events for a family (for Family Dashboard)
+   * Non-blocking error handling to prevent app instability
    */
   static async getEventsForFamily(
     familyId: string,
@@ -183,11 +231,14 @@ export class EventsService {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.log('[EVENTS] Error fetching events for family (non-blocking):', error.message);
+        return [];
+      }
 
       return (data || []).map(event => dbEventToUIEvent(event as CalendarEventDB));
     } catch (error) {
-      console.error('Error fetching events for family:', error);
+      console.log('[EVENTS] Exception fetching events for family (non-blocking):', error);
       return [];
     }
   }

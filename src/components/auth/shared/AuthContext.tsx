@@ -36,13 +36,15 @@ type AuthAction =
   | { type: 'LOGIN_SUCCESS'; payload: User }
   | { type: 'LOGOUT' }
   | { type: 'UPDATE_USER'; payload: Partial<User> }
-  | { type: 'SET_SESSION_DATA'; payload: Record<string, any> };
+  | { type: 'SET_SESSION_DATA'; payload: Record<string, any> }
+  | { type: 'AUTH_INITIALIZED' }  // Auth check complete, no valid session
+  | { type: 'AUTH_INITIALIZED_WITH_SESSION'; payload: User };  // Auth check complete with valid session
 
-// Initial state
+// Initial state - IMPORTANT: loading starts as TRUE until auth is resolved
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  loading: false,
+  loading: true,  // Start as true - auth check happens on mount
   error: null,
   sessionData: {}
 };
@@ -52,10 +54,10 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
-    
+
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
-    
+
     case 'LOGIN_SUCCESS':
       return {
         ...state,
@@ -64,24 +66,44 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         loading: false,
         error: null
       };
-    
+
     case 'LOGOUT':
       return {
-        ...initialState // Reset to initial state
+        ...initialState,
+        loading: false  // Don't reset to loading: true on logout
       };
-    
+
     case 'UPDATE_USER':
       return {
         ...state,
         user: state.user ? { ...state.user, ...action.payload } : null
       };
-    
+
     case 'SET_SESSION_DATA':
       return {
         ...state,
         sessionData: { ...state.sessionData, ...action.payload }
       };
-    
+
+    case 'AUTH_INITIALIZED':
+      // Auth check complete, no valid session found
+      return {
+        ...state,
+        loading: false,
+        isAuthenticated: false,
+        user: null
+      };
+
+    case 'AUTH_INITIALIZED_WITH_SESSION':
+      // Auth check complete with valid session
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
+        loading: false,
+        error: null
+      };
+
     default:
       return state;
   }
@@ -126,43 +148,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Helper function to load family member data from Supabase
   // Uses proper linking chain: auth.users → beta_users → families → family_members
   const loadFamilyMemberData = async (authUserId: string) => {
+    console.log('🔐 [AUTH] loadFamilyMemberData called for:', authUserId);
+
     try {
       // Step 1: Get beta_user record (includes family_id)
+      console.log('🔐 [AUTH] Step 1: Querying beta_users...');
       const { data: betaUser, error: betaError } = await supabase
         .from('beta_users')
         .select('family_id')
         .eq('user_id', authUserId)
         .single();
 
-      if (betaError || !betaUser) {
-        console.error('❌ No beta_user record found for auth user:', authUserId, betaError);
+      if (betaError) {
+        console.warn('⚠️ [AUTH] beta_users query error:', betaError.message);
+        // Try alternate path: direct family_members lookup by auth_user_id
+        console.log('🔐 [AUTH] Trying alternate path via family_members.auth_user_id...');
+        const { data: directMember, error: directError } = await supabase
+          .from('family_members')
+          .select('id, family_id, role, name')
+          .eq('auth_user_id', authUserId)
+          .single();
+
+        if (directError || !directMember) {
+          console.error('❌ [AUTH] No member found via alternate path:', directError?.message);
+          return null;
+        }
+
+        console.log('✅ [AUTH] Found member via alternate path:', directMember.name);
+        return directMember;
+      }
+
+      if (!betaUser?.family_id) {
+        console.error('❌ [AUTH] No family_id in beta_user record');
         return null;
       }
 
       // Step 2: Get family_member using family_id
-      // Assuming primary parent for beta users (adjust logic if needed)
+      console.log('🔐 [AUTH] Step 2: Querying family_members for family:', betaUser.family_id);
       const { data: memberData, error: memberError } = await supabase
         .from('family_members')
         .select('id, family_id, role, name')
         .eq('family_id', betaUser.family_id)
-        .eq('role', 'primary_parent') // Adjust if beta users can have other roles
+        .eq('role', 'primary_parent')
         .single();
 
       if (memberError || !memberData) {
-        console.error('❌ No family_member found for family_id:', betaUser.family_id, memberError);
-        return null;
+        console.warn('⚠️ [AUTH] No primary_parent found, trying any member with auth_user_id...');
+        // Try to find any member with this auth_user_id
+        const { data: anyMember, error: anyError } = await supabase
+          .from('family_members')
+          .select('id, family_id, role, name')
+          .eq('auth_user_id', authUserId)
+          .single();
+
+        if (anyError || !anyMember) {
+          console.error('❌ [AUTH] No family_member found by any method');
+          return null;
+        }
+
+        console.log('✅ [AUTH] Found member via auth_user_id:', anyMember.name);
+        return anyMember;
       }
 
-      console.log('✅ Successfully linked auth.users → beta_users → family_members:', {
-        authUserId,
-        familyId: betaUser.family_id,
+      console.log('✅ [AUTH] Successfully loaded family member data:', {
         memberId: memberData.id,
-        memberName: memberData.name
+        memberName: memberData.name,
+        role: memberData.role
       });
 
       return memberData;
     } catch (error) {
-      console.error('Error in loadFamilyMemberData:', error);
+      console.error('❌ [AUTH] Exception in loadFamilyMemberData:', error);
       return null;
     }
   };
@@ -280,9 +336,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Session recovery: clear invalid session and redirect to login
-  const recoverSession = () => {
-    console.log('🔄 Session recovery: clearing invalid session state');
-    dispatch({ type: 'LOGOUT' });
+  const recoverSession = (reason: string) => {
+    console.log(`🔄 [AUTH] Session recovery triggered: ${reason}`);
+    dispatch({ type: 'AUTH_INITIALIZED' });  // Set loading: false, clear user
     // Clear any stale session data
     localStorage.removeItem('aimfm_session');
     sessionStorage.removeItem('aimfm_session_temporary');
@@ -290,64 +346,122 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (window.location.pathname !== '/login' &&
         window.location.pathname !== '/dashboard' &&
         window.location.pathname !== '/') {
+      console.log('🔄 [AUTH] Redirecting to /login');
       window.location.href = '/login';
     }
   };
 
   // Initialize auth state from Supabase session on mount
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    let isMounted = true;  // Prevent state updates after unmount
 
-        // If getSession fails, recover gracefully
-        if (sessionError) {
-          console.error('❌ getSession failed:', sessionError);
-          recoverSession();
+    const initializeAuth = async () => {
+      console.log('🔐 [AUTH] Starting auth initialization...');
+      const startTime = Date.now();
+
+      try {
+        // Step 1: Get Supabase session
+        console.log('🔐 [AUTH] Calling supabase.auth.getSession()...');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log(`🔐 [AUTH] getSession() completed in ${Date.now() - startTime}ms`);
+
+        if (!isMounted) {
+          console.log('🔐 [AUTH] Component unmounted, aborting initialization');
           return;
         }
 
-        if (session?.user) {
-          // Load family member data
-          const memberData = await loadFamilyMemberData(session.user.id);
+        // If getSession fails, mark as not authenticated
+        if (sessionError) {
+          console.error('❌ [AUTH] getSession failed:', sessionError);
+          dispatch({ type: 'AUTH_INITIALIZED' });
+          return;
+        }
 
-          if (memberData) {
-            const user: User = {
-              id: session.user.id,
-              email: session.user.email || '',
-              role: memberData.role as 'primary_parent' | 'parent' | 'teen' | 'child',
-              familyId: memberData.family_id,
-              familyMemberId: memberData.id,
-              name: memberData.name,
-              permissions: {},
-              preferences: {}
-            };
+        // No session = not logged in
+        if (!session?.user) {
+          console.log('🔐 [AUTH] No active session found');
+          dispatch({ type: 'AUTH_INITIALIZED' });
+          return;
+        }
 
-            dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+        console.log('🔐 [AUTH] Session found for user:', session.user.id);
+        console.log('🔐 [AUTH] Session expires at:', session.expires_at ? new Date(session.expires_at * 1000).toISOString() : 'unknown');
 
-            console.log('✅ Auth initialized:', {
-              userId: user.id,
-              familyId: user.familyId,
-              familyMemberId: user.familyMemberId,
-              name: user.name
-            });
-          } else {
-            console.warn('⚠️ No family member data found for user');
-            // Don't recover here - user might be in setup flow
-          }
+        // Step 2: Load family member data
+        console.log('🔐 [AUTH] Loading family member data...');
+        const memberData = await loadFamilyMemberData(session.user.id);
+
+        if (!isMounted) {
+          console.log('🔐 [AUTH] Component unmounted, aborting initialization');
+          return;
+        }
+
+        if (memberData) {
+          // SUCCESS: Full user data loaded
+          const user: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            role: memberData.role as 'primary_parent' | 'parent' | 'teen' | 'child',
+            familyId: memberData.family_id,
+            familyMemberId: memberData.id,
+            name: memberData.name,
+            permissions: {},
+            preferences: {}
+          };
+
+          dispatch({ type: 'AUTH_INITIALIZED_WITH_SESSION', payload: user });
+
+          console.log(`✅ [AUTH] Auth initialized successfully in ${Date.now() - startTime}ms:`, {
+            userId: user.id,
+            familyId: user.familyId,
+            familyMemberId: user.familyMemberId,
+            name: user.name
+          });
+        } else {
+          // FALLBACK: Session valid but no family member data
+          // Create minimal user object so app doesn't get stuck
+          console.warn('⚠️ [AUTH] No family member data found, using fallback user');
+          const fallbackUser: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            role: 'parent',  // Default role
+            familyId: '',    // Empty - will need setup
+            familyMemberId: null,
+            name: session.user.email?.split('@')[0] || 'User',
+            permissions: {},
+            preferences: {}
+          };
+
+          dispatch({ type: 'AUTH_INITIALIZED_WITH_SESSION', payload: fallbackUser });
+
+          console.log(`⚠️ [AUTH] Auth initialized with fallback user in ${Date.now() - startTime}ms`);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
-        // On unexpected errors, try to recover
-        recoverSession();
+        console.error('❌ [AUTH] Error during auth initialization:', error);
+        if (isMounted) {
+          // Don't redirect on errors - just mark as not authenticated
+          dispatch({ type: 'AUTH_INITIALIZED' });
+        }
       }
     };
 
     initializeAuth();
 
-    // Listen for auth changes
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []);  // Empty deps - only run once on mount
+
+  // Separate effect for auth state changes (sign in/out events)
+  useEffect(() => {
+    console.log('🔐 [AUTH] Setting up auth state change listener');
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`🔐 [AUTH] Auth state changed: ${event}`);
+
       if (event === 'SIGNED_IN' && session?.user) {
+        console.log('🔐 [AUTH] SIGNED_IN event, loading user data...');
         const memberData = await loadFamilyMemberData(session.user.id);
 
         if (memberData) {
@@ -363,13 +477,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
 
           dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+          console.log('✅ [AUTH] User signed in:', user.name);
+        } else {
+          // Fallback user for SIGNED_IN event
+          const fallbackUser: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            role: 'parent',
+            familyId: '',
+            familyMemberId: null,
+            name: session.user.email?.split('@')[0] || 'User',
+            permissions: {},
+            preferences: {}
+          };
+          dispatch({ type: 'LOGIN_SUCCESS', payload: fallbackUser });
+          console.log('⚠️ [AUTH] User signed in with fallback data');
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log('🔐 [AUTH] User signed out');
         dispatch({ type: 'LOGOUT' });
+      } else if (event === 'TOKEN_REFRESHED') {
+        console.log('🔐 [AUTH] Token refreshed successfully');
+      } else if (event === 'USER_UPDATED') {
+        console.log('🔐 [AUTH] User updated');
       }
     });
 
     return () => {
+      console.log('🔐 [AUTH] Cleaning up auth state change listener');
       subscription.unsubscribe();
     };
   }, []);
