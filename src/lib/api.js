@@ -43,12 +43,12 @@ function mapToValidDatabaseRole(aiRole, customLabel) {
     return { dbRole: 'out-of-nest', displayLabel };
   }
 
-  // In-law mappings → database 'other' with specific display label
+  // In-law mappings → database 'out-of-nest' (extended family not living in household)
   if (['son-in-law', 'daughter-in-law', 'in-law', 'son in law', 'daughter in law'].includes(role)) {
     let displayLabel = 'In-Law';
     if (role.includes('son')) displayLabel = 'Son-in-Law';
     if (role.includes('daughter')) displayLabel = 'Daughter-in-Law';
-    return { dbRole: 'other', displayLabel };
+    return { dbRole: 'out-of-nest', displayLabel };
   }
 
   // Grandparent mappings

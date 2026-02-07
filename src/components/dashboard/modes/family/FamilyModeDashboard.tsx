@@ -25,7 +25,41 @@ import { EventsService } from '../../../../services/eventsService';
 import { CalendarEvent } from '../../../../types/events.types';
 import { convertModalDataToEventInput } from '../../../../utils/eventHelpers';
 import { supabase } from '../../../../lib/supabase';
+import { getFamilyMembers } from '../../../../lib/api';
 import './FamilyModeDashboard.css';
+
+// Helper: Sort family members by role priority and age
+function sortFamilyMembers(members: any[]): any[] {
+  const rolePriority: Record<string, number> = {
+    'primary_organizer': 1,
+    'self': 1,
+    'mom': 1,
+    'partner': 2,
+    'dad': 2,
+    'child': 3,
+    'teen': 3,
+    'out-of-nest': 4,
+    'special': 5,
+    'other': 6
+  };
+
+  return [...members].sort((a, b) => {
+    const priorityA = rolePriority[a.role] || 6;
+    const priorityB = rolePriority[b.role] || 6;
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // For same priority (especially children), sort by age descending (oldest first)
+    if (a.age && b.age) {
+      return b.age - a.age;
+    }
+
+    // If no age, sort alphabetically by name
+    return (a.name || '').localeCompare(b.name || '');
+  });
+}
 
 interface FamilyModeDashboardProps {
   familyId?: string;
@@ -59,6 +93,76 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
   const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentFamilyId, setCurrentFamilyId] = useState<string | null>(null);
+
+  // Real data state
+  const [familyMembers, setFamilyMembers] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Load family data (members, tasks)
+  useEffect(() => {
+    const loadFamilyData = async () => {
+      try {
+        setDataLoading(true);
+
+        // Get current user and their family
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Get family ID
+        let targetFamilyId = familyId;
+        if (!targetFamilyId) {
+          const { data: familyData } = await supabase
+            .from('families')
+            .select('id')
+            .eq('auth_user_id', user.id)
+            .single();
+
+          if (familyData) {
+            targetFamilyId = familyData.id;
+            setCurrentFamilyId(targetFamilyId);
+          }
+        }
+
+        if (!targetFamilyId) {
+          console.log('No family found for user');
+          setDataLoading(false);
+          return;
+        }
+
+        // Load family members
+        const membersResult = await getFamilyMembers(targetFamilyId);
+        if (membersResult.success && membersResult.members) {
+          // Sort members: primary_organizer → partner → children by age → out-of-nest → special
+          const sortedMembers = sortFamilyMembers(membersResult.members);
+          setFamilyMembers(sortedMembers);
+        }
+
+        // Load tasks (handle gracefully if RLS blocks access)
+        try {
+          const { data: tasksData, error: tasksError } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('family_id', targetFamilyId)
+            .order('created_at', { ascending: false });
+
+          if (!tasksError && tasksData) {
+            setTasks(tasksData);
+          }
+        } catch (taskErr) {
+          console.log('Could not load tasks (RLS may be blocking):', taskErr);
+          setTasks([]);
+        }
+
+      } catch (error) {
+        console.error('Error loading family data:', error);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    loadFamilyData();
+  }, [familyId]);
 
   // Load family ID and events
   useEffect(() => {
@@ -124,128 +228,55 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
     return end;
   };
 
-  // Mock data for development - will be replaced with real data from overview
-  const mockFamilyMembers = [
-    {
-      id: '1',
-      name: 'Emma',
-      role: 'teen',
-      dashboard_mode: 'independent',
-      member_color: 'AIMfM Sage Teal',
+  // Transform family members for FamilyOverviewWidget
+  const familyMembersForOverview = familyMembers.map(member => {
+    // Count tasks for this member
+    const memberTasks = tasks.filter(task =>
+      task.assignee && Array.isArray(task.assignee) && task.assignee.includes(member.id)
+    );
+    const completedTasks = memberTasks.filter(t => t.status === 'completed').length;
+    const totalTasks = memberTasks.length;
+    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    return {
+      id: member.id,
+      name: member.name,
+      role: member.role,
+      dashboard_mode: member.dashboard_type || member.dashboard_mode || 'guided',
+      member_color: member.member_color || 'AIMfM Sage Teal',
       stats: {
-        completedTasks: 5,
-        totalTasks: 8,
-        completionRate: 63,
-        streak: 3,
-        nextEvent: 'Soccer practice 4pm'
+        completedTasks,
+        totalTasks,
+        completionRate,
+        streak: 0, // TODO: Calculate from task_completions
+        nextEvent: '' // TODO: Get from calendar events
       }
-    },
-    {
-      id: '2',
-      name: 'Noah',
-      role: 'child',
-      dashboard_mode: 'guided',
-      member_color: 'Golden Honey',
-      stats: {
-        completedTasks: 5,
-        totalTasks: 5,
-        completionRate: 100,
-        streak: 7,
-        nextEvent: 'Reading time 6pm'
-      }
-    }
-  ];
+    };
+  });
 
-  const mockMemberBalances = [
-    {
-      id: '1',
-      name: 'Emma',
-      member_color: 'AIMfM Sage Teal',
-      points: 450,
-      allowance: 25,
-      privilegesEarned: 3
-    },
-    {
-      id: '2',
-      name: 'Noah',
-      member_color: 'Golden Honey',
-      points: 680,
-      allowance: 15,
-      privilegesEarned: 5
-    }
-  ];
+  // Transform tasks for TaskManagementWidget
+  const tasksForWidget = tasks.map(task => {
+    // Find assigned member names and colors
+    const assignedMembers = (task.assignee || []).map((memberId: string) => {
+      const member = familyMembers.find(m => m.id === memberId);
+      return member ? { name: member.name, color: member.member_color || 'AIMfM Sage Teal' } : null;
+    }).filter(Boolean);
 
-  const mockPendingRequests = [
-    {
-      id: 'req1',
-      memberId: '1',
-      memberName: 'Emma',
-      memberColor: 'AIMfM Sage Teal',
-      rewardType: 'privilege' as const,
-      amount: 1,
-      reason: 'Completed all tasks for 3 days in a row',
-      status: 'pending' as const,
-      timestamp: new Date()
-    }
-  ];
+    return {
+      id: task.id,
+      title: task.task_name || task.title || 'Untitled Task',
+      assignedTo: task.assignee || [],
+      assignedToNames: assignedMembers.map((m: any) => m.name),
+      assignedColors: assignedMembers.map((m: any) => m.color),
+      dueDate: task.due_date ? new Date(task.due_date).toLocaleDateString() : undefined,
+      completed: task.status === 'completed',
+      priority: (task.priority || 'medium') as 'high' | 'medium' | 'low'
+    };
+  });
 
-  const mockEvents = [
-    {
-      id: '1',
-      title: 'Soccer Practice',
-      time: '4:00 PM',
-      memberName: 'Emma',
-      memberColor: 'AIMfM Sage Teal',
-      dayIndex: 1
-    },
-    {
-      id: '2',
-      title: 'Reading Time',
-      time: '6:00 PM',
-      memberName: 'Noah',
-      memberColor: 'Golden Honey',
-      dayIndex: 1
-    },
-    {
-      id: '3',
-      title: 'Math Tutoring',
-      time: '3:30 PM',
-      memberName: 'Emma',
-      memberColor: 'AIMfM Sage Teal',
-      dayIndex: 3
-    }
-  ];
-
-  const mockTasks = [
-    {
-      id: '1',
-      title: 'Clean bedroom',
-      assignedTo: ['1'],
-      assignedToNames: ['Emma'],
-      assignedColors: ['AIMfM Sage Teal'],
-      completed: false,
-      priority: 'high' as const
-    },
-    {
-      id: '2',
-      title: 'Finish homework',
-      assignedTo: ['1', '2'],
-      assignedToNames: ['Emma', 'Noah'],
-      assignedColors: ['AIMfM Sage Teal', 'Golden Honey'],
-      dueDate: 'Today',
-      completed: false,
-      priority: 'high' as const
-    },
-    {
-      id: '3',
-      title: 'Water plants',
-      assignedTo: ['2'],
-      assignedToNames: ['Noah'],
-      assignedColors: ['Golden Honey'],
-      completed: true,
-      priority: 'low' as const
-    }
-  ];
+  // Empty rewards data (rewards system not yet set up)
+  const memberBalances: any[] = [];
+  const pendingRequests: any[] = [];
 
   // Calendar week navigation
   const getWeekDates = () => {
@@ -311,7 +342,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
   };
 
   const handleManageFamily = () => {
-    navigate('/commandcenter?tab=family');
+    navigate('/commandcenter/family-setup');
   };
 
   const handlePreviousWeek = () => {
@@ -670,7 +701,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           {checkPermission('view_family_data') && (
             <div style={{ gridColumn: 'span 12' }}>
               <FamilyOverviewWidget
-                familyMembers={mockFamilyMembers}
+                familyMembers={familyMembersForOverview}
                 onViewMember={handleViewMember}
                 onManageFamily={handleManageFamily}
               />
@@ -681,7 +712,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           {checkPermission('view_tasks') && (
             <div style={{ gridColumn: 'span 12' }}>
               <TaskManagementWidget
-                tasks={mockTasks}
+                tasks={tasksForWidget}
                 onCreateTask={checkPermission('create_tasks') ? handleCreateTask : undefined}
                 onToggleTask={checkPermission('edit_tasks') ? handleToggleTask : undefined}
                 onDeleteTask={checkPermission('edit_tasks') ? handleDeleteTask : undefined}
@@ -693,11 +724,11 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           {checkPermission('access_reports') && (
             <div style={{ gridColumn: 'span 7' }}>
               <FamilyAnalyticsWidget
-                familyMembers={mockFamilyMembers}
-                weeklyTrend={12}
-                totalTasksThisWeek={13}
-                totalCompletedThisWeek={10}
-                averageCompletionTime={18}
+                familyMembers={familyMembersForOverview}
+                weeklyTrend={0}
+                totalTasksThisWeek={tasks.length}
+                totalCompletedThisWeek={tasks.filter(t => t.status === 'completed').length}
+                averageCompletionTime={0}
               />
             </div>
           )}
@@ -706,8 +737,8 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           {checkPermission('manage_rewards') && (
             <div style={{ gridColumn: 'span 5' }}>
               <RewardManagementWidget
-                memberBalances={mockMemberBalances}
-                pendingRequests={mockPendingRequests}
+                memberBalances={memberBalances}
+                pendingRequests={pendingRequests}
                 onApproveRequest={handleApproveRequest}
                 onDenyRequest={handleDenyRequest}
                 onAdjustBalance={handleAdjustBalance}
@@ -723,7 +754,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           isOpen={showTaskCreationModal}
           onClose={() => setShowTaskCreationModal(false)}
           onSave={handleTaskSave}
-          familyMembers={mockFamilyMembers}
+          familyMembers={familyMembersForOverview}
         />
       )}
 
@@ -832,7 +863,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
           }
         }}
         preselectedDate={eventPreselectedDate}
-        familyMembers={mockFamilyMembers}
+        familyMembers={familyMembersForOverview}
       />
     </div>
   );
