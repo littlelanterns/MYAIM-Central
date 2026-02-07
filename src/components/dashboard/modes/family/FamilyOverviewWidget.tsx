@@ -14,6 +14,7 @@ interface FamilyMember {
   name: string;
   role: string;
   dashboard_mode: string;
+  dashboard_type?: string;
   member_color?: string;
   stats?: {
     completedTasks: number;
@@ -21,6 +22,21 @@ interface FamilyMember {
     nextEvent?: string;
   };
 }
+
+// Helper function to format dashboard type for display
+const formatDashboardType = (dashboardType: string | undefined): string => {
+  if (!dashboardType) return 'Guided Mode';
+
+  const typeMap: Record<string, string> = {
+    'play': 'Play Mode',
+    'guided': 'Guided Mode',
+    'independent': 'Independent Mode',
+    'additional_adult': 'Partner Dashboard',
+    'partner': 'Partner Dashboard'
+  };
+
+  return typeMap[dashboardType.toLowerCase()] || dashboardType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
 
 interface FamilyOverviewWidgetProps {
   familyMembers: FamilyMember[];
@@ -262,10 +278,9 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                         fontSize: '0.75rem',
                         color: 'var(--text-color)',
                         opacity: 0.6,
-                        textTransform: 'capitalize',
                         fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                       }}>
-                        {member.dashboard_mode || 'independent'}
+                        {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
                       </div>
                     </div>
 
@@ -387,10 +402,9 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                         fontSize: '0.75rem',
                         color: 'var(--text-color)',
                         opacity: 0.7,
-                        textTransform: 'capitalize',
                         fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                       }}>
-                        {member.dashboard_mode || 'independent'}
+                        {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
                       </span>
                     </div>
                     <div style={{

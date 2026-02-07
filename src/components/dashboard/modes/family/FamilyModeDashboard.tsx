@@ -167,37 +167,61 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
     loadFamilyData();
   }, [familyId]);
 
-  // Load family ID and events
+  // Load family ID and events - silently handle errors to prevent session corruption
   useEffect(() => {
     const loadFamilyEvents = async () => {
-      if (!familyId) {
-        // Get family ID from current user
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+      try {
+        if (!familyId) {
+          // Get family ID from current user
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          if (userError || !user) {
+            console.log('Could not get user for events (non-blocking):', userError?.message);
+            return;
+          }
 
-        const { data: memberData } = await supabase
-          .from('family_members')
-          .select('family_id')
-          .eq('auth_user_id', user.id)
-          .single();
+          const { data: memberData, error: memberError } = await supabase
+            .from('family_members')
+            .select('family_id')
+            .eq('auth_user_id', user.id)
+            .single();
 
-        if (memberData) {
-          setCurrentFamilyId(memberData.family_id);
-          const weekEvents = await EventsService.getEventsForFamily(
-            memberData.family_id,
-            getWeekStart(currentWeek),
-            getWeekEnd(currentWeek)
-          );
-          setEvents(weekEvents);
+          if (memberError) {
+            console.log('Could not get member data for events (non-blocking):', memberError.message);
+            return;
+          }
+
+          if (memberData) {
+            setCurrentFamilyId(memberData.family_id);
+            try {
+              const weekEvents = await EventsService.getEventsForFamily(
+                memberData.family_id,
+                getWeekStart(currentWeek),
+                getWeekEnd(currentWeek)
+              );
+              setEvents(weekEvents);
+            } catch (eventErr) {
+              console.log('Could not load events (non-blocking):', eventErr);
+              setEvents([]);
+            }
+          }
+        } else {
+          setCurrentFamilyId(familyId);
+          try {
+            const weekEvents = await EventsService.getEventsForFamily(
+              familyId,
+              getWeekStart(currentWeek),
+              getWeekEnd(currentWeek)
+            );
+            setEvents(weekEvents);
+          } catch (eventErr) {
+            console.log('Could not load events (non-blocking):', eventErr);
+            setEvents([]);
+          }
         }
-      } else {
-        setCurrentFamilyId(familyId);
-        const weekEvents = await EventsService.getEventsForFamily(
-          familyId,
-          getWeekStart(currentWeek),
-          getWeekEnd(currentWeek)
-        );
-        setEvents(weekEvents);
+      } catch (error) {
+        // Silently handle any errors - events are not critical
+        console.log('Events loading failed (non-blocking):', error);
+        setEvents([]);
       }
     };
 
@@ -206,12 +230,16 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
 
   const refreshEvents = async () => {
     if (currentFamilyId) {
-      const weekEvents = await EventsService.getEventsForFamily(
-        currentFamilyId,
-        getWeekStart(currentWeek),
-        getWeekEnd(currentWeek)
-      );
-      setEvents(weekEvents);
+      try {
+        const weekEvents = await EventsService.getEventsForFamily(
+          currentFamilyId,
+          getWeekStart(currentWeek),
+          getWeekEnd(currentWeek)
+        );
+        setEvents(weekEvents);
+      } catch (error) {
+        console.log('Could not refresh events (non-blocking):', error);
+      }
     }
   };
 
@@ -245,6 +273,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
       id: member.id,
       name: member.name,
       role: member.role,
+      dashboard_type: member.dashboard_type,
       dashboard_mode: member.dashboard_type || member.dashboard_mode || 'guided',
       member_color: member.member_color || 'AIMfM Sage Teal',
       stats: {

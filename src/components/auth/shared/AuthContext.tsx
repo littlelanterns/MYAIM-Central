@@ -279,11 +279,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return state.user?.role === 'child';
   };
 
+  // Session recovery: clear invalid session and redirect to login
+  const recoverSession = () => {
+    console.log('🔄 Session recovery: clearing invalid session state');
+    dispatch({ type: 'LOGOUT' });
+    // Clear any stale session data
+    localStorage.removeItem('aimfm_session');
+    sessionStorage.removeItem('aimfm_session_temporary');
+    // Only redirect if not already on login page
+    if (window.location.pathname !== '/login' &&
+        window.location.pathname !== '/dashboard' &&
+        window.location.pathname !== '/') {
+      window.location.href = '/login';
+    }
+  };
+
   // Initialize auth state from Supabase session on mount
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        // If getSession fails, recover gracefully
+        if (sessionError) {
+          console.error('❌ getSession failed:', sessionError);
+          recoverSession();
+          return;
+        }
 
         if (session?.user) {
           // Load family member data
@@ -311,10 +333,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
           } else {
             console.warn('⚠️ No family member data found for user');
+            // Don't recover here - user might be in setup flow
           }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        // On unexpected errors, try to recover
+        recoverSession();
       }
     };
 
