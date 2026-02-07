@@ -245,6 +245,7 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
               <option value="play">Play Mode - Fun & Gamified</option>
               <option value="guided">Guided Mode - Guided Experience</option>
               <option value="independent">Independent Mode - Full Features</option>
+              <option value="additional_adult">Adult Dashboard - For Partners</option>
             </select>
 
             <a
@@ -292,6 +293,11 @@ const FamilyMemberForm: React.FC<FamilyMemberFormProps> = ({
             {member.dashboard_type === 'independent' && (
               <span>
                 <strong>Independent Mode:</strong> Sophisticated, professional dashboard with advanced tools. For teens who want full productivity features.
+              </span>
+            )}
+            {member.dashboard_type === 'additional_adult' && (
+              <span>
+                <strong>Adult Dashboard:</strong> Full family view with permission-based access. For partners and other adults who help manage the family.
               </span>
             )}
           </div>

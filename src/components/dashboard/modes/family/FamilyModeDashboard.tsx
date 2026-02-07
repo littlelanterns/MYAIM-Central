@@ -133,8 +133,11 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
         // Load family members
         const membersResult = await getFamilyMembers(targetFamilyId);
         if (membersResult.success && membersResult.members) {
-          // Sort members: primary_organizer → partner → children by age → out-of-nest → special
-          const sortedMembers = sortFamilyMembers(membersResult.members);
+          // Filter to only show household members with dashboards
+          // Context-only members (out-of-nest like Sariah, Esther, Matthew, Timothy) should not appear
+          const householdMembers = membersResult.members.filter((m: any) => m.in_household === true);
+          // Sort members: primary_organizer → partner → children by age → special
+          const sortedMembers = sortFamilyMembers(householdMembers);
           setFamilyMembers(sortedMembers);
         }
 

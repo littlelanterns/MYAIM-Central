@@ -10,11 +10,13 @@ import { supabase } from '../lib/supabase';
 import PlayModeDashboard from '../components/dashboard/modes/play/PlayModeDashboard';
 import GuidedModeDashboard from '../components/dashboard/modes/guided/GuidedModeDashboard';
 import IndependentModeDashboard from '../components/dashboard/modes/independent/IndependentModeDashboard';
+import AdditionalAdultDashboard from '../components/dashboard/additional-adult/AdditionalAdultDashboard';
 
 const MemberDashboard: React.FC = () => {
   const { memberId } = useParams<{ memberId: string }>();
   const [dashboardMode, setDashboardMode] = useState<string | null>(null);
   const [memberName, setMemberName] = useState<string>('');
+  const [familyId, setFamilyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +40,7 @@ const MemberDashboard: React.FC = () => {
       // Load family member from database
       const { data, error: fetchError } = await supabase
         .from('family_members')
-        .select('dashboard_mode, dashboard_type, name')
+        .select('dashboard_mode, dashboard_type, name, family_id')
         .eq('id', memberId)
         .single();
 
@@ -52,9 +54,10 @@ const MemberDashboard: React.FC = () => {
         return;
       }
 
-      // Use dashboard_type as primary, fallback to dashboard_mode, then 'independent'
-      setDashboardMode(data.dashboard_type || data.dashboard_mode || 'independent');
+      // Use dashboard_type as primary, fallback to dashboard_mode, then 'guided'
+      setDashboardMode(data.dashboard_type || data.dashboard_mode || 'guided');
       setMemberName(data.name || '');
+      setFamilyId(data.family_id || null);
     } catch (err) {
       console.error('Error loading member dashboard mode:', err);
       setError('Failed to load dashboard. Please try again.');
@@ -112,8 +115,10 @@ const MemberDashboard: React.FC = () => {
       return <GuidedModeDashboard familyMemberId={memberId!} />;
     case 'independent':
       return <IndependentModeDashboard familyMemberId={memberId!} />;
+    case 'additional_adult':
+      return <AdditionalAdultDashboard familyMemberId={memberId!} familyId={familyId || ''} />;
     default:
-      return <IndependentModeDashboard familyMemberId={memberId!} />;
+      return <GuidedModeDashboard familyMemberId={memberId!} />;
   }
 };
 

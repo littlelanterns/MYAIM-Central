@@ -172,16 +172,33 @@ export async function saveFamilyMember(memberData) {
       }
     }
 
-    // Prepare member data for database
-    // Note: dashboard_type is the primary field for dashboard visual style
-    const dashboardType = memberData.dashboard_type || 'guided';
-
     // Map AI-assigned role to valid database role and get display label
     // The dbRole goes in the 'role' column, displayLabel goes in 'custom_role' for UI display
     const aiRole = memberData.relationship || memberData.role || 'other';
     const customLabel = memberData.customRole || memberData.display_label || '';
     const { dbRole, displayLabel } = mapToValidDatabaseRole(aiRole, customLabel);
     console.log(`🔵 [saveFamilyMember] Role mapping: AI='${aiRole}' → DB='${dbRole}', Display='${displayLabel}'`);
+
+    // Prepare member data for database
+    // Note: dashboard_type is the primary field for dashboard visual style
+    // Partners and special adults get 'additional_adult' dashboard
+    // Primary organizer (mom) doesn't need a dashboard_type (uses family dashboard)
+    // Children get what the AI/user specified, or 'guided' as fallback
+    let dashboardType = memberData.dashboard_type;
+    if (!dashboardType) {
+      // Set appropriate default based on role
+      const partnerRoles = ['partner', 'special'];
+      const skipDashboardRoles = ['primary_organizer', 'grandparent', 'out-of-nest'];
+
+      if (partnerRoles.includes(dbRole)) {
+        dashboardType = 'additional_adult'; // Additional adult dashboard
+      } else if (skipDashboardRoles.includes(dbRole)) {
+        dashboardType = null; // Context-only, no dashboard
+      } else {
+        dashboardType = 'guided'; // Default for children
+      }
+    }
+    console.log(`🔵 [saveFamilyMember] Dashboard type: ${dashboardType} (role: ${dbRole})`);
 
     const dbMemberData = {
       family_id: memberData.family_id,
