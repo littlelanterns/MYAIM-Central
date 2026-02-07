@@ -29,33 +29,31 @@ const MemberDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      // Handle demo/sample family members (Emma and Noah from Family Dashboard)
-      const demoMembers: Record<string, { name: string; mode: string }> = {
-        '1': { name: 'Emma', mode: 'independent' },
-        '2': { name: 'Noah', mode: 'guided' }
-      };
-
-      if (memberId && demoMembers[memberId]) {
-        // This is a demo member, use mock data
-        setDashboardMode(demoMembers[memberId].mode);
-        setMemberName(demoMembers[memberId].name);
+      if (!memberId) {
+        setError('No member ID provided.');
         setLoading(false);
         return;
       }
 
-      // Real family member - load from database
+      // Load family member from database
       const { data, error: fetchError } = await supabase
         .from('family_members')
-        .select('dashboard_mode, name')
+        .select('dashboard_mode, dashboard_type, name')
         .eq('id', memberId)
         .single();
 
       if (fetchError) {
-        throw fetchError;
+        if (fetchError.code === 'PGRST116') {
+          // No rows returned - member not found
+          setError('Family member not found. They may have been removed.');
+        } else {
+          throw fetchError;
+        }
+        return;
       }
 
-      // Default to 'independent' if no mode set
-      setDashboardMode(data.dashboard_mode || 'independent');
+      // Use dashboard_type as primary, fallback to dashboard_mode, then 'independent'
+      setDashboardMode(data.dashboard_type || data.dashboard_mode || 'independent');
       setMemberName(data.name || '');
     } catch (err) {
       console.error('Error loading member dashboard mode:', err);
