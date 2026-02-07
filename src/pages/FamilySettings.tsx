@@ -19,6 +19,98 @@ import { FamilyMember, RelationshipType, AccessLevel, ShowPermissionsState, Coll
 
 // Remove duplicate interface definitions - now imported from shared types
 
+// Helper: Sort family members by role priority and age
+function sortFamilyMembers(members: FamilyMember[]): FamilyMember[] {
+  const rolePriority: Record<string, number> = {
+    'primary_organizer': 1,
+    'self': 1,
+    'mom': 1,
+    'partner': 2,
+    'dad': 2,
+    'child': 3,
+    'teen': 3,
+    'out-of-nest': 4,
+    'special': 5,
+    'other': 6
+  };
+
+  return [...members].sort((a, b) => {
+    const priorityA = rolePriority[a.relationship] || 6;
+    const priorityB = rolePriority[b.relationship] || 6;
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // For same priority (especially children), sort by age descending (oldest first)
+    const ageA = a.age || 0;
+    const ageB = b.age || 0;
+    if (ageA !== ageB) {
+      return ageB - ageA;
+    }
+
+    // If no age, sort alphabetically by name
+    return (a.name || '').localeCompare(b.name || '');
+  });
+}
+
+// Helper: Get UI-friendly display label from role and custom_role
+function getDisplayLabel(member: FamilyMember): string {
+  const role = member.relationship || 'other';
+  const customRole = member.customRole || '';
+
+  switch (role) {
+    case 'primary_organizer':
+    case 'self':
+    case 'mom':
+      return 'Mom';
+    case 'partner':
+    case 'dad':
+      // Use custom_role if set (e.g., "Husband", "Wife"), else "Partner"
+      return customRole || 'Partner';
+    case 'child':
+    case 'teen':
+      return 'Child';
+    case 'out-of-nest':
+      // Use custom_role if set (e.g., "Son-in-Law"), else "Adult Child"
+      return customRole || 'Adult Child';
+    case 'special':
+      // Use custom_role (e.g., "Grandmother", "Nanny"), else "Special"
+      return customRole || 'Special';
+    case 'other':
+      return customRole || 'Family Member';
+    default:
+      return customRole || 'Family Member';
+  }
+}
+
+// Helper: Get dashboard type display for children
+function getDashboardTypeLabel(member: FamilyMember): string | null {
+  if (!member.inHousehold || member.accessLevel === 'none') {
+    return null;
+  }
+
+  // For partners/special, show "Adult Dashboard"
+  if (member.relationship === 'partner' || member.relationship === 'special') {
+    return 'Adult Dashboard';
+  }
+
+  // For children, show their dashboard type
+  const dashboardType = (member as any).dashboard_type || member.accessLevel;
+  switch (dashboardType) {
+    case 'play':
+      return 'Play Mode';
+    case 'guided':
+      return 'Guided Mode';
+    case 'independent':
+      return 'Independent Mode';
+    case 'full':
+      return 'Full Access';
+    default:
+      return null;
+  }
+}
+
 const FamilySetupInterface: React.FC = () => {
   const navigate = useNavigate();
   const [familyName, setFamilyName] = useState<string>('');
@@ -284,7 +376,16 @@ const FamilySetupInterface: React.FC = () => {
 
         const membersResult = await getFamilyMembers(familyResult.family.id);
         if (membersResult.success) {
-          setFamilyMembers(membersResult.members || []);
+          // Sort members: primary_organizer → partner → children by age → out-of-nest → special
+          const sortedMembers = sortFamilyMembers(membersResult.members || []);
+          setFamilyMembers(sortedMembers);
+
+          // Start all members collapsed by default
+          const initialCollapsed: Record<string | number, boolean> = {};
+          sortedMembers.forEach(m => {
+            initialCollapsed[m.id] = true;
+          });
+          setCollapsed(initialCollapsed);
         }
       } else {
         // No family found yet - this is okay for new users
@@ -994,40 +1095,53 @@ const FamilySetupInterface: React.FC = () => {
             {familyMembers.map((member) => (
               <div key={member.id} className="family-member-card">
                 
-                {/* Collapsed View */}
+                {/* Collapsed View - Click anywhere to expand */}
                 {collapsed[member.id] ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div
+                    onClick={() => setCollapsed({ ...collapsed, [member.id]: false })}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '1rem',
+                      cursor: 'pointer'
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: '1 1 auto' }}>
                       <div style={{ flex: '1 1 auto' }}>
                         <h3 style={{ margin: 0, color: 'var(--text-color, #5a4033)' }}>
                           {member.name || 'Unnamed Member'}
                         </h3>
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                          {/* UI Display Label (Mom, Husband, Child, Adult Child, etc.) */}
                           <span className="status-badge household">
-                            {relationshipTypes[member.relationship]?.label || member.relationship}
+                            {getDisplayLabel(member)}
                           </span>
-                          {member.inHousehold ? (
+                          {/* Dashboard Type or Context Only */}
+                          {member.inHousehold && member.accessLevel !== 'none' ? (
                             <span className="status-badge access-level">
-                              {(member.relationship === 'partner' || member.relationship === 'special')
-                                ? 'Additional Adult'
-                                : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
+                              {getDashboardTypeLabel(member) || 'Dashboard Access'}
                             </span>
                           ) : (
                             <span className="status-badge context-only">Context Only</span>
                           )}
                           {/* PIN Display */}
                           {member.inHousehold && member.accessLevel !== 'none' && member.pin && (
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: '0.25rem 0.75rem',
-                              background: 'var(--accent-color, #d4e3d9)',
-                              borderRadius: '12px',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              color: 'var(--text-color, #5a4033)'
-                            }}>
+                            <span
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.25rem 0.75rem',
+                                background: 'var(--accent-color, #d4e3d9)',
+                                borderRadius: '12px',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                color: 'var(--text-color, #5a4033)'
+                              }}
+                            >
                               <span>PIN:</span>
                               <span style={{ fontFamily: 'monospace', letterSpacing: '0.2em' }}>
                                 {visiblePins[member.id] ? member.pin : '••••'}
@@ -1057,7 +1171,10 @@ const FamilySetupInterface: React.FC = () => {
 
                     <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                       <button
-                        onClick={() => setCollapsed({ ...collapsed, [member.id]: false })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCollapsed({ ...collapsed, [member.id]: false });
+                        }}
                         style={{
                           background: 'var(--primary-color, #68a395)',
                           color: 'white',
@@ -1066,12 +1183,16 @@ const FamilySetupInterface: React.FC = () => {
                           borderRadius: '6px',
                           cursor: 'pointer'
                         }}
+                        title="Edit"
                       >
                         <Edit2 size={16} />
                       </button>
-                      
+
                       <button
-                        onClick={() => deleteMember(member.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteMember(member.id);
+                        }}
                         style={{
                           background: 'var(--accent-secondary, #b25a58)',
                           color: 'white',
@@ -1080,6 +1201,7 @@ const FamilySetupInterface: React.FC = () => {
                           borderRadius: '6px',
                           cursor: 'pointer'
                         }}
+                        title="Delete"
                       >
                         <X size={16} />
                       </button>
@@ -1270,18 +1392,11 @@ const FamilySetupInterface: React.FC = () => {
                       {/* Detected Info Summary */}
                       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                         <span className="status-badge household">
-                          {relationshipTypes[member.relationship]?.label || member.relationship}
+                          {getDisplayLabel(member)}
                         </span>
-                        {member.inHousehold ? (
+                        {member.inHousehold && member.accessLevel !== 'none' ? (
                           <span className="status-badge access-level">
-                            {(member.relationship === 'partner' || member.relationship === 'special')
-                              ? 'Additional Adult'
-                              : member.relationship === 'child' && member.dashboard_type
-                                ? (member.dashboard_type === 'play' ? 'Play Mode' :
-                                   member.dashboard_type === 'guided' ? 'Guided Mode' :
-                                   member.dashboard_type === 'independent' ? 'Independent Mode' :
-                                   member.dashboard_type)
-                                : (accessLevels[member.accessLevel]?.label || member.accessLevel)}
+                            {getDashboardTypeLabel(member) || 'Dashboard Access'}
                           </span>
                         ) : (
                           <span className="status-badge context-only">Context Only</span>
