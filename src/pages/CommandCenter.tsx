@@ -3,6 +3,7 @@ import React, { FC, CSSProperties, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BestIntentionsModal from '../components/BestIntentions/BestIntentionsModal';
 import TrackerGallery from '../components/trackers/gallery/TrackerGallery';
+import { useAdminPermissions } from '../hooks/useAdminPermissions';
 
 // TypeScript interfaces
 interface PageAction {
@@ -69,9 +70,35 @@ const commandCenterActions: CommandCenterAction[] = [
   }
 ];
 
+// Admin-only actions (shown only if user has admin permissions)
+const adminActions: PageAction[] = [
+  {
+    type: 'page',
+    path: 'library/admin',
+    title: 'LIBRARY ADMIN',
+    subtitle: 'Manage Library Content',
+    description: 'Add, edit, and organize Library content including tutorials, tools, and templates.'
+  },
+  {
+    type: 'page',
+    path: 'beta/admin',
+    title: 'BETA ADMIN',
+    subtitle: 'Beta User Management',
+    description: 'Manage beta testers, invitations, feedback, and feature rollouts.'
+  },
+  {
+    type: 'page',
+    path: 'aim-admin',
+    title: 'AIM ADMIN',
+    subtitle: 'System Administration',
+    description: 'Full system administration including user management, analytics, and configuration.'
+  }
+];
+
 const CommandCenter: FC = () => {
   const navigate = useNavigate();
   const [bestIntentionsOpen, setBestIntentionsOpen] = useState(false);
+  const { isAdmin, loading: adminLoading } = useAdminPermissions();
 
   const handleCardClick = (action: CommandCenterAction): void => {
     if (action.type === 'modal') {
@@ -194,9 +221,9 @@ const CommandCenter: FC = () => {
         <div style={styles.gridContainer}>
         {commandCenterActions.map(action => (
           action.type === 'page' ? (
-            <Link 
-              to={action.path} 
-              key={action.title} 
+            <Link
+              to={action.path}
+              key={action.title}
               style={styles.card}
               onMouseOver={handleMouseOver}
               onMouseOut={handleMouseOut}
@@ -206,9 +233,9 @@ const CommandCenter: FC = () => {
               <p style={styles.cardDescription}>{action.description}</p>
             </Link>
           ) : (
-            <div 
-              onClick={() => handleCardClick(action)} 
-              key={action.title} 
+            <div
+              onClick={() => handleCardClick(action)}
+              key={action.title}
               style={styles.card}
               onMouseOver={handleMouseOver}
               onMouseOut={handleMouseOut}
@@ -220,6 +247,43 @@ const CommandCenter: FC = () => {
           )
         ))}
       </div>
+
+        {/* Admin Section - Only visible if user has admin permissions */}
+        {isAdmin && !adminLoading && (
+          <>
+            <h2 style={{
+              textAlign: 'center',
+              color: 'rgba(255,255,255,0.9)',
+              marginTop: '2rem',
+              marginBottom: '1.5rem',
+              fontFamily: "'HK Grotesk', sans-serif",
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '2px'
+            }}>
+              Admin Tools
+            </h2>
+            <div style={styles.gridContainer}>
+              {adminActions.map(action => (
+                <Link
+                  to={action.path}
+                  key={action.title}
+                  style={{
+                    ...styles.card,
+                    borderLeft: '4px solid var(--secondary-color, #d6a461)'
+                  }}
+                  onMouseOver={handleMouseOver}
+                  onMouseOut={handleMouseOut}
+                >
+                  <h2 style={styles.cardTitle}>{action.title}</h2>
+                  <h3 style={styles.cardSubtitle}>{action.subtitle}</h3>
+                  <p style={styles.cardDescription}>{action.description}</p>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
 
         <BestIntentionsModal
           isOpen={bestIntentionsOpen}

@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { setRememberPreference } from '../lib/sessionManager';
 
+// Hardcoded super admin emails (always have admin access)
+const SUPER_ADMIN_EMAILS = [
+  'tenisewertman@gmail.com',
+  'aimagicformoms@gmail.com',
+  '3littlelanterns@gmail.com',
+];
+
 const NormalMomLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -92,7 +99,39 @@ const NormalMomLogin = () => {
         return;
       }
 
-      // Step 8: Store session data
+      // Step 8: Check for admin permissions
+      const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(email.toLowerCase());
+      let adminPermissions: string[] = [];
+
+      if (isSuperAdmin) {
+        adminPermissions.push('super_admin');
+        console.log('👑 Super admin detected:', email);
+      }
+
+      // Check staff_permissions table for additional permissions
+      try {
+        const { data: staffPerms, error: permError } = await supabase
+          .from('staff_permissions')
+          .select('permission_type, expires_at')
+          .eq('user_id', authData.user.id)
+          .eq('is_active', true);
+
+        if (!permError && staffPerms) {
+          const validPerms = staffPerms
+            .filter((perm) => perm.expires_at === null || new Date(perm.expires_at) > new Date())
+            .map((perm) => perm.permission_type);
+          adminPermissions = [...new Set([...adminPermissions, ...validPerms])];
+        }
+      } catch (permCheckError) {
+        console.log('Could not check staff_permissions (may be RLS blocked):', permCheckError);
+      }
+
+      const isAdmin = adminPermissions.length > 0;
+      if (isAdmin) {
+        console.log('🔐 Admin permissions:', adminPermissions);
+      }
+
+      // Step 9: Store session data (including admin info)
       const sessionData = {
         user_id: authData.user.id,
         family_id: familyData.id,
@@ -101,6 +140,8 @@ const NormalMomLogin = () => {
         subscription_tier: familyData.subscription_tier,
         is_primary_parent: true,
         login_type: 'normal',
+        is_admin: isAdmin,
+        admin_permissions: adminPermissions,
       };
 
       console.log('💾 Storing session data:', sessionData);
