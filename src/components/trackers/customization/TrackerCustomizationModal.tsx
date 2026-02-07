@@ -5,9 +5,11 @@
  * NO EMOJIS - CSS VARIABLES ONLY - THEME AWARE
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Info } from 'lucide-react';
+import { supabase } from '../../../lib/supabase';
+import { getFamilyMembers } from '../../../lib/api';
 
 interface TrackerTemplate {
   id: string;
@@ -57,15 +59,53 @@ const TrackerCustomizationModal: React.FC<TrackerCustomizationModalProps> = ({
   onSave,
   familyMembers = []
 }) => {
-  // Default family members if none provided
-  const defaultMembers: FamilyMember[] = [
-    { id: 'mom', name: 'Me (Mom)', role: 'parent', dashboard_mode: 'personal' },
-    { id: '1', name: 'Emma', role: 'teen', dashboard_mode: 'independent' },
-    { id: '2', name: 'Noah', role: 'child', dashboard_mode: 'guided' },
-    { id: '3', name: 'Lily', role: 'child', dashboard_mode: 'play' }
-  ];
+  // State for loaded family members
+  const [loadedMembers, setLoadedMembers] = useState<FamilyMember[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
 
-  const members = familyMembers.length > 0 ? familyMembers : defaultMembers;
+  // Load family members from database if none provided
+  useEffect(() => {
+    const loadMembers = async () => {
+      if (familyMembers.length > 0 || !isOpen) return;
+
+      try {
+        setMembersLoading(true);
+
+        // Get current user's family
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: familyData } = await supabase
+          .from('families')
+          .select('id')
+          .eq('auth_user_id', user.id)
+          .single();
+
+        if (!familyData) return;
+
+        // Load family members
+        const result = await getFamilyMembers(familyData.id);
+        if (result.success && result.members) {
+          const formattedMembers = result.members.map(m => ({
+            id: m.id,
+            name: m.name,
+            role: m.role,
+            dashboard_mode: m.dashboard_type || m.dashboard_mode || 'guided'
+          }));
+          setLoadedMembers(formattedMembers);
+        }
+      } catch (error) {
+        console.error('Error loading family members:', error);
+      } finally {
+        setMembersLoading(false);
+      }
+    };
+
+    loadMembers();
+  }, [familyMembers.length, isOpen]);
+
+  // Use provided members, or loaded members, or empty array
+  const members = familyMembers.length > 0 ? familyMembers : loadedMembers;
 
   // State
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -232,6 +272,27 @@ const TrackerCustomizationModal: React.FC<TrackerCustomizationModalProps> = ({
             }}>
               Who is this for? (Select one or more)
             </label>
+            {membersLoading ? (
+              <div style={{
+                padding: '1rem',
+                textAlign: 'center',
+                color: 'var(--text-color)',
+                opacity: 0.7
+              }}>
+                Loading family members...
+              </div>
+            ) : members.length === 0 ? (
+              <div style={{
+                padding: '1rem',
+                textAlign: 'center',
+                color: 'var(--text-color)',
+                opacity: 0.7,
+                background: 'var(--accent-color)',
+                borderRadius: '6px'
+              }}>
+                No family members found. Add family members in Family Settings first.
+              </div>
+            ) : (
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
@@ -284,6 +345,7 @@ const TrackerCustomizationModal: React.FC<TrackerCustomizationModalProps> = ({
                 </label>
               ))}
             </div>
+            )}
           </section>
 
           {/* What are you tracking? */}
