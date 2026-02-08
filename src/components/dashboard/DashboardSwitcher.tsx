@@ -94,8 +94,11 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
 
   const loadUserData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.log('[SWITCHER] No user found (non-blocking):', userError?.message);
+        return;
+      }
 
       // Get current user's member record
       const { data: memberData, error: memberError } = await supabase
@@ -105,7 +108,12 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
         .single();
 
       if (memberError) {
-        console.error('Error loading user:', memberError);
+        console.log('[SWITCHER] Could not load member data (non-blocking):', memberError.message);
+        return;
+      }
+
+      if (!memberData) {
+        console.log('[SWITCHER] No member data found (non-blocking)');
         return;
       }
 
@@ -115,22 +123,29 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
       // Load all household family members if user is organizer or parent
       // Filter by in_household=true to exclude out-of-nest members (e.g., adult children living elsewhere)
       if (['primary_organizer', 'parent'].includes(memberData.role)) {
-        const { data: familyData, error: familyError } = await supabase
-          .from('family_members')
-          .select('id, name, role, custom_role, dashboard_mode, dashboard_type')
-          .eq('family_id', memberData.family_id)
-          .eq('in_household', true)
-          .order('name');
+        try {
+          const { data: familyData, error: familyError } = await supabase
+            .from('family_members')
+            .select('id, name, role, custom_role, dashboard_mode, dashboard_type')
+            .eq('family_id', memberData.family_id)
+            .eq('in_household', true)
+            .order('name');
 
-        if (familyError) {
-          console.error('Error loading family members:', familyError);
-          return;
+          if (familyError) {
+            console.log('[SWITCHER] Could not load family members (non-blocking):', familyError.message);
+            setFamilyMembers([]);
+            return;
+          }
+
+          setFamilyMembers(familyData || []);
+        } catch (familyErr) {
+          console.log('[SWITCHER] Family query failed (non-blocking):', familyErr);
+          setFamilyMembers([]);
         }
-
-        setFamilyMembers(familyData || []);
       }
     } catch (error) {
-      console.error('Error in loadUserData:', error);
+      // Silently handle errors - switcher is not critical
+      console.log('[SWITCHER] Data load failed (non-blocking):', error);
     }
   };
 

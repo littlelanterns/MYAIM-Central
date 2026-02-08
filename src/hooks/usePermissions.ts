@@ -15,7 +15,7 @@ export const usePermissions = (familyMemberId?: string) => {
   const [engine, setEngine] = useState<PermissionEngine>(new PermissionEngine(DEFAULT_PERMISSIONS));
 
   /**
-   * Load permissions from database
+   * Load permissions from database - with silent failure to prevent app blocking
    */
   const loadPermissions = useCallback(async () => {
     if (!familyMemberId) {
@@ -33,14 +33,22 @@ export const usePermissions = (familyMemberId?: string) => {
         .eq('id', familyMemberId)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        // Log but don't throw - use default permissions instead
+        console.log('[PERMISSIONS] Could not load permissions (non-blocking):', fetchError.message);
+        setPermissions(DEFAULT_PERMISSIONS);
+        setEngine(new PermissionEngine(DEFAULT_PERMISSIONS));
+        return;
+      }
 
       const loadedPermissions = data?.permissions || DEFAULT_PERMISSIONS;
       setPermissions(loadedPermissions);
       setEngine(new PermissionEngine(loadedPermissions));
     } catch (err) {
-      console.error('Error loading permissions:', err);
-      setError('Failed to load permissions');
+      // Silently handle - permissions are not critical for initial render
+      console.log('[PERMISSIONS] Permission load failed (non-blocking):', err);
+      setPermissions(DEFAULT_PERMISSIONS);
+      setEngine(new PermissionEngine(DEFAULT_PERMISSIONS));
     } finally {
       setLoading(false);
     }

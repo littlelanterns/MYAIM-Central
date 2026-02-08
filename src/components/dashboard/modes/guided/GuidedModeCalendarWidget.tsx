@@ -52,31 +52,58 @@ export const GuidedModeCalendarWidget: React.FC<GuidedModeCalendarWidgetProps> =
   const [events, setEvents] = useState<CalendarEvent[]>(propEvents);
   const [familyId, setFamilyId] = useState<string>('');
 
-  // Load family ID and events
+  // Load family ID and events - with silent failure to prevent app blocking
   useEffect(() => {
     const loadData = async () => {
-      // Get family ID from family member
-      const { data: memberData } = await (await import('../../../../lib/supabase')).supabase
-        .from('family_members')
-        .select('family_id')
-        .eq('id', familyMemberId)
-        .single();
+      try {
+        // Guard: don't query if no familyMemberId
+        if (!familyMemberId) {
+          console.log('[CALENDAR] No familyMemberId provided, skipping data load');
+          return;
+        }
 
-      if (memberData) {
-        setFamilyId(memberData.family_id);
+        // Get family ID from family member
+        const { supabase } = await import('../../../../lib/supabase');
+        const { data: memberData, error: memberError } = await supabase
+          .from('family_members')
+          .select('family_id')
+          .eq('id', familyMemberId)
+          .single();
+
+        if (memberError) {
+          console.log('[CALENDAR] Could not load family ID (non-blocking):', memberError.message);
+          return;
+        }
+
+        if (memberData) {
+          setFamilyId(memberData.family_id);
+        }
+
+        // Load events for the week - already has internal try/catch
+        try {
+          const weekEvents = await EventsService.getWeekEvents(familyMemberId);
+          setEvents(weekEvents);
+        } catch (eventErr) {
+          console.log('[CALENDAR] Could not load events (non-blocking):', eventErr);
+          setEvents([]);
+        }
+      } catch (error) {
+        // Silently handle any errors - calendar data is not critical
+        console.log('[CALENDAR] Data load failed (non-blocking):', error);
+        setEvents([]);
       }
-
-      // Load events for the week
-      const weekEvents = await EventsService.getWeekEvents(familyMemberId);
-      setEvents(weekEvents);
     };
 
     loadData();
   }, [familyMemberId]);
 
   const refreshEvents = async () => {
-    const weekEvents = await EventsService.getWeekEvents(familyMemberId);
-    setEvents(weekEvents);
+    try {
+      const weekEvents = await EventsService.getWeekEvents(familyMemberId);
+      setEvents(weekEvents);
+    } catch (error) {
+      console.log('[CALENDAR] Could not refresh events (non-blocking):', error);
+    }
   };
 
   // Get current week dates (starts on Sunday for guided mode)

@@ -193,87 +193,152 @@ export class DashboardService {
 
   /**
    * Get all family members' dashboard statuses
+   * With non-blocking error handling to prevent app freezing
    */
   static async getFamilyOverview(familyId: string): Promise<FamilyOverviewData | null> {
     try {
+      // Guard: don't query if no familyId
+      if (!familyId) {
+        console.log('[DASHBOARD] No familyId provided, skipping overview');
+        return null;
+      }
+
       // Get all family members
       const { data: members, error: membersError } = await supabase
         .from('family_members')
         .select('id, name, role, avatar_url')
         .eq('family_id', familyId);
 
-      if (membersError) throw membersError;
+      if (membersError) {
+        console.log('[DASHBOARD] Could not load family members (non-blocking):', membersError.message);
+        return null;
+      }
 
-      // For each member, get their task status
+      // For each member, get their task status - with individual error handling
       const familyMemberStatuses: FamilyMemberStatus[] = await Promise.all(
         (members || []).map(async (member) => {
-          // Get tasks for this member
-          const { data: tasks } = await supabase
-            .from('tasks')
-            .select('id, title, due_date, priority, status')
-            .eq('assigned_to', member.id)
-            .gte('due_date', new Date().toISOString());
+          try {
+            // Get tasks for this member - handle errors gracefully
+            const { data: tasks, error: tasksError } = await supabase
+              .from('tasks')
+              .select('id, title, due_date, priority, status')
+              .contains('assignee', [member.id])
+              .gte('due_date', new Date().toISOString());
 
-          const allTasks = tasks || [];
-          const completedTasks = allTasks.filter(t => t.status === 'completed');
-          const urgentTasks = allTasks
-            .filter(t => t.priority === 'high' || t.priority === 'urgent')
-            .filter(t => t.status !== 'completed')
-            .slice(0, 3);
+            if (tasksError) {
+              console.log('[DASHBOARD] Could not load tasks for member (non-blocking):', tasksError.message);
+            }
 
-          return {
-            member_id: member.id,
-            name: member.name,
-            role: member.role,
-            tasks_complete: completedTasks.length,
-            tasks_total: allTasks.length,
-            urgent_tasks: urgentTasks.map(t => ({
-              id: t.id,
-              title: t.title,
-              due_date: t.due_date,
-              priority: t.priority
-            })),
-            has_notifications: urgentTasks.length > 0,
-            avatar_url: member.avatar_url
-          };
+            const allTasks = tasks || [];
+            const completedTasks = allTasks.filter(t => t.status === 'completed');
+            const urgentTasks = allTasks
+              .filter(t => t.priority === 'high' || t.priority === 'urgent')
+              .filter(t => t.status !== 'completed')
+              .slice(0, 3);
+
+            return {
+              member_id: member.id,
+              name: member.name,
+              role: member.role,
+              tasks_complete: completedTasks.length,
+              tasks_total: allTasks.length,
+              urgent_tasks: urgentTasks.map(t => ({
+                id: t.id,
+                title: t.title,
+                due_date: t.due_date,
+                priority: t.priority
+              })),
+              has_notifications: urgentTasks.length > 0,
+              avatar_url: member.avatar_url
+            };
+          } catch (memberErr) {
+            // Return default data for this member if error
+            console.log('[DASHBOARD] Member task load failed (non-blocking):', memberErr);
+            return {
+              member_id: member.id,
+              name: member.name,
+              role: member.role,
+              tasks_complete: 0,
+              tasks_total: 0,
+              urgent_tasks: [],
+              has_notifications: false,
+              avatar_url: member.avatar_url
+            };
+          }
         })
       );
 
-      // Get event counts
+      // Get event counts - with individual error handling
       const today = new Date().toISOString().split('T')[0];
       const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0];
 
-      const { data: todayEvents } = await supabase
-        .from('calendar_events')
-        .select('id', { count: 'exact' })
-        .eq('family_id', familyId)
-        .gte('start_time', `${today}T00:00:00`)
-        .lt('start_time', `${today}T23:59:59`);
+      let todayEventsCount = 0;
+      let weekEventsCount = 0;
+      let activeIntentionsCount = 0;
 
-      const { data: weekEvents } = await supabase
-        .from('calendar_events')
-        .select('id', { count: 'exact' })
-        .eq('family_id', familyId)
-        .gte('start_time', `${today}T00:00:00`)
-        .lt('start_time', `${weekEnd}T23:59:59`);
+      try {
+        const { data: todayEvents, error: todayError } = await supabase
+          .from('calendar_events')
+          .select('id', { count: 'exact' })
+          .eq('family_id', familyId)
+          .gte('start_time', `${today}T00:00:00`)
+          .lt('start_time', `${today}T23:59:59`);
 
-      const { data: intentions } = await supabase
-        .from('best_intentions')
-        .select('id', { count: 'exact' })
-        .eq('family_id', familyId)
-        .eq('status', 'active');
+        if (!todayError) {
+          todayEventsCount = todayEvents?.length || 0;
+        } else {
+          console.log('[DASHBOARD] Could not load today events (non-blocking):', todayError.message);
+        }
+      } catch (e) {
+        console.log('[DASHBOARD] Today events query failed (non-blocking)');
+      }
+
+      try {
+        const { data: weekEvents, error: weekError } = await supabase
+          .from('calendar_events')
+          .select('id', { count: 'exact' })
+          .eq('family_id', familyId)
+          .gte('start_time', `${today}T00:00:00`)
+          .lt('start_time', `${weekEnd}T23:59:59`);
+
+        if (!weekError) {
+          weekEventsCount = weekEvents?.length || 0;
+        } else {
+          console.log('[DASHBOARD] Could not load week events (non-blocking):', weekError.message);
+        }
+      } catch (e) {
+        console.log('[DASHBOARD] Week events query failed (non-blocking)');
+      }
+
+      try {
+        // Fixed: best_intentions uses is_active, not status
+        const { data: intentions, error: intentionsError } = await supabase
+          .from('best_intentions')
+          .select('id', { count: 'exact' })
+          .eq('family_id', familyId)
+          .eq('is_active', true);
+
+        if (!intentionsError) {
+          activeIntentionsCount = intentions?.length || 0;
+        } else {
+          console.log('[DASHBOARD] Could not load intentions (non-blocking):', intentionsError.message);
+        }
+      } catch (e) {
+        console.log('[DASHBOARD] Intentions query failed (non-blocking)');
+      }
 
       return {
         family_members: familyMemberStatuses,
-        today_events: todayEvents?.length || 0,
-        week_events: weekEvents?.length || 0,
-        active_intentions: intentions?.length || 0,
+        today_events: todayEventsCount,
+        week_events: weekEventsCount,
+        active_intentions: activeIntentionsCount,
         completion_rate: this.calculateCompletionRate(familyMemberStatuses)
       };
     } catch (error) {
-      console.error('Error fetching family overview:', error);
+      // Silently handle - return null to show empty state
+      console.log('[DASHBOARD] Family overview load failed (non-blocking):', error);
       return null;
     }
   }
