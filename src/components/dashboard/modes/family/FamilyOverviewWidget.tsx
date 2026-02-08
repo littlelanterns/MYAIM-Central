@@ -333,43 +333,45 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                     )}
                   </div>
 
-                  {/* View button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onViewMember(member.id);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--accent-color)',
-                      borderRadius: '6px',
-                      padding: '0.5rem 0.75rem',
-                      cursor: 'pointer',
-                      color: 'var(--text-color)',
-                      fontSize: '0.8125rem',
-                      fontWeight: 500,
-                      fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      transition: 'all 0.2s',
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = 'var(--primary-color)';
-                      e.currentTarget.style.color = 'white';
-                      e.currentTarget.style.borderColor = 'var(--primary-color)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = 'var(--text-color)';
-                      e.currentTarget.style.borderColor = 'var(--accent-color)';
-                    }}
-                  >
-                    <Eye size={12} />
-                    View
-                  </button>
+                  {/* View button - Skip for primary_organizer (mom viewing her own dashboard doesn't make sense) */}
+                  {member.role !== 'primary_organizer' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewMember(member.id);
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--accent-color)',
+                        borderRadius: '6px',
+                        padding: '0.5rem 0.75rem',
+                        cursor: 'pointer',
+                        color: 'var(--text-color)',
+                        fontSize: '0.8125rem',
+                        fontWeight: 500,
+                        fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375rem',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = 'var(--primary-color)';
+                        e.currentTarget.style.color = 'white';
+                        e.currentTarget.style.borderColor = 'var(--primary-color)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = 'var(--text-color)';
+                        e.currentTarget.style.borderColor = 'var(--accent-color)';
+                      }}
+                    >
+                      <Eye size={12} />
+                      View
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -462,37 +464,40 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                     </div>
                   )}
 
-                  <button
-                    onClick={() => onViewMember(member.id)}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem',
-                      background: 'transparent',
-                      border: `1px solid var(--accent-color)`,
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      color: 'var(--text-color)',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = 'var(--accent-color)';
-                      e.currentTarget.style.borderColor = 'var(--primary-color)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.borderColor = 'var(--accent-color)';
-                    }}
-                  >
-                    <Eye size={14} />
-                    View Dashboard
-                  </button>
+                  {/* View button - Skip for primary_organizer */}
+                  {member.role !== 'primary_organizer' && (
+                    <button
+                      onClick={() => onViewMember(member.id)}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem',
+                        background: 'transparent',
+                        border: `1px solid var(--accent-color)`,
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        color: 'var(--text-color)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = 'var(--accent-color)';
+                        e.currentTarget.style.borderColor = 'var(--primary-color)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.borderColor = 'var(--accent-color)';
+                      }}
+                    >
+                      <Eye size={14} />
+                      View Dashboard
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

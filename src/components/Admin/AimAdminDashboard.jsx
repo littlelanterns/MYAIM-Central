@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
 import LibraryAdmin from './LibraryAdmin.jsx';
 import BetaAdmin from './BetaAdmin.jsx';
 import ArticleAdmin from './ArticleAdmin.tsx';
@@ -11,38 +10,37 @@ const AimAdminDashboard = () => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const superAdminEmails = [
-    'tenisewertman@gmail.com',
-    'aimagicformoms@gmail.com', 
-    '3littlelanterns@gmail.com'
-  ];
-
   useEffect(() => {
     checkAdminAccess();
   }, []);
 
-  const checkAdminAccess = async () => {
+  const checkAdminAccess = () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error || !user) {
-        console.log('No authenticated user');
+      // Check session's is_admin flag from localStorage (set during login)
+      // This avoids database queries that might hang due to RLS
+      const sessionStr = localStorage.getItem('aimfm_session');
+
+      if (!sessionStr) {
+        console.log('[ADMIN] No session found');
         setLoading(false);
         return;
       }
 
-      setUserEmail(user.email);
-      const isSuper = superAdminEmails.includes(user.email);
-      setIsSuperAdmin(isSuper);
-      
-      // If not super admin, redirect to login
-      if (!isSuper) {
-        console.log('User is not a super admin:', user.email);
+      const session = JSON.parse(sessionStr);
+      const email = session.email || session.user_email || '';
+      setUserEmail(email);
+
+      // Check is_admin flag from session (set during login based on staff_permissions)
+      const isAdmin = session.is_admin === true;
+      setIsSuperAdmin(isAdmin);
+
+      console.log('[ADMIN] Access check:', { email, isAdmin });
+
+      if (!isAdmin) {
+        console.log('[ADMIN] User is not an admin:', email);
       }
-      
-      console.log('Admin check:', { email: user.email, isSuper });
     } catch (error) {
-      console.error('Error checking admin access:', error);
+      console.error('[ADMIN] Error checking admin access:', error);
     } finally {
       setLoading(false);
     }

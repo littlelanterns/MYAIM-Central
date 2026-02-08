@@ -294,34 +294,16 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
               </button>
             ))}
 
-            {/* Admin Tools - Only show when is_admin = true */}
+            {/* Admin Console - Only show when is_admin = true */}
             {isAdmin && (
-              <>
-                <button
-                  className="quick-action-card admin-action"
-                  onClick={() => handleNavigation('library-admin')}
-                  title="Library Admin"
-                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
-                >
-                  Library Admin
-                </button>
-                <button
-                  className="quick-action-card admin-action"
-                  onClick={() => handleNavigation('beta-admin')}
-                  title="Beta Admin"
-                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
-                >
-                  Beta Admin
-                </button>
-                <button
-                  className="quick-action-card admin-action"
-                  onClick={() => handleNavigation('aim-admin')}
-                  title="AIM Admin"
-                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
-                >
-                  AIM Admin
-                </button>
-              </>
+              <button
+                className="quick-action-card admin-action"
+                onClick={() => handleNavigation('aim-admin')}
+                title="Admin Console"
+                style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
+              >
+                Admin Console
+              </button>
             )}
 
             <button

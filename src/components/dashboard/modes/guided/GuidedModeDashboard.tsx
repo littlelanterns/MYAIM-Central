@@ -21,11 +21,23 @@ interface GuidedModeDashboardProps {
 const GuidedModeDashboard: React.FC<GuidedModeDashboardProps> = ({ familyMemberId }) => {
   const [currentTheme, setCurrentTheme] = useState<keyof typeof personalThemes>('brightSunshine');
 
-  // Apply theme to root
+  // Apply theme to root and restore on unmount (prevents theme bleeding when used in modal)
   useEffect(() => {
     const theme = personalThemes[currentTheme] || personalThemes.brightSunshine;
     const root = document.documentElement;
 
+    // Save original theme values before applying new theme
+    const originalTheme = {
+      primary: root.style.getPropertyValue('--primary-color') || getComputedStyle(root).getPropertyValue('--primary-color'),
+      secondary: root.style.getPropertyValue('--secondary-color') || getComputedStyle(root).getPropertyValue('--secondary-color'),
+      accent: root.style.getPropertyValue('--accent-color') || getComputedStyle(root).getPropertyValue('--accent-color'),
+      background: root.style.getPropertyValue('--background-color') || getComputedStyle(root).getPropertyValue('--background-color'),
+      text: root.style.getPropertyValue('--text-color') || getComputedStyle(root).getPropertyValue('--text-color'),
+      gradientPrimary: root.style.getPropertyValue('--gradient-primary') || getComputedStyle(root).getPropertyValue('--gradient-primary'),
+      gradientBackground: root.style.getPropertyValue('--gradient-background') || getComputedStyle(root).getPropertyValue('--gradient-background'),
+    };
+
+    // Apply new theme
     root.style.setProperty('--primary-color', theme.primary);
     root.style.setProperty('--secondary-color', theme.secondary);
     root.style.setProperty('--accent-color', theme.accent);
@@ -33,6 +45,17 @@ const GuidedModeDashboard: React.FC<GuidedModeDashboardProps> = ({ familyMemberI
     root.style.setProperty('--text-color', theme.text);
     root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`);
     root.style.setProperty('--gradient-background', `linear-gradient(135deg, ${theme.background}, ${theme.accent}20)`);
+
+    // Restore original theme on unmount
+    return () => {
+      root.style.setProperty('--primary-color', originalTheme.primary);
+      root.style.setProperty('--secondary-color', originalTheme.secondary);
+      root.style.setProperty('--accent-color', originalTheme.accent);
+      root.style.setProperty('--background-color', originalTheme.background);
+      root.style.setProperty('--text-color', originalTheme.text);
+      root.style.setProperty('--gradient-primary', originalTheme.gradientPrimary);
+      root.style.setProperty('--gradient-background', originalTheme.gradientBackground);
+    };
   }, [currentTheme]);
 
   // Get fun and seasonal themes only
