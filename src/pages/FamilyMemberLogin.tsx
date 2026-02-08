@@ -135,20 +135,11 @@ const FamilyMemberLogin = () => {
       localStorage.setItem('aimfm_session', JSON.stringify(sessionData));
       localStorage.setItem('last_login_type', 'family_member');
 
-      // Route based on relationship type:
-      // - Additional adults (partner, special) → AdditionalAdultDashboard
-      // - Children → Play/Guided/Independent dashboard
-      let redirectPath: string;
-
-      if (memberData.relationship === 'partner' || memberData.relationship === 'special') {
-        // Additional adult - use permission-based dashboard
-        redirectPath = `/commandcenter/dashboard/additional-adult`;
-        console.log(`Additional adult ${memberData.name} logged in, redirecting to Additional Adult Dashboard`);
-      } else {
-        // Child - use age-appropriate dashboard (play/guided/independent)
-        redirectPath = `/member/${memberData.id}`;
-        console.log(`Child ${memberData.name} logged in, redirecting to ${memberData.dashboard_type || 'independent'} mode dashboard`);
-      }
+      // All family members (children, partners, etc.) go to standalone dashboard
+      // This is NOT under /commandcenter - it's a separate route for PIN-logged users
+      // No access to Command Center, Library, Archives, or other mom-only features
+      const redirectPath = `/family-dashboard/${memberData.id}`;
+      console.log(`[PIN LOGIN] ${memberData.name} logged in, redirecting to standalone dashboard (${memberData.dashboard_type || 'guided'})`);
 
       navigate(redirectPath);
 

@@ -14,6 +14,7 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
 
   // User state for database tracking
   const [familyMemberId, setFamilyMemberId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Modal states
   const [showTaskCreator, setShowTaskCreator] = useState(false);
@@ -53,6 +54,19 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        // Check for admin status from session
+        const sessionStr = localStorage.getItem('aimfm_session');
+        if (sessionStr) {
+          try {
+            const session = JSON.parse(sessionStr);
+            if (session.is_admin) {
+              setIsAdmin(true);
+            }
+          } catch (e) {
+            console.log('Could not parse session for admin check');
+          }
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
@@ -182,7 +196,16 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
       case 'family-setup':
         navigate('/commandcenter/family-setup');
         break;
-      // ARCHIVED: aim-admin navigation removed (access directly via /aim-admin URL)
+      // Admin navigation (only visible when is_admin = true)
+      case 'library-admin':
+        navigate('/commandcenter/library/admin');
+        break;
+      case 'beta-admin':
+        navigate('/commandcenter/beta/admin');
+        break;
+      case 'aim-admin':
+        navigate('/commandcenter/aim-admin');
+        break;
       default:
         console.log(`Navigation not implemented for: ${actionId}`);
     }
@@ -253,8 +276,8 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
         <div className="quick-actions-scroll" ref={scrollRef}>
           <div className="quick-actions-list">
             {actions.map((action) => (
-              <button 
-                key={action.id} 
+              <button
+                key={action.id}
                 className="quick-action-card"
                 onClick={(e) => {
                   console.log('Button clicked:', action.id, action.name);
@@ -270,8 +293,38 @@ const QuickActions = ({ contextType = 'dashboard' }) => {
                 )}
               </button>
             ))}
-            
-            <button 
+
+            {/* Admin Tools - Only show when is_admin = true */}
+            {isAdmin && (
+              <>
+                <button
+                  className="quick-action-card admin-action"
+                  onClick={() => handleNavigation('library-admin')}
+                  title="Library Admin"
+                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
+                >
+                  Library Admin
+                </button>
+                <button
+                  className="quick-action-card admin-action"
+                  onClick={() => handleNavigation('beta-admin')}
+                  title="Beta Admin"
+                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
+                >
+                  Beta Admin
+                </button>
+                <button
+                  className="quick-action-card admin-action"
+                  onClick={() => handleNavigation('aim-admin')}
+                  title="AIM Admin"
+                  style={{ borderColor: 'var(--secondary-color, #d6a461)' }}
+                >
+                  AIM Admin
+                </button>
+              </>
+            )}
+
+            <button
               className="quick-action-card add-action"
               onClick={addNewAction}
               title="Add new action"

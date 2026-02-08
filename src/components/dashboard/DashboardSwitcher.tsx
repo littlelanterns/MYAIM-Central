@@ -16,7 +16,9 @@ interface FamilyMember {
   id: string;
   name: string;
   role: string;
+  custom_role?: string;
   dashboard_mode?: string;
+  dashboard_type?: string;
 }
 
 interface DashboardOption {
@@ -30,6 +32,7 @@ interface DashboardOption {
 
 interface DashboardSwitcherProps {
   onManageDashboards?: () => void;
+  onViewMemberDashboard?: (memberId: string) => void;
 }
 
 // Helper function to format dashboard type for display
@@ -47,7 +50,23 @@ const formatDashboardType = (dashboardType: string | undefined): string => {
   return typeMap[dashboardType.toLowerCase()] || dashboardType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
-const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboards }) => {
+// Helper function to format role for display
+const formatRole = (role: string | undefined, customRole?: string): string => {
+  if (!role) return '';
+
+  const roleMap: Record<string, string> = {
+    'primary_organizer': 'Mom',
+    'partner': customRole || 'Husband',
+    'child': 'Child',
+    'teen': 'Teen',
+    'out-of-nest': customRole || 'Adult Child',
+    'special': customRole || 'Special'
+  };
+
+  return roleMap[role.toLowerCase()] || customRole || role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
+const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboards, onViewMemberDashboard }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -98,7 +117,7 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
       if (['primary_organizer', 'parent'].includes(memberData.role)) {
         const { data: familyData, error: familyError } = await supabase
           .from('family_members')
-          .select('id, name, role, dashboard_mode, dashboard_type')
+          .select('id, name, role, custom_role, dashboard_mode, dashboard_type')
           .eq('family_id', memberData.family_id)
           .eq('in_household', true)
           .order('name');
@@ -143,11 +162,12 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
       // Use dashboard_type as primary, fallback to dashboard_mode
       const mode = member.dashboard_type || member.dashboard_mode || 'guided';
       const displayMode = formatDashboardType(mode);
+      const displayRole = formatRole(member.role, member.custom_role);
       dashboards.push({
         id: `member-${member.id}`,
         name: member.name,
         path: `/commandcenter/member/${member.id}`,
-        description: `${displayMode}`,
+        description: displayRole ? `${displayRole} · ${displayMode}` : displayMode,
         memberId: member.id,
         dashboardMode: mode
       });
@@ -174,8 +194,16 @@ const DashboardSwitcher: React.FC<DashboardSwitcherProps> = ({ onManageDashboard
   };
 
   const handleDashboardChange = (dashboard: DashboardOption) => {
-    navigate(dashboard.path);
     setIsOpen(false);
+
+    // If this is a member dashboard and we have a modal callback, use it
+    if (dashboard.memberId && onViewMemberDashboard) {
+      onViewMemberDashboard(dashboard.memberId);
+      return;
+    }
+
+    // Otherwise navigate normally
+    navigate(dashboard.path);
   };
 
   const handleManageDashboards = () => {

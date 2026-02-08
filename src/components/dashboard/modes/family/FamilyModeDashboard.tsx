@@ -19,6 +19,7 @@ import TaskCreationModal from '../../../tasks/TaskCreationModal';
 import { IndependentModeCalendar } from '../independent/IndependentModeCalendar';
 import DashboardSwitcher from '../../DashboardSwitcher';
 import ManageDashboardsModal from '../../ManageDashboardsModal';
+import MemberDashboardModal from '../../MemberDashboardModal';
 import DateDetailModal from '../../../modals/DateDetailModal';
 import EventCreationModal from '../../../modals/EventCreationModal';
 import { EventsService } from '../../../../services/eventsService';
@@ -93,6 +94,10 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
   const [eventPreselectedDate, setEventPreselectedDate] = useState<Date | null>(null);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [currentFamilyId, setCurrentFamilyId] = useState<string | null>(null);
+
+  // Member dashboard modal state
+  const [showMemberModal, setShowMemberModal] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   // Real data state
   const [familyMembers, setFamilyMembers] = useState<any[]>([]);
@@ -273,6 +278,7 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
       id: member.id,
       name: member.name,
       role: member.role,
+      custom_role: member.custom_role,
       dashboard_type: member.dashboard_type,
       dashboard_mode: member.dashboard_type || member.dashboard_mode || 'guided',
       member_color: member.member_color || 'AIMfM Sage Teal',
@@ -370,7 +376,9 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
 
   // Event handlers
   const handleViewMember = (memberId: string) => {
-    navigate(`/commandcenter/member/${memberId}`);
+    // Open member dashboard in modal instead of navigating
+    setSelectedMemberId(memberId);
+    setShowMemberModal(true);
   };
 
   const handleManageFamily = () => {
@@ -530,7 +538,10 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
 
             {/* Dashboard Switcher - Only for mom, not additional adults */}
             {!restrictToPermissions && (
-              <DashboardSwitcher onManageDashboards={() => setShowManageDashboards(true)} />
+              <DashboardSwitcher
+                onManageDashboards={() => setShowManageDashboards(true)}
+                onViewMemberDashboard={handleViewMember}
+              />
             )}
           </div>
         </div>
@@ -897,6 +908,18 @@ const FamilyModeDashboard: React.FC<FamilyModeDashboardProps> = ({
         preselectedDate={eventPreselectedDate}
         familyMembers={familyMembersForOverview}
       />
+
+      {/* Member Dashboard Modal - for viewing family member dashboards */}
+      {selectedMemberId && (
+        <MemberDashboardModal
+          memberId={selectedMemberId}
+          isOpen={showMemberModal}
+          onClose={() => {
+            setShowMemberModal(false);
+            setSelectedMemberId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -29,6 +29,7 @@ import BetaLogin from './components/auth/BetaLogin.jsx';
 import ForcedFamilySetup from './components/auth/ForcedFamilySetup.jsx';
 import PersonalDashboard from './components/dashboard/personal/PersonalDashboard.tsx';
 import MemberDashboard from './pages/MemberDashboard.tsx';
+import StandaloneMemberDashboard from './pages/StandaloneMemberDashboard.tsx';
 import AdditionalAdultDashboardWrapper from './components/dashboard/additional-adult/AdditionalAdultDashboardWrapper.tsx';
 import DashboardPreview from './pages/DashboardPreview.tsx';
 import Home from './pages/marketing/Home.tsx';
@@ -94,6 +95,10 @@ function App() {
 
               {/* Dashboard Preview - Standalone */}
               <Route path="/dashboard-preview" element={<DashboardPreview />} />
+
+              {/* Standalone Family Member Dashboard - for PIN-logged family members */}
+              {/* NOT under /commandcenter - no access to mom-only features */}
+              <Route path="/family-dashboard/:memberId" element={<StandaloneMemberDashboard />} />
 
               {/* Standalone Dashboards - No MainLayout */}
               {/* Use play/guided/independent modes instead */}

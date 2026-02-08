@@ -13,6 +13,7 @@ interface FamilyMember {
   id: string;
   name: string;
   role: string;
+  custom_role?: string;
   dashboard_mode: string;
   dashboard_type?: string;
   member_color?: string;
@@ -36,6 +37,24 @@ const formatDashboardType = (dashboardType: string | undefined): string => {
   };
 
   return typeMap[dashboardType.toLowerCase()] || dashboardType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
+// Helper function to format role for display
+// Role mappings: primary_organizer → Mom, partner → Husband (or custom_role),
+// child → Child, out-of-nest → Adult Child (or custom_role), special → custom_role
+const formatRole = (role: string | undefined, customRole?: string): string => {
+  if (!role) return '';
+
+  const roleMap: Record<string, string> = {
+    'primary_organizer': 'Mom',
+    'partner': customRole || 'Husband',
+    'child': 'Child',
+    'teen': 'Teen',
+    'out-of-nest': customRole || 'Adult Child',
+    'special': customRole || 'Special'
+  };
+
+  return roleMap[role.toLowerCase()] || customRole || role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
 interface FamilyOverviewWidgetProps {
@@ -280,7 +299,7 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                         opacity: 0.6,
                         fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                       }}>
-                        {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
+                        {formatRole(member.role, member.custom_role)} · {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
                       </div>
                     </div>
 
@@ -404,7 +423,7 @@ const FamilyOverviewWidget: React.FC<FamilyOverviewWidgetProps> = ({
                         opacity: 0.7,
                         fontFamily: 'HK Grotesk, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                       }}>
-                        {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
+                        {formatRole(member.role, member.custom_role)} · {formatDashboardType(member.dashboard_type || member.dashboard_mode)}
                       </span>
                     </div>
                     <div style={{
